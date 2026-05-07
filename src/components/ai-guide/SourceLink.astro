@@ -1,0 +1,128 @@
+---
+/**
+ * SourceLink
+ * 出典URL併記用のインラインバッジ。
+ * 各ツール紹介・料金記載で公式サイトURL + 確認日を併記する。
+ */
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** 出典URL（公式サイト等） */
+  url: string;
+  /** 表示ラベル（既定: ホスト名から自動抽出） */
+  label?: string;
+  /** 確認日 (YYYY-MM-DD)。アクセス日として表記 */
+  verifiedAt?: string;
+  /** バリアント（インライン or ブロック） */
+  variant?: 'inline' | 'block';
+  /** rel属性に sponsored を含める（アフィリエイトの場合） */
+  sponsored?: boolean;
+}
+
+const {
+  url,
+  label,
+  verifiedAt,
+  variant = 'inline',
+  sponsored = false,
+} = Astro.props;
+
+let displayLabel = label;
+if (!displayLabel) {
+  try {
+    const u = new URL(url);
+    displayLabel = u.hostname.replace(/^www\./, '');
+  } catch {
+    displayLabel = url;
+  }
+}
+
+const formattedDate = verifiedAt
+  ? (() => {
+      const d = new Date(verifiedAt + 'T00:00:00+09:00');
+      return isNaN(d.getTime())
+        ? verifiedAt
+        : `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+    })()
+  : null;
+
+const relAttr = sponsored
+  ? 'sponsored noopener noreferrer'
+  : 'noopener noreferrer nofollow';
+---
+
+<a
+  href={url}
+  class={`source-link source-link--${variant}`}
+  target="_blank"
+  rel={relAttr}
+  aria-label={`${displayLabel}（外部サイト${formattedDate ? `・${formattedDate}確認` : ''}）`}
+>
+  <span class="source-link__label-prefix" aria-hidden="true">出典:</span>
+  <span class="source-link__label">{displayLabel}</span>
+  {formattedDate && (
+    <span class="source-link__date" aria-hidden="true">
+      ({formattedDate}確認)
+    </span>
+  )}
+  <span class="source-link__icon" aria-hidden="true">
+    <Icon name="external-link" size={11} />
+  </span>
+</a>
+
+<style>
+  .source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--color-bg-section);
+    color: var(--color-navy);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-xs);
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: background var(--transition-base), border-color var(--transition-base);
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  .source-link:hover {
+    background: var(--color-gold-pale);
+    border-color: var(--color-gold-light);
+    color: var(--color-navy);
+    opacity: 1;
+  }
+  .source-link--block {
+    display: flex;
+    margin: 6px 0;
+  }
+  .source-link__label-prefix {
+    color: var(--color-muted);
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  .source-link__label {
+    font-weight: 600;
+    color: var(--color-navy);
+  }
+  .source-link__date {
+    color: var(--color-muted);
+    font-size: 10.5px;
+    font-feature-settings: 'tnum';
+  }
+  .source-link__icon {
+    display: inline-flex;
+    color: var(--color-gold);
+    flex-shrink: 0;
+  }
+  @media (max-width: 768px) {
+    .source-link {
+      font-size: 11px;
+      padding: 2px 6px;
+    }
+  }
+</style>

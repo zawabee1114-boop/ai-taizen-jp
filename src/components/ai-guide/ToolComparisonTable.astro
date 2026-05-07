@@ -1,0 +1,225 @@
+---
+/**
+ * ToolComparisonTable
+ * 横スクロール対応の AI ツール横断比較表。
+ * 料金プラン7項目以上を全競合不在の独占ポイントとして提示する用途を想定。
+ */
+
+interface Column {
+  /** カラムキー（rowsの cells の key と一致させる） */
+  key: string;
+  /** 表示ラベル */
+  label: string;
+  /** カラム幅（任意。未指定は auto） */
+  width?: string;
+  /** テキスト寄せ（任意） */
+  align?: 'left' | 'center' | 'right';
+}
+
+interface Row {
+  /** 行ID（任意） */
+  id?: string;
+  /** 行ラベル（左端固定列に表示） */
+  label: string;
+  /** サブラベル（料金など補助情報） */
+  sublabel?: string;
+  /** ハイライト行フラグ（運営者おすすめ） */
+  featured?: boolean;
+  /** カラム値（columnsのkeyに対応） */
+  cells: Record<string, string>;
+}
+
+interface Props {
+  /** カラム定義 */
+  columns: Column[];
+  /** 行データ */
+  rows: Row[];
+  /** 表のキャプション（a11y用・任意） */
+  caption?: string;
+  /** ハイライト行に付けるラベル */
+  featuredLabel?: string;
+  /** 注釈テキスト */
+  footnote?: string;
+}
+
+const {
+  columns,
+  rows,
+  caption,
+  featuredLabel = '編集部おすすめ',
+  footnote,
+} = Astro.props;
+---
+
+<figure class="tool-compare" role="group" aria-label={caption || 'AIツール比較表'}>
+  <div class="tool-compare__scroll" tabindex="0" aria-label="比較表（横スクロール可能）">
+    <table class="tool-compare__table">
+      {caption && <caption class="tool-compare__caption">{caption}</caption>}
+      <thead>
+        <tr>
+          <th scope="col" class="tool-compare__th tool-compare__th--sticky">
+            ツール
+          </th>
+          {columns.map(col => (
+            <th
+              scope="col"
+              class="tool-compare__th"
+              style={`${col.width ? `min-width:${col.width};` : ''}${col.align ? `text-align:${col.align};` : ''}`}
+            >
+              {col.label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(row => (
+          <tr class={`tool-compare__tr${row.featured ? ' tool-compare__tr--featured' : ''}`} id={row.id}>
+            <th scope="row" class="tool-compare__row-head tool-compare__th--sticky">
+              <span class="tool-compare__row-label">{row.label}</span>
+              {row.sublabel && <span class="tool-compare__row-sub">{row.sublabel}</span>}
+              {row.featured && (
+                <span class="tool-compare__featured-badge" aria-label={featuredLabel}>
+                  {featuredLabel}
+                </span>
+              )}
+            </th>
+            {columns.map(col => (
+              <td
+                class="tool-compare__td"
+                style={col.align ? `text-align:${col.align};` : ''}
+              >
+                <span set:html={row.cells[col.key] ?? '—'} />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {footnote && (
+    <figcaption class="tool-compare__footnote">{footnote}</figcaption>
+  )}
+</figure>
+
+<style>
+  .tool-compare {
+    margin: 32px 0;
+    padding: 0;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .tool-compare__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .tool-compare__scroll:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: -2px;
+  }
+  .tool-compare__table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    color: var(--color-text);
+  }
+  .tool-compare__caption {
+    caption-side: top;
+    padding: 14px 18px;
+    background: var(--color-bg-section);
+    color: var(--color-navy);
+    font-weight: 700;
+    font-size: 13px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .tool-compare__th {
+    background: var(--color-navy);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    padding: 12px 14px;
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-bottom: 2px solid var(--color-gold);
+  }
+  .tool-compare__th--sticky {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 1px 0 0 var(--color-border-light);
+  }
+  .tool-compare__row-head {
+    background: var(--color-bg-white);
+    color: var(--color-navy);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 14px 14px;
+    text-align: left;
+    vertical-align: middle;
+    min-width: 160px;
+    border-bottom: 1px solid var(--color-border-light);
+    display: table-cell;
+  }
+  .tool-compare__row-label {
+    display: block;
+    line-height: 1.4;
+  }
+  .tool-compare__row-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+  .tool-compare__featured-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    background: var(--color-gold);
+    color: var(--color-navy);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-xs);
+    line-height: 1.4;
+  }
+  .tool-compare__td {
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--color-border-light);
+    vertical-align: middle;
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+  .tool-compare__tr--featured .tool-compare__row-head,
+  .tool-compare__tr--featured .tool-compare__td {
+    background: var(--color-gold-pale);
+  }
+  .tool-compare__tr:last-child .tool-compare__row-head,
+  .tool-compare__tr:last-child .tool-compare__td {
+    border-bottom: none;
+  }
+  .tool-compare__footnote {
+    padding: 10px 16px;
+    background: var(--color-bg-section);
+    border-top: 1px solid var(--color-border-light);
+    color: var(--color-muted);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .tool-compare__table { font-size: 12.5px; }
+    .tool-compare__th { padding: 10px 10px; font-size: 11.5px; }
+    .tool-compare__row-head { padding: 12px 10px; min-width: 130px; }
+    .tool-compare__td { padding: 12px 10px; }
+  }
+</style>

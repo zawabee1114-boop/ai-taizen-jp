@@ -1,0 +1,184 @@
+---
+import Icon from '../Icon.astro';
+
+interface Screenshot {
+  /** 画像URL */
+  src: string;
+  /** 代替テキスト（必須） */
+  alt: string;
+  /** キャプション（任意） */
+  caption?: string;
+  /** 画像幅（CWV対応・既定 1280） */
+  width?: number;
+  /** 画像高さ（CWV対応・既定 720） */
+  height?: number;
+  /** ツール名等のタグラベル（任意） */
+  tag?: string;
+}
+
+interface Props {
+  /** スクショ画像群 */
+  images: Screenshot[];
+  /** ギャラリー見出し */
+  heading?: string;
+  /** 1行あたりの最小カラム幅（既定: 240px） */
+  minColWidth?: string;
+}
+
+const { images, heading, minColWidth = '240px' } = Astro.props;
+---
+
+<section class="screenshot-gallery" aria-label={heading || '実機スクリーンショット'}>
+  {heading && (
+    <h3 class="screenshot-gallery__heading">
+      <Icon name="layers" size={16} aria-hidden="true" />
+      {heading}
+      <span class="screenshot-gallery__count" aria-label={`${images.length}枚`}>
+        {images.length}枚
+      </span>
+    </h3>
+  )}
+
+  <div
+    class="screenshot-gallery__grid"
+    style={`--min-col: ${minColWidth};`}
+  >
+    {images.map((img, idx) => (
+      <figure class="screenshot-gallery__item">
+        <div class="screenshot-gallery__frame">
+          <img
+            src={img.src}
+            alt={img.alt}
+            loading="lazy"
+            decoding="async"
+            width={img.width ?? 1280}
+            height={img.height ?? 720}
+            class="screenshot-gallery__img"
+          />
+          {img.tag && (
+            <span class="screenshot-gallery__tag" aria-hidden="true">{img.tag}</span>
+          )}
+        </div>
+        {img.caption && (
+          <figcaption class="screenshot-gallery__caption">
+            <span class="screenshot-gallery__caption-num" aria-hidden="true">
+              {String(idx + 1).padStart(2, '0')}
+            </span>
+            <span>{img.caption}</span>
+          </figcaption>
+        )}
+      </figure>
+    ))}
+  </div>
+</section>
+
+<style>
+  .screenshot-gallery {
+    margin: 32px 0;
+  }
+  .screenshot-gallery__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.5;
+  }
+  .screenshot-gallery__heading svg {
+    color: var(--color-gold);
+    flex-shrink: 0;
+  }
+  .screenshot-gallery__count {
+    margin-left: auto;
+    padding: 3px 9px;
+    background: var(--color-navy);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-xs);
+  }
+  .screenshot-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--min-col, 240px), 1fr));
+    gap: 14px;
+  }
+  .screenshot-gallery__item {
+    margin: 0;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    flex-direction: column;
+  }
+  .screenshot-gallery__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--color-bg-section);
+    overflow: hidden;
+  }
+  .screenshot-gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .screenshot-gallery__tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    background: rgba(10, 22, 40, 0.85);
+    color: var(--color-gold);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-xs);
+    backdrop-filter: blur(2px);
+  }
+  .screenshot-gallery__caption {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--color-border-light);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+  .screenshot-gallery__caption-num {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 20px;
+    padding: 0 5px;
+    background: var(--color-bg-section);
+    color: var(--color-navy);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: var(--radius-xs);
+    font-feature-settings: 'tnum';
+  }
+
+  @media (max-width: 768px) {
+    .screenshot-gallery__grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .screenshot-gallery__caption {
+      font-size: 11.5px;
+      padding: 8px 10px;
+    }
+  }
+</style>

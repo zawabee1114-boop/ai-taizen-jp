@@ -1,0 +1,163 @@
+---
+/**
+ * FaqAccordion
+ * 既存 FAQ.astro を拡張した AIガイド向けアコーディオン。
+ * - 12-15問の大量Q&Aに対応するためカテゴリ分類オプションを追加
+ * - JSON-LD（FAQPage schema）出力
+ */
+import Icon from '../Icon.astro';
+
+interface FaqItem {
+  q: string;
+  /** HTML可。<a>等の埋め込みOK。schema出力時はタグストリップ */
+  a: string;
+  /** カテゴリラベル（任意。同カテゴリは連続表示推奨） */
+  category?: string;
+}
+
+interface Props {
+  items: FaqItem[];
+  /** schemaを出力するか（既定: true） */
+  withSchema?: boolean;
+  /** 見出しテキスト（任意） */
+  heading?: string;
+  /** デフォルト開放するインデックス（既定: なし） */
+  defaultOpen?: number[];
+}
+
+const {
+  items,
+  withSchema = true,
+  heading,
+  defaultOpen = [],
+} = Astro.props;
+
+const faqJsonLd = withSchema ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": items.map(item => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.a.replace(/<[^>]*>/g, ''),
+    },
+  })),
+} : null;
+
+// カテゴリでグルーピング（順序維持）
+const grouped: { category: string | null; items: FaqItem[] }[] = [];
+items.forEach((item) => {
+  const cat = item.category ?? null;
+  const last = grouped[grouped.length - 1];
+  if (last && last.category === cat) {
+    last.items.push(item);
+  } else {
+    grouped.push({ category: cat, items: [item] });
+  }
+});
+---
+
+<section class="faq-accordion" aria-label={heading || 'よくある質問'}>
+  {heading && (
+    <h2 class="faq-accordion__heading">{heading}</h2>
+  )}
+
+  <div class="faq-accordion__inner">
+    {grouped.map((group, gi) => (
+      <div class="faq-accordion__group">
+        {group.category && (
+          <h3 class="faq-accordion__group-heading">{group.category}</h3>
+        )}
+        <div class="faq-list faq-list--ai-guide">
+          {group.items.map((item, idx) => {
+            const globalIdx = items.indexOf(item);
+            const isOpen = defaultOpen.includes(globalIdx);
+            return (
+              <details
+                class="faq-item"
+                id={`faq-${globalIdx}`}
+                open={isOpen}
+              >
+                <summary>
+                  <span class="faq-item__q-num" aria-hidden="true">
+                    Q{String(globalIdx + 1).padStart(2, '0')}
+                  </span>
+                  <span class="faq-item__q-text">{item.q}</span>
+                  <span class="faq-chevron" aria-hidden="true">
+                    <Icon name="chevron-down" size={18} />
+                  </span>
+                </summary>
+                <div class="faq-item__body" set:html={item.a} />
+              </details>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+{faqJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+)}
+
+<style>
+  .faq-accordion {
+    margin: 32px 0;
+  }
+  .faq-accordion__heading {
+    margin: 0 0 18px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 3vw, 1.7rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.4;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-gold);
+  }
+  .faq-accordion__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .faq-accordion__group-heading {
+    margin: 0 0 10px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-navy);
+    letter-spacing: 0.04em;
+    padding: 6px 12px;
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-navy);
+    border-radius: var(--radius-xs);
+  }
+  /* 質問番号バッジ（既存 .faq-item summary パターンを継承） */
+  .faq-list--ai-guide .faq-item summary {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .faq-item__q-num {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 22px;
+    padding: 0 6px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: var(--radius-xs);
+    letter-spacing: 0.04em;
+    margin-top: 1px;
+    font-feature-settings: 'tnum';
+  }
+  .faq-item__q-text {
+    flex: 1;
+    line-height: 1.5;
+  }
+</style>

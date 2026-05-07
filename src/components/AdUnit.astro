@@ -1,0 +1,175 @@
+---
+/**
+ * AdUnit.astro — Google AdSense 広告ユニット共通コンポーネント
+ *
+ * adsense-rpm-optimizer (zawa-media) 設計準拠
+ * - client は site-meta.json の adsense.client から取得（一元管理）
+ * - 開発環境（import.meta.env.DEV）ではプレースホルダ・グレーボックスを描画し、
+ *   本番ビルド時のみ <ins class="adsbygoogle"> + push スクリプトを出力
+ * - a11y: aria-label="広告" / role="complementary" を必ず付与
+ * - サイズ: format=auto（レスポンシブ）/ fluid（インフィード）/ rectangle（336x280固定）
+ *
+ * 使い方:
+ *   <AdUnit slot="0000000001" format="auto" />
+ *   <AdUnit slot="0000000002" format="fluid" layoutKey="-fb+5w+4e-db+86" />
+ *   <AdUnit slot="0000000004" format="rectangle" responsive={false} />
+ */
+
+import siteMeta from '../data/site-meta.json';
+
+interface Props {
+  slot: string;
+  format?: 'auto' | 'fluid' | 'rectangle';
+  responsive?: boolean;
+  layoutKey?: string;
+  /** ラベル（プレースホルダの可視文言用・本番には影響なし） */
+  label?: string;
+}
+
+const {
+  slot,
+  format = 'auto',
+  responsive = true,
+  layoutKey,
+  label = '広告',
+} = Astro.props;
+
+// AdSense client は site-meta.json で一元管理（fallback あり）
+const adsenseClient =
+  (siteMeta as any).adsense?.client ?? 'ca-pub-3827953973757487';
+
+const isDev = import.meta.env.DEV;
+
+// rectangle 指定時は固定サイズ（336x280: 大型四角形・本文末尾向け）
+const inlineStyle =
+  format === 'rectangle'
+    ? 'display:inline-block;width:336px;height:280px;'
+    : 'display:block;';
+---
+
+<aside
+  class="ad-unit"
+  role="complementary"
+  aria-label={label}
+  data-ad-format={format}
+>
+  <span class="ad-unit__label">広告</span>
+
+  {isDev ? (
+    <div
+      class="ad-unit__placeholder"
+      data-slot={slot}
+      data-format={format}
+    >
+      <div class="ad-unit__placeholder-inner">
+        <span class="ad-unit__placeholder-title">AdSense Placeholder</span>
+        <span class="ad-unit__placeholder-meta">
+          slot: {slot} / format: {format}
+          {layoutKey ? ` / layoutKey: ${layoutKey}` : ''}
+        </span>
+        <span class="ad-unit__placeholder-note">
+          本番ビルドでのみ &lt;ins class="adsbygoogle"&gt; を出力します
+        </span>
+      </div>
+    </div>
+  ) : (
+    <>
+      <ins
+        class="adsbygoogle"
+        style={inlineStyle}
+        data-ad-client={adsenseClient}
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive={responsive ? 'true' : 'false'}
+        data-ad-layout-key={layoutKey}
+      ></ins>
+      <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </>
+  )}
+</aside>
+
+<style>
+  .ad-unit {
+    display: block;
+    margin: 2rem auto;
+    padding: 0;
+    text-align: center;
+    /* AdSense ポリシー準拠: コンテンツとの視覚的分離 */
+    max-width: 100%;
+  }
+
+  .ad-unit__label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--color-muted, #5A6478);
+    letter-spacing: 0.08em;
+    text-align: left;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+  }
+
+  /* rectangle 形式は inline-block で幅固定なので中央寄せ */
+  .ad-unit[data-ad-format='rectangle'] {
+    text-align: center;
+  }
+
+  /* 開発環境用プレースホルダ */
+  .ad-unit__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    padding: 1.25rem 1rem;
+    background: repeating-linear-gradient(
+      45deg,
+      #f3f0e8,
+      #f3f0e8 8px,
+      #ece8db 8px,
+      #ece8db 16px
+    );
+    border: 1px dashed #b8b1a0;
+    border-radius: var(--radius-md, 6px);
+    color: #5A6478;
+  }
+
+  .ad-unit__placeholder[data-format='rectangle'] {
+    width: 336px;
+    height: 280px;
+    margin: 0 auto;
+  }
+
+  .ad-unit__placeholder-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .ad-unit__placeholder-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #0A1628;
+  }
+
+  .ad-unit__placeholder-meta {
+    font-size: 0.78rem;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    color: #5A6478;
+    word-break: break-all;
+  }
+
+  .ad-unit__placeholder-note {
+    font-size: 0.7rem;
+    color: #8a8470;
+    font-style: italic;
+  }
+
+  /* 本番 ins.adsbygoogle が空のとき、CLS 対策で最低高さを確保 */
+  .ad-unit :global(.adsbygoogle) {
+    min-height: 90px;
+  }
+</style>

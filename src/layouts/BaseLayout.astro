@@ -55,9 +55,15 @@ const orgJsonLd = {
   "name": siteMeta.operator.name,
   "url": siteMeta.siteUrl,
   "email": siteMeta.operator.email,
+  "logo": {
+    "@type": "ImageObject",
+    "url": `${siteMeta.siteUrl}/favicon.svg`,
+  },
   "knowsAbout": [
-    "ビジネス文書", "業務テンプレート", "退職届", "労働条件通知書", "業務委託契約書",
-    "請求書", "見積書", "議事録", "会員登録不要のテンプレート配布",
+    "AI動画生成", "AI画像生成", "ChatGPT", "Gemini", "Claude",
+    "Runway", "Google Veo", "Kling AI", "Pika", "Hailuo",
+    "Adobe Firefly", "プロンプトエンジニアリング", "生成AI",
+    "AIツール比較", "AIサブスクリプション",
   ],
 };
 

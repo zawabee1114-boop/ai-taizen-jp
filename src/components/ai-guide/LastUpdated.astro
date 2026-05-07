@@ -1,0 +1,128 @@
+---
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** 最終更新日 (YYYY-MM-DD) */
+  date: string;
+  /** 公開日 (YYYY-MM-DD) — 任意 */
+  publishedAt?: string;
+  /** 著者表示名 — 任意 */
+  author?: string;
+}
+
+const { date, publishedAt, author } = Astro.props;
+
+function fmt(d: string): string {
+  const dt = new Date(d + 'T00:00:00+09:00');
+  if (isNaN(dt.getTime())) return d;
+  return `${dt.getFullYear()}年${dt.getMonth() + 1}月${dt.getDate()}日`;
+}
+
+const updated = fmt(date);
+const published = publishedAt ? fmt(publishedAt) : null;
+---
+
+<aside class="last-updated" aria-label="記事の更新情報">
+  <div class="last-updated__inner">
+    <div class="last-updated__row">
+      <span class="last-updated__icon" aria-hidden="true">
+        <Icon name="clock" size={14} />
+      </span>
+      <dl class="last-updated__list">
+        {published && (
+          <div class="last-updated__pair">
+            <dt>公開日</dt>
+            <dd>
+              <time datetime={publishedAt}>{published}</time>
+            </dd>
+          </div>
+        )}
+        <div class="last-updated__pair">
+          <dt>最終更新日</dt>
+          <dd>
+            <time datetime={date}>{updated}</time>
+          </dd>
+        </div>
+        {author && (
+          <div class="last-updated__pair">
+            <dt>著者</dt>
+            <dd>{author}</dd>
+          </div>
+        )}
+      </dl>
+    </div>
+    <p class="last-updated__note">
+      本記事は実機検証および公式情報を基に編集部が作成しています。料金・仕様は変動するため、ご利用前に各サービスの公式サイトで最新情報をご確認ください。
+    </p>
+  </div>
+</aside>
+
+<style>
+  .last-updated {
+    margin: 48px 0 24px;
+    padding: 20px 24px;
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+  .last-updated__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .last-updated__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .last-updated__icon {
+    display: inline-flex;
+    color: var(--color-gold);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .last-updated__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+  }
+  .last-updated__pair {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .last-updated__pair dt {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+  .last-updated__pair dd {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-navy);
+    font-feature-settings: 'tnum';
+  }
+  .last-updated__note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+  @media (max-width: 768px) {
+    .last-updated {
+      padding: 16px 16px;
+    }
+    .last-updated__list {
+      gap: 10px 16px;
+    }
+    .last-updated__note {
+      font-size: 11.5px;
+    }
+  }
+</style>

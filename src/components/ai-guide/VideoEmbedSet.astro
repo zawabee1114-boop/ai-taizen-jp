@@ -1,0 +1,226 @@
+---
+import Icon from '../Icon.astro';
+
+interface VideoItem {
+  /** ツール名（例: "Runway Gen-3"） */
+  tool: string;
+  /** ロゴURL or サムネ（任意） */
+  toolLogo?: string;
+  /** 入力プロンプト（共通プロンプトを各カードで再掲） */
+  prompt?: string;
+  /** 埋め込みURL（YouTube/Vimeo/MP4直URL） */
+  embedUrl: string;
+  /** MP4等の場合のtypeヒント（"video/mp4"等） */
+  embedType?: 'iframe' | 'video';
+  /** ポスター画像（typeがvideoの場合） */
+  poster?: string;
+  /** メモ・特記事項 */
+  note?: string;
+}
+
+interface Props {
+  /** 共通プロンプト（タイトル下に1回掲載） */
+  sharedPrompt?: string;
+  /** 動画群 */
+  videos: VideoItem[];
+  /** セクション見出し（任意） */
+  heading?: string;
+}
+
+const { sharedPrompt, videos, heading } = Astro.props;
+---
+
+<section class="video-embed-set" aria-label={heading || '同一プロンプトでのツール比較動画'}>
+  {heading && (
+    <h3 class="video-embed-set__heading">
+      <Icon name="sparkle" size={16} aria-hidden="true" />
+      {heading}
+    </h3>
+  )}
+
+  {sharedPrompt && (
+    <div class="video-embed-set__shared" aria-label="共通プロンプト">
+      <span class="video-embed-set__shared-label">入力プロンプト（共通）</span>
+      <p class="video-embed-set__shared-text">{sharedPrompt}</p>
+    </div>
+  )}
+
+  <div class="video-embed-set__grid">
+    {videos.map((video, idx) => (
+      <article class="video-card" aria-labelledby={`video-${idx}-title`}>
+        <header class="video-card__head">
+          <span class="video-card__num" aria-hidden="true">#{String(idx + 1).padStart(2, '0')}</span>
+          <h4 class="video-card__tool" id={`video-${idx}-title`}>{video.tool}</h4>
+        </header>
+
+        <div class="video-card__media">
+          {video.embedType === 'video' ? (
+            <video
+              controls
+              preload="none"
+              poster={video.poster}
+              class="video-card__video"
+              playsinline
+            >
+              <source src={video.embedUrl} type="video/mp4" />
+              お使いのブラウザは動画再生に対応していません。
+            </video>
+          ) : (
+            <iframe
+              src={video.embedUrl}
+              title={`${video.tool} 生成動画`}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              class="video-card__iframe"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          )}
+        </div>
+
+        {(video.prompt || video.note) && (
+          <footer class="video-card__foot">
+            {video.prompt && (
+              <p class="video-card__prompt">
+                <span class="video-card__prompt-label">プロンプト:</span>
+                {video.prompt}
+              </p>
+            )}
+            {video.note && (
+              <p class="video-card__note">{video.note}</p>
+            )}
+          </footer>
+        )}
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .video-embed-set {
+    margin: 32px 0;
+  }
+  .video-embed-set__heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.5;
+  }
+  .video-embed-set__heading svg {
+    color: var(--color-gold);
+    flex-shrink: 0;
+  }
+  .video-embed-set__shared {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-gold);
+    border-radius: var(--radius-md);
+  }
+  .video-embed-set__shared-label {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-navy);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .video-embed-set__shared-text {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+  .video-embed-set__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .video-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .video-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--color-bg-section);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .video-card__num {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-gold);
+    letter-spacing: 0.04em;
+    font-feature-settings: 'tnum';
+  }
+  .video-card__tool {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--color-navy);
+    line-height: 1.4;
+  }
+  .video-card__media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--color-navy);
+  }
+  .video-card__iframe,
+  .video-card__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .video-card__foot {
+    padding: 12px 14px;
+    border-top: 1px solid var(--color-border-light);
+    font-family: var(--font-sans);
+  }
+  .video-card__prompt {
+    margin: 0 0 6px;
+    font-size: 12px;
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+  .video-card__prompt:last-child {
+    margin-bottom: 0;
+  }
+  .video-card__prompt-label {
+    font-weight: 700;
+    color: var(--color-navy);
+    margin-right: 4px;
+  }
+  .video-card__note {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+  @media (max-width: 768px) {
+    .video-embed-set__grid {
+      grid-template-columns: 1fr;
+    }
+    .video-card__head { padding: 10px 12px; }
+    .video-card__tool { font-size: 13.5px; }
+  }
+</style>

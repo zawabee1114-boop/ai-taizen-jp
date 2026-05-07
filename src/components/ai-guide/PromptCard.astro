@@ -1,0 +1,327 @@
+---
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** カード番号（表示用、任意） */
+  index?: number;
+  /** カードタイトル（用途・ジャンル名等） */
+  title: string;
+  /** 失敗例プロンプト */
+  badPrompt: string;
+  /** 改善ポイント解説（短文） */
+  explanation: string;
+  /** 改善後プロンプト（コピペ対象） */
+  improvedPrompt: string;
+  /** 生成結果スクショ画像パス（任意） */
+  resultImage?: string;
+  /** スクショの代替テキスト（resultImageあれば必須） */
+  resultAlt?: string;
+}
+
+const {
+  index,
+  title,
+  badPrompt,
+  explanation,
+  improvedPrompt,
+  resultImage,
+  resultAlt,
+} = Astro.props;
+
+// コピペボタン用にユニークIDを生成（Astro組み込みのcrypto互換ロジック）
+const cardId = `prompt-card-${Math.random().toString(36).slice(2, 10)}`;
+---
+
+<article class="prompt-card" aria-labelledby={`${cardId}-title`}>
+  <header class="prompt-card__head">
+    {typeof index === 'number' && (
+      <span class="prompt-card__num" aria-hidden="true">{String(index).padStart(2, '0')}</span>
+    )}
+    <h3 class="prompt-card__title" id={`${cardId}-title`}>{title}</h3>
+  </header>
+
+  <!-- 1. 失敗例 -->
+  <div class="prompt-card__block prompt-card__block--bad">
+    <div class="prompt-card__block-head">
+      <span class="prompt-card__block-icon prompt-card__block-icon--bad" aria-hidden="true">
+        <Icon name="x" size={14} />
+      </span>
+      <span class="prompt-card__block-label">失敗例</span>
+    </div>
+    <pre class="prompt-card__pre" aria-label="失敗例プロンプト"><code>{badPrompt}</code></pre>
+  </div>
+
+  <!-- 2. 改善ポイント -->
+  <div class="prompt-card__block prompt-card__block--explain">
+    <div class="prompt-card__block-head">
+      <span class="prompt-card__block-icon prompt-card__block-icon--explain" aria-hidden="true">
+        <Icon name="info" size={14} />
+      </span>
+      <span class="prompt-card__block-label">改善ポイント</span>
+    </div>
+    <p class="prompt-card__explanation">{explanation}</p>
+  </div>
+
+  <!-- 3. 改善後プロンプト + コピペ -->
+  <div class="prompt-card__block prompt-card__block--good">
+    <div class="prompt-card__block-head">
+      <span class="prompt-card__block-icon prompt-card__block-icon--good" aria-hidden="true">
+        <Icon name="check" size={14} />
+      </span>
+      <span class="prompt-card__block-label">改善後プロンプト</span>
+      <button
+        type="button"
+        class="prompt-card__copy"
+        data-copy-target={cardId}
+        aria-label="改善後プロンプトをコピー"
+      >
+        <Icon name="document" size={13} aria-hidden="true" />
+        <span class="prompt-card__copy-text">コピー</span>
+      </button>
+    </div>
+    <pre class="prompt-card__pre prompt-card__pre--good" id={cardId}><code>{improvedPrompt}</code></pre>
+  </div>
+
+  <!-- 4. 生成結果（任意） -->
+  {resultImage && resultAlt && (
+    <div class="prompt-card__block prompt-card__block--result">
+      <div class="prompt-card__block-head">
+        <span class="prompt-card__block-icon prompt-card__block-icon--result" aria-hidden="true">
+          <Icon name="sparkle" size={14} />
+        </span>
+        <span class="prompt-card__block-label">生成結果</span>
+      </div>
+      <figure class="prompt-card__figure">
+        <img
+          src={resultImage}
+          alt={resultAlt}
+          loading="lazy"
+          decoding="async"
+          width="800"
+          height="450"
+        />
+      </figure>
+    </div>
+  )}
+</article>
+
+<style>
+  .prompt-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 20px;
+    margin: 16px 0;
+    font-family: var(--font-sans);
+  }
+  .prompt-card__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .prompt-card__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    font-feature-settings: 'tnum';
+  }
+  .prompt-card__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.5;
+  }
+
+  .prompt-card__block {
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 10px;
+  }
+  .prompt-card__block:last-child {
+    margin-bottom: 0;
+  }
+  .prompt-card__block--bad {
+    background: #FBEFEF;
+    border-left: 3px solid var(--color-burgundy);
+  }
+  .prompt-card__block--explain {
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-muted);
+  }
+  .prompt-card__block--good {
+    background: #EEF6F0;
+    border-left: 3px solid #1B5E3B;
+  }
+  .prompt-card__block--result {
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-gold);
+  }
+  .prompt-card__block-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-card__block-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-navy);
+    text-transform: uppercase;
+  }
+  .prompt-card__block-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+  }
+  .prompt-card__block-icon--bad     { background: var(--color-burgundy); color: #fff; }
+  .prompt-card__block-icon--explain { background: var(--color-muted); color: #fff; }
+  .prompt-card__block-icon--good    { background: #1B5E3B; color: #fff; }
+  .prompt-card__block-icon--result  { background: var(--color-gold); color: var(--color-navy); }
+
+  .prompt-card__pre {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+  }
+  .prompt-card__pre code {
+    font-family: inherit;
+    background: transparent;
+    padding: 0;
+  }
+  .prompt-card__pre--good {
+    background: #fff;
+    border-color: #C9DCC9;
+  }
+
+  .prompt-card__explanation {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--color-text);
+  }
+
+  .prompt-card__copy {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: var(--color-navy);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background var(--transition-base), transform var(--transition-base);
+    min-height: 28px;
+  }
+  .prompt-card__copy:hover {
+    background: var(--color-navy-mid);
+  }
+  .prompt-card__copy:active {
+    transform: scale(0.97);
+  }
+  .prompt-card__copy.is-copied {
+    background: #1B5E3B;
+  }
+
+  .prompt-card__figure {
+    margin: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--color-border-light);
+  }
+  .prompt-card__figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .prompt-card { padding: 16px; }
+    .prompt-card__title { font-size: 14.5px; }
+    .prompt-card__pre { font-size: 12px; }
+    .prompt-card__explanation { font-size: 13px; }
+  }
+</style>
+
+<script is:inline>
+(function() {
+  document.querySelectorAll('.prompt-card__copy').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var targetId = btn.getAttribute('data-copy-target');
+      if (!targetId) return;
+      var pre = document.getElementById(targetId);
+      if (!pre) return;
+      var text = pre.textContent || '';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          var label = btn.querySelector('.prompt-card__copy-text');
+          var prevText = label ? label.textContent : '';
+          if (label) label.textContent = 'コピー済み';
+          btn.classList.add('is-copied');
+          setTimeout(function() {
+            if (label) label.textContent = prevText;
+            btn.classList.remove('is-copied');
+          }, 1800);
+        }).catch(function() {
+          fallbackCopy(text, btn);
+        });
+      } else {
+        fallbackCopy(text, btn);
+      }
+    });
+  });
+
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    var label = btn.querySelector('.prompt-card__copy-text');
+    var prevText = label ? label.textContent : '';
+    if (label) label.textContent = 'コピー済み';
+    btn.classList.add('is-copied');
+    setTimeout(function() {
+      if (label) label.textContent = prevText;
+      btn.classList.remove('is-copied');
+    }, 1800);
+  }
+})();
+</script>

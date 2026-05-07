@@ -1,4 +1,4 @@
-# テンプレートフリー（template-free.jp）
+# AI大全（ai-taizen.jp）
 # AI/LLMクローラーを含む全ボットに公開
 
 User-agent: *
@@ -69,4 +69,4 @@ User-agent: AwarioRssBot
 Allow: /
 
 # Sitemap
-Sitemap: https://template-free.jp/sitemap-index.xml
+Sitemap: https://ai-taizen.jp/sitemap-index.xml

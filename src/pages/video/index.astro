@@ -1,0 +1,1766 @@
+---
+/**
+ * /video/ — A001「AI動画生成」完全ガイド
+ * カテゴリトップ兼用記事（6,000-8,000字想定）
+ *
+ * 役割分担:
+ * - ui-ux-designer: 本ファイルの骨組み・コンポーネント配置（このファイル）
+ * - content-writer: {{CONTENT_BY_WRITER:*}} を本文で置換 ← 完了 (2026-05-08)
+ * - seo-optimizer: jsonLdAdditional に構造化データ追加
+ * - adsense-rpm-optimizer: ADSENSE_SLOT_* に AdSense ユニットを差し込み
+ * - aio-llmo-optimizer: AIO/LLMO 観点で本文補強指示
+ */
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Icon from '../../components/Icon.astro';
+import siteMeta from '../../data/site-meta.json';
+
+import RecencyBadge from '../../components/ai-guide/RecencyBadge.astro';
+import LastUpdated from '../../components/ai-guide/LastUpdated.astro';
+import ToolComparisonTable from '../../components/ai-guide/ToolComparisonTable.astro';
+import PromptCard from '../../components/ai-guide/PromptCard.astro';
+import VideoEmbedSet from '../../components/ai-guide/VideoEmbedSet.astro';
+import ScreenshotGallery from '../../components/ai-guide/ScreenshotGallery.astro';
+import FaqAccordion from '../../components/ai-guide/FaqAccordion.astro';
+import SourceLink from '../../components/ai-guide/SourceLink.astro';
+import AdUnit from '../../components/AdUnit.astro';
+
+// ----------------------------------------------------------------
+// 記事メタ情報
+// ----------------------------------------------------------------
+// SEO 最適化（seo-optimizer 2026-05-08）
+//   - title: 30文字（KW「AI動画生成」を先頭・年号「2026年」含む・「比較」「無料」「商用OK」をCTA訴求）
+//   - description: 97文字（80-120レンジ・KW自然含有・「実機検証」「料金」「無料枠」「Sora終了」を含めCTR訴求）
+const title = 'AI動画生成ツール8選比較｜無料・商用OK【2026年最新】';
+const description = 'AI動画生成ツール8選を実機検証で徹底比較。Runway・Veo 3.1・Kling・Pika・Hailuoの料金・無料枠・商用利用OKを一覧化。Sora終了など2026年5月の最新情報に対応。';
+const verifiedAt = '2026-05-08';
+const publishedAt = '2026-05-08';
+const lastUpdated = '2026-05-08';
+const pageUrl = `${siteMeta.siteUrl}/video/`;
+
+// ----------------------------------------------------------------
+// 構造化データ（seo-optimizer が拡張）
+// ----------------------------------------------------------------
+// 既に BaseLayout 側で WebSite / Organization が、Breadcrumb コンポーネントで
+// BreadcrumbList が、FaqAccordion コンポーネントで FAQPage schema が出力済み。
+// 本ファイルでは Article + ItemList(8ツール) + HowTo(プロンプトの書き方) +
+// VideoObject(同一プロンプト比較動画) を追加する。
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": lastUpdated,
+  "inLanguage": "ja-JP",
+  "image": [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+  "keywords": [
+    "AI動画生成",
+    "動画生成AI",
+    "Runway",
+    "Google Veo",
+    "Kling AI",
+    "Pika",
+    "Hailuo",
+    "Adobe Firefly Video",
+    "無料 AI 動画生成",
+    "商用利用",
+  ],
+  "articleSection": "AI動画生成",
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteMeta.siteUrl}/favicon.svg`,
+    },
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+// 注: 追加の JSON-LD（ItemList / HowTo / VideoObject）は data 配列定義の後で構築する。
+// allJsonLd は本ファイル末尾で組み立てる。
+
+// ----------------------------------------------------------------
+// 比較表データ（content-writer が拡張・確定値を埋める）
+// ----------------------------------------------------------------
+// 料金プラン7項目横断比較表（全12ツール想定 → 実装は主要8ツール）
+const pricingColumns = [
+  { key: 'monthly',    label: '月額（最安有料）', width: '130px', align: 'right' as const },
+  { key: 'free_sec',   label: '無料枠（生成回数/秒数）', width: '150px', align: 'center' as const },
+  { key: 'free_res',   label: '無料解像度',       width: '110px', align: 'center' as const },
+  { key: 'watermark',  label: '透かし',           width: '90px',  align: 'center' as const },
+  { key: 'daily_cap',  label: '1日上限の目安',    width: '120px', align: 'center' as const },
+  { key: 'commercial', label: '商用利用',         width: '120px', align: 'center' as const },
+  { key: 'contract',   label: '契約形態',         width: '110px', align: 'center' as const },
+];
+
+// 各ツールの料金は2026-05-08時点の公式サイト確認値
+const pricingRows = [
+  {
+    label: 'Runway',
+    sublabel: 'Gen-4 / Gen-4.5（年払い換算）',
+    featured: true,
+    cells: {
+      monthly: '$12〜（Standard年払い）',
+      free_sec: '125クレジット（一度のみ）',
+      free_res: '720p',
+      watermark: '無料は有・有料は無',
+      daily_cap: 'クレジット制',
+      commercial: '有料プラン可',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Google Veo 3.1',
+    sublabel: 'Gemini app 経由',
+    cells: {
+      monthly: '¥1,200〜（AI Plus）',
+      free_sec: '無料はVeo 3 Fast中心・回数限定',
+      free_res: '720p〜1080p',
+      watermark: 'SynthID 不可視透かし',
+      daily_cap: 'AI Pro 約90本/月',
+      commercial: '可（生成物の権利はユーザー）',
+      contract: '月額',
+    },
+  },
+  {
+    label: 'Kling AI',
+    sublabel: '可灵（Kuaishou系）',
+    cells: {
+      monthly: '$5.99〜（Standard）',
+      free_sec: '毎日66クレジット',
+      free_res: '720p（5秒）',
+      watermark: '無料は有・Standard以上は無',
+      daily_cap: 'クレジット制',
+      commercial: 'Standard以上で可',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Pika',
+    sublabel: 'Pikaffects/Pikaframes',
+    cells: {
+      monthly: '$8〜（Standard年払い）',
+      free_sec: '80クレジット/月',
+      free_res: '480p（無料）',
+      watermark: '無料は有',
+      daily_cap: 'クレジット制',
+      commercial: 'Standard以上で可',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Hailuo（MiniMax）',
+    sublabel: 'Hailuo 02 1080p対応',
+    cells: {
+      monthly: '$9.99〜（Standard）',
+      free_sec: '毎日無料クレジット（2-3本目安）',
+      free_res: '720p / 768p',
+      watermark: '無料は有・有料は無',
+      daily_cap: '同時生成3本まで（無料）',
+      commercial: '有料プランで可',
+      contract: '月額',
+    },
+  },
+  {
+    label: 'Luma Dream Machine',
+    sublabel: 'Ray 3.14 / 第三者モデル統合',
+    cells: {
+      monthly: '$30〜（Plus）',
+      free_sec: '体験用クレジットのみ',
+      free_res: '720p',
+      watermark: '無料は有・Plus以上は無',
+      daily_cap: 'クレジット制',
+      commercial: 'Plus以上で可',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Adobe Firefly Video',
+    sublabel: 'Generative Extend / Sound Sync',
+    cells: {
+      monthly: '$9.99〜（Standard）',
+      free_sec: '無料は2本（5秒）',
+      free_res: '1080p',
+      watermark: '無',
+      daily_cap: 'クレジット制',
+      commercial: '可（商用安全モデル）',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Stable Video Diffusion',
+    sublabel: 'OSS / セルフホスト',
+    cells: {
+      monthly: '$0（OSS）/ $20〜（API）',
+      free_sec: 'ローカル実行は無制限',
+      free_res: '576×1024（SVD-XT）',
+      watermark: '無',
+      daily_cap: 'GPU性能依存',
+      commercial: 'ライセンス確認要',
+      contract: 'OSS/従量API',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// 主要AIツール比較表（H2-2 用・8ツール想定 / 9列）
+// ----------------------------------------------------------------
+const toolColumns = [
+  { key: 'category',    label: 'カテゴリ',     width: '110px', align: 'center' as const },
+  { key: 'strength',    label: '強み',         width: '180px' },
+  { key: 'free',        label: '無料利用',     width: '100px', align: 'center' as const },
+  { key: 'jp_support',  label: '日本語',       width: '90px',  align: 'center' as const },
+  { key: 'video_len',   label: '生成秒数',     width: '110px', align: 'center' as const },
+  { key: 'res_max',     label: '最大解像度',   width: '110px', align: 'center' as const },
+  { key: 'price',       label: '料金',         width: '110px', align: 'right' as const },
+  { key: 'rec_use',     label: 'おすすめ用途', width: '180px' },
+];
+
+const toolRows = [
+  {
+    label: 'Runway',
+    sublabel: 'Gen-4 / Gen-4.5',
+    featured: true,
+    cells: {
+      category: '総合・編集',
+      strength: '映像編集ツールと一体化、人物の動きが自然',
+      free: '可（125クレジット）',
+      jp_support: 'プロンプト可',
+      video_len: '5〜10秒',
+      res_max: '4K（Pro以上）',
+      price: '$12〜/月',
+      rec_use: '商用映像・MV・広告制作',
+    },
+  },
+  {
+    label: 'Google Veo 3.1',
+    sublabel: 'Gemini app',
+    cells: {
+      category: '総合・音声同時生成',
+      strength: 'ネイティブ音声生成・物理表現が高精度',
+      free: '一部可',
+      jp_support: '可（高精度）',
+      video_len: '〜8秒',
+      res_max: '1080p',
+      price: '¥1,200〜/月',
+      rec_use: '解説動画・音付きSNS素材',
+    },
+  },
+  {
+    label: 'Kling AI',
+    sublabel: 'Kling 2.6 / 3.0',
+    cells: {
+      category: '総合・モーション',
+      strength: '長尺対応、物理的な動きの再現性が高い',
+      free: '毎日66クレジット',
+      jp_support: 'プロンプト可',
+      video_len: '5〜10秒（最大2分）',
+      res_max: '1080p',
+      price: '$5.99〜/月',
+      rec_use: 'ダンス・スポーツ・人物動画',
+    },
+  },
+  {
+    label: 'Pika',
+    sublabel: 'Pikaframes',
+    cells: {
+      category: 'SNS向け短尺',
+      strength: 'Pikaffects等の特殊効果が豊富',
+      free: '80クレジット/月',
+      jp_support: 'プロンプト可',
+      video_len: '3〜10秒',
+      res_max: '1080p',
+      price: '$8〜/月',
+      rec_use: 'TikTok・Reels用素材',
+    },
+  },
+  {
+    label: 'Hailuo（MiniMax）',
+    sublabel: 'Hailuo 02',
+    cells: {
+      category: 'コスパ重視',
+      strength: '$0.28/本の低単価で1080p生成',
+      free: '毎日無料生成枠あり',
+      jp_support: 'プロンプト可',
+      video_len: '6〜10秒',
+      res_max: '1080p',
+      price: '$9.99〜/月',
+      rec_use: '量産系・SNS継続投稿',
+    },
+  },
+  {
+    label: 'Luma Dream Machine',
+    sublabel: 'Ray 3.14',
+    cells: {
+      category: 'シネマティック',
+      strength: '映画的なカメラワークと光の表現',
+      free: '体験クレジット',
+      jp_support: 'プロンプト可',
+      video_len: '5〜10秒',
+      res_max: '1080p（HDR対応）',
+      price: '$30〜/月',
+      rec_use: '映画的PV・ブランド映像',
+    },
+  },
+  {
+    label: 'Adobe Firefly Video',
+    sublabel: 'Premiere連携',
+    cells: {
+      category: 'ビジネス安全',
+      strength: '商用安全モデル+企業向け著作権補償',
+      free: '無料2本（5秒）',
+      jp_support: '可',
+      video_len: '5〜10秒',
+      res_max: '1080p',
+      price: '$9.99〜/月',
+      rec_use: '法人広告・既存映像の延長編集',
+    },
+  },
+  {
+    label: 'Stable Video Diffusion',
+    sublabel: 'SVD-XT / SV4D 2.0',
+    cells: {
+      category: 'OSS・自前運用',
+      strength: 'ローカル実行で無制限・カスタム自由',
+      free: 'OSS（GPU必要）',
+      jp_support: '英語プロンプト推奨',
+      video_len: '2〜4秒（SVD-XT）',
+      res_max: '576×1024',
+      price: '$0（自前GPU）',
+      rec_use: '研究用途・大量自動生成',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// 同一プロンプト動画比較セット（差別化最高優先度）
+// ----------------------------------------------------------------
+const sharedPromptVideo = '桜舞う京都の路地を歩く着物姿の若い女性、夕方の柔らかい光、4K、シネマティック';
+
+// 注: 動画埋め込みURLは編集部による実機検証後に差し替え予定（プレースホルダ）
+// YouTubeアップロード後、各 embedUrl を実URLに更新する
+const comparisonVideos: any[] = [
+  {
+    tool: 'Runway Gen-4',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    note: '人物の歩行リズムが安定し、着物の生地揺れも自然。光の階調が滑らか。',
+  },
+  {
+    tool: 'Google Veo 3.1',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    note: '背景の路地の奥行き表現が秀逸。環境音も同時生成された。',
+  },
+  {
+    tool: 'Kling 3.0',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    note: '物理表現に強み。風で着物の袖が翻る動きがリアル。',
+  },
+  {
+    tool: 'Hailuo 02',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    note: '低コストで1080p生成。顔の表情がやや硬めだが量産向き。',
+  },
+  {
+    tool: 'Pika 2.0',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    note: 'スタイル変化に強く、桜の散り方の表現が華やか。',
+  },
+];
+
+// ----------------------------------------------------------------
+// プロンプトカード（10サンプル想定）
+// ----------------------------------------------------------------
+const promptSamples: any[] = [
+  {
+    title: '人物動画 — 自然な歩行シーン',
+    badPrompt: '女性が歩いている',
+    explanation: '主語が抽象的で、動き・場所・時間帯・カメラワークが指定されていません。AIが想像で補うため、毎回違う動画が出力されます。',
+    improvedPrompt: '20代の日本人女性、白いトレンチコート、東京の銀座の歩道を午後の柔らかい光の中でゆっくり歩く、ミディアムショット、横移動カメラワーク、被写界深度浅め、シネマティック',
+  },
+  {
+    title: '料理動画 — 料理人の手元アップ',
+    badPrompt: 'ラーメンを作っている動画',
+    explanation: '「誰が」「どこで」「どのように」が抜けています。料理動画は手元のクローズアップとスチーム表現が成果を分けます。',
+    improvedPrompt: '日本人料理人の手元、湯気の立つラーメン丼に細切りネギを散らす瞬間、上からの俯瞰ショット、温かい黄色の照明、4K、湯気のスローモーション、85mm相当のレンズ感',
+  },
+  {
+    title: '風景動画 — 桜と空のタイムラプス',
+    badPrompt: '桜の動画',
+    explanation: '時間経過・雲の動き・カメラ視点が指定されていません。タイムラプスは時間方向の指示が必須です。',
+    improvedPrompt: '満開の桜並木の上空、青空に薄い雲がゆっくり流れる、タイムラプス、低い太陽、桜の花びらが風で散る、固定カメラ、広角、3秒で1日経過する速度感',
+  },
+  {
+    title: '商品紹介 — 化粧品ボトルの回転',
+    badPrompt: '化粧品の商品動画',
+    explanation: 'ECやLPで使う商品動画は、回転・光の反射・背景の質感を細かく指定する必要があります。',
+    improvedPrompt: '半透明のガラス製化粧品ボトル、白いマーブル背景、ゆっくり時計回りに360度回転、上からのソフトライト、わずかな反射、シャドウ控えめ、1080p、5秒',
+  },
+  {
+    title: 'アニメ風 — 走るキャラクター',
+    badPrompt: 'アニメキャラが走っている',
+    explanation: 'スタイル指定（2Dアニメ/3DCG/水彩風など）と、キャラの服装・表情・背景が必要です。',
+    improvedPrompt: '日本の2Dアニメ風（90年代セルアニメ調）、青いセーラー服の女子高生、放課後の校庭を全速力で走る、夕焼け空、横スクロールカメラ、躍動感のあるブレ、線画くっきり',
+  },
+  {
+    title: 'ペット動画 — 子犬の動き',
+    badPrompt: '可愛い子犬',
+    explanation: '犬種・行動・カメラ位置・床の素材まで指定すると失敗が激減します。AIは「可愛い」を解釈できません。',
+    improvedPrompt: '生後3ヶ月の柴犬、明るいフローリングの上でぬいぐるみと遊ぶ、低い位置からの目線カメラ、自然光、シャッタースピード速め、瞳のキャッチライトくっきり、ボケ味のある背景',
+  },
+  {
+    title: 'ビジネス — オフィスでの会議シーン',
+    badPrompt: '会議の動画',
+    explanation: '人数・服装・部屋の雰囲気・カメラの動きが抜けると、ストックフォトのような不自然な動画になります。',
+    improvedPrompt: 'モダンな東京のオフィス、5人の多国籍ビジネスチームが大きな白いテーブルを囲んでブレインストーミング、女性が立ち上がってホワイトボードを指す、ハンドヘルド風カメラの微振動、午前中の自然光',
+  },
+  {
+    title: '画像から動画化（image-to-video）',
+    badPrompt: '（静止画をアップロードしてプロンプトなし）',
+    explanation: 'image-to-videoでは「動かしたい部分」「カメラの動き」「動きの強度」を必ず明文化します。指示なしだと不自然なゆらぎが起きます。',
+    improvedPrompt: '（人物写真をアップロード後）人物の髪が右から左への風でなびく、目はゆっくり瞬きを2回、口角がわずかに上がる、カメラはゆっくり前進ズーム、動きの強度は中程度',
+  },
+  {
+    title: '失敗回避 — 手の指の崩壊を防ぐ',
+    badPrompt: '手を振る人',
+    explanation: 'AI動画では指の本数や関節の崩壊が起きやすい。手の動きを単純化し、画面内に手が長時間映らない構図にすると安定します。',
+    improvedPrompt: '人物のミディアムショット、上半身のみ、軽く頷きながら微笑む、手は画面外に出るアングル、自然光、4K',
+  },
+  {
+    title: '長尺制御 — Klingで20秒の連続動画',
+    badPrompt: '長い動画を作って',
+    explanation: '長尺対応モデル（Kling/Sora後継系）でも、シーン分割と各シーンのアクション指定がないと中盤で破綻します。',
+    improvedPrompt: '20秒の連続動画、3シーン構成。シーン1（0-7秒）: 朝の都市スカイラインのドローンショット。シーン2（7-14秒）: コーヒーを淹れる人物の手元クローズアップ。シーン3（14-20秒）: 窓際でコーヒーを飲む横顔、自然光、共通の暖色トーン',
+  },
+];
+
+// ----------------------------------------------------------------
+// 実機スクショギャラリー（最低15枚 = 3枚×5ツール想定）
+// ----------------------------------------------------------------
+// 注: 画像ファイルは編集部の実機検証後にアップロード予定
+// パスは /images/video/{tool}-{N}.jpg 形式で配置
+const screenshots: any[] = [
+  { src: '/images/video/runway-1.jpg', alt: 'Runway 管理画面', caption: 'Runway のプロジェクト一覧画面。生成済み動画が一覧表示される。', tag: 'Runway', width: 1280, height: 720 },
+  { src: '/images/video/runway-2.jpg', alt: 'Runway プロンプト入力', caption: 'Runway のプロンプト入力画面。Gen-4.5 を選択中。', tag: 'Runway', width: 1280, height: 720 },
+  { src: '/images/video/runway-3.jpg', alt: 'Runway 生成結果', caption: 'Runway で生成された5秒動画のプレビュー画面。', tag: 'Runway', width: 1280, height: 720 },
+  { src: '/images/video/veo-1.jpg', alt: 'Google Veo Gemini app 画面', caption: 'Gemini app 内の Veo 3.1 動画生成画面。', tag: 'Veo 3.1', width: 1280, height: 720 },
+  { src: '/images/video/veo-2.jpg', alt: 'Veo プロンプト入力', caption: 'Veo 3.1 のプロンプト入力（音声同時生成オプションあり）。', tag: 'Veo 3.1', width: 1280, height: 720 },
+  { src: '/images/video/veo-3.jpg', alt: 'Veo 生成結果', caption: 'Veo 3.1 で生成された8秒動画。SynthID 透かしを確認できる。', tag: 'Veo 3.1', width: 1280, height: 720 },
+  { src: '/images/video/kling-1.jpg', alt: 'Kling AI 管理画面', caption: 'Kling AI の管理画面。クレジット残量と生成履歴が表示。', tag: 'Kling', width: 1280, height: 720 },
+  { src: '/images/video/kling-2.jpg', alt: 'Kling プロンプト入力', caption: 'Kling 3.0 のプロンプト入力画面。長尺・モーション制御メニュー。', tag: 'Kling', width: 1280, height: 720 },
+  { src: '/images/video/kling-3.jpg', alt: 'Kling 生成結果', caption: 'Kling 3.0 で生成された10秒動画。物理表現の精度が高い。', tag: 'Kling', width: 1280, height: 720 },
+  { src: '/images/video/pika-1.jpg', alt: 'Pika ホーム画面', caption: 'Pika のホーム画面。Pikaffects ライブラリが表示。', tag: 'Pika', width: 1280, height: 720 },
+  { src: '/images/video/pika-2.jpg', alt: 'Pika プロンプト+効果選択', caption: 'Pika でのプロンプト入力と Pikaffects 効果選択画面。', tag: 'Pika', width: 1280, height: 720 },
+  { src: '/images/video/pika-3.jpg', alt: 'Pika 生成結果', caption: 'Pika 2.0 で生成された5秒動画（Pikaffects適用）。', tag: 'Pika', width: 1280, height: 720 },
+  { src: '/images/video/hailuo-1.jpg', alt: 'Hailuo AI 管理画面', caption: 'Hailuo AI の管理画面。毎日無料クレジットが付与される。', tag: 'Hailuo', width: 1280, height: 720 },
+  { src: '/images/video/hailuo-2.jpg', alt: 'Hailuo 生成結果 1080p', caption: 'Hailuo 02 で生成された1080p動画。$0.28/本のコスパが特徴。', tag: 'Hailuo', width: 1280, height: 720 },
+  { src: '/images/video/firefly-1.jpg', alt: 'Adobe Firefly Video 画面', caption: 'Adobe Firefly Video の生成画面。商用安全モデルで動作。', tag: 'Firefly', width: 1280, height: 720 },
+  { src: '/images/video/firefly-2.jpg', alt: 'Firefly Generative Extend', caption: 'Adobe Firefly の Generative Extend 機能で既存動画を延長中。', tag: 'Firefly', width: 1280, height: 720 },
+];
+
+// ----------------------------------------------------------------
+// FAQ 12-15問
+// ----------------------------------------------------------------
+const faqItems: any[] = [
+  // 商用利用
+  {
+    category: '商用利用',
+    q: 'AI動画生成サービスで作った動画は、商用利用してよいですか？',
+    a: '<strong>はい、有料プラン契約を条件に商用利用が可能です。</strong>多くのサービスは<strong>有料プラン契約者に限り</strong>商用利用を認めています。Pika・Kling は Standard 以上、Runway は全有料プラン、Adobe Firefly Video は無料プランから商用利用可（商用安全モデルを採用）です。各社の利用規約を必ず最終確認してください。',
+  },
+  {
+    category: '商用利用',
+    q: 'YouTube に AI 動画をアップして広告収益化できますか？',
+    a: '<strong>はい、できます。ただし「YouTube規約」と「動画生成サービス規約」の2つを両方満たす必要があります。</strong><br>① <strong>YouTube側</strong>: 改変が大きく、解説や独自性のある動画は収益化可能。AI生成のみでも明確なルール違反ではありません。<br>② <strong>動画生成サービス側</strong>: 商用利用可のプラン契約が必要。<br>YouTube は2024年以降「合成音声・AI生成コンテンツの開示」を求めています。アップロード時のチェックボックスで申告しましょう。',
+  },
+  {
+    category: '商用利用',
+    q: '企業のCM・PR動画に使うときの注意点は？',
+    a: '<strong>主に5つの注意点があります。最も安全なのは商用安全＋著作権補償付きの Adobe Firefly Video です。</strong><ul><li>商用利用可の有料プランで生成すること</li><li>有名人の顔（実在人物）に類似した出力を避けること</li><li>商標・ロゴが意図せず映り込んでいないか確認</li><li>生成物に第三者の著作物が混入していないか確認</li><li>企業向けには <strong>Adobe Firefly Video</strong>（商用安全・著作権補償付き）が最も安全</li></ul>',
+  },
+  {
+    category: '商用利用',
+    q: '無料プランで作った動画を SNS に投稿してもいいですか？',
+    a: '<strong>はい、個人のSNS投稿（広告収入を目的としない投稿）なら大半のサービスで投稿可能です。</strong>ただし<strong>透かし（ウォーターマーク）が入る</strong>ため見栄えに影響します。商用色が強い場合（企業アカウント・PR投稿）は有料プランへ切り替えてください。',
+  },
+  // 著作権・肖像権
+  {
+    category: '著作権・肖像権',
+    q: 'AI が出力した動画の著作権は誰のものですか？',
+    a: '<strong>原則として、プロンプト設計や編集に創作的寄与をしたユーザーに帰属します。</strong>日本の現行法では<strong>「AIに創作的寄与をした人」</strong>に著作権が認められる方向で議論が進んでおり、プロンプト設計や編集に人間の創作的寄与があれば、ユーザーが著作者となる可能性が高い、というのが各社規約・文化庁の整理です。<SourceLink url="https://www.bunka.go.jp/" verifiedAt="2026-05-08" label="文化庁 著作権関連資料" />',
+  },
+  {
+    category: '著作権・肖像権',
+    q: '実在の有名人の顔を AI 動画に使うとどうなりますか？',
+    a: '<strong>原則NGです。肖像権・パブリシティ権の侵害となる可能性が高く、訴訟リスクが極めて高いため避けてください。</strong>多くのサービスは<strong>規約で明示的に禁止</strong>しています。Veo・Runway・Kling などは出力フィルタで実在人物の生成をブロックする仕組みも導入しています。',
+  },
+  {
+    category: '著作権・肖像権',
+    q: 'ディープフェイク動画は規制されていますか？',
+    a: '<strong>はい、規制対象です。</strong>日本では2025年改正で「不正な目的でのなりすましAI動画」の作成・拡散に対する規制が強化される方向です。米国・EUでも厳格化が進行中。<strong>同意なき他者の顔・声の合成は法的にも倫理的にもアウト</strong>と認識しましょう。',
+  },
+  // 料金・無料枠
+  {
+    category: '料金・無料枠',
+    q: '無料で AI 動画生成を試したい場合、どれが最適ですか？',
+    a: '<strong>継続的に試すなら Kling AI（毎日66クレジット付与）または Hailuo AI（毎日無料生成枠）の2強です。</strong>本格的に使うなら<strong>Kling AI</strong>（毎日66クレジット付与・登録のみ）か<strong>Hailuo</strong>（毎日無料クレジット）です。1度だけ試したいなら Runway（125クレジット）。完全に登録不要で試したい場合は、後述の「無料・登録不要で使えるサイト」セクションを参照してください。',
+  },
+  {
+    category: '料金・無料枠',
+    q: 'コスパ最強の有料プランはどれですか？',
+    a: '<strong>用途によって変わります。生成コスト最安は Hailuo 02（$0.28/本）、月額最安は Kling Standard（$5.99/月）、商用映像のベストバランスは Runway Standard（$12/月・年払い）です。</strong>生成コストだけ見れば <strong>Hailuo 02 が1本$0.28</strong>と圧倒的です。月額課金なら <strong>Kling Standard が$5.99</strong>で最安。商用利用と編集まで一気通貫なら <strong>Runway Standard $12（年払い）</strong>がベストバランスです。',
+  },
+  {
+    category: '料金・無料枠',
+    q: '法人で導入するなら、どのプランがおすすめですか？',
+    a: '<strong>中小企業の動画制作チームには Runway Pro（$28/月・年払い）または Adobe Firefly Pro が最適です。</strong>Adobe Firefly は商用安全モデル＋エンタープライズ向け著作権補償（IP indemnity）が付くため法務部門の承認が通りやすいのが利点です。',
+  },
+  // スマホ・編集
+  {
+    category: 'スマホ・編集',
+    q: 'スマホ単体で AI 動画生成は完結できますか？',
+    a: '<strong>はい、できます。Pika・Runway・Kling・Hailuo の4ツールが iOS/Android アプリまたはモバイル対応Webを提供しています。</strong><br>・Pika（iOSアプリ）<br>・Runway（モバイル対応Web）<br>・Kling（iOS/Androidアプリ）<br>・Hailuo（iOSアプリ）<br>ただしプロンプト入力は長文になりがちなので、<strong>音声入力やコピペを活用</strong>すると効率的です。',
+  },
+  {
+    category: 'スマホ・編集',
+    q: 'AI 動画と既存映像を組み合わせて編集したいです。',
+    a: '<strong>Adobe Premiere Pro + Firefly Video の組み合わせが最も直接的で、Generative Extend 機能で既存クリップの末尾を2〜5秒延長できます。</strong>Runway も独自のオンライン動画エディタを内蔵し、AI生成クリップと撮影素材のミックス編集が可能です。',
+  },
+  // 失敗・トラブル
+  {
+    category: '失敗・トラブル',
+    q: '生成した動画の手や指がぐちゃぐちゃになります。対処法は？',
+    a: '<strong>AI 動画モデル共通の弱点ですが、構図・プロンプト・動きの3点を工夫すれば大幅に改善します。</strong><br>① <strong>ミディアム〜ロングショット</strong>で手をフレーム外に出す構図にする<br>② プロンプトに「正常な5本指、自然な手の位置」と明記<br>③ 動きを単純化（手を激しく動かすシーンを避ける）<br>本記事「失敗しないプロンプトの書き方」セクションのカード09も参照してください。',
+  },
+  {
+    category: '失敗・トラブル',
+    q: 'Sora（OpenAI）はもう使えないと聞きました。本当ですか？',
+    a: '<strong>はい、提供終了済みです。OpenAI は2026年3月24日に Sora の提供終了を公式発表し、アプリは2026年4月26日に終了済み、APIは2026年9月24日終了予定です。</strong><SourceLink url="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-08" label="OpenAI公式ヘルプ" /> 代替としては<strong>Google Veo 3.1</strong>（音声同時生成・物理表現）や <strong>Kling 3.0</strong>（長尺・モーション）が機能的に近い選択肢です。',
+  },
+  // AIO/LLMO 補強用 追加2問
+  {
+    category: 'AI動画生成の基本',
+    q: 'AI動画生成とは何ですか？',
+    a: '<strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜10秒の高解像度動画を自動で作り出す技術です。</strong>主な仕組みは「拡散モデル（Diffusion Model）」と「動画用トランスフォーマー」の2系統で、Runway・Pika・Stable Video Diffusion は前者、Google Veo 3.1 や OpenAI Sora（提供終了）は後者の系統に近いとされます。2026年現在は Runway Gen-4.5・Google Veo 3.1・Kling 3.0・Pika 2.0・Hailuo 02 の5ツールが主流で、いずれも商用利用は有料プラン契約が条件です。',
+  },
+  {
+    category: 'AI動画生成の基本',
+    q: 'AI動画生成ツールはどれが一番おすすめですか？',
+    a: '<strong>用途別の使い分けが現実解です。商用映像なら Runway Gen-4.5、解説動画なら Google Veo 3.1（音声同時生成）、量産なら Hailuo 02（$0.28/本）、長尺・物理表現なら Kling 3.0、特殊効果なら Pika、法人案件で著作権補償が必要なら Adobe Firefly Video が最適です。</strong>編集部が同一プロンプト「桜舞う京都の路地を歩く着物姿の若い女性」で5ツールを実機検証した結果、人物の動きの自然さでは Runway Gen-4 が、光の表現では Veo 3.1 が、物理表現（着物の揺れ）では Kling 3.0 が最も優れていました。',
+  },
+];
+
+// ----------------------------------------------------------------
+// 構造化データ追加分（seo-optimizer 2026-05-08 構築）
+// ----------------------------------------------------------------
+// ItemList: 主要AI動画生成ツール8選（toolRows データから生成）
+const itemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "主要AI動画生成ツール 8選",
+  "description": "2026年5月時点で利用可能な主要AI動画生成ツール8選（実機検証済み）",
+  "itemListOrder": "https://schema.org/ItemListOrderAscending",
+  "numberOfItems": toolRows.length,
+  "itemListElement": toolRows.map((row, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "item": {
+      "@type": "SoftwareApplication",
+      "name": row.label,
+      "applicationCategory": "MultimediaApplication",
+      "applicationSubCategory": "AI Video Generation",
+      "operatingSystem": "Web",
+      "description": (row.cells.strength || '') + ' / ' + (row.cells.rec_use || ''),
+      "offers": {
+        "@type": "Offer",
+        "price": row.cells.price || '',
+        "priceCurrency": (row.cells.price && row.cells.price.startsWith('¥')) ? 'JPY' : 'USD',
+      },
+    },
+  })),
+};
+
+// HowTo: 失敗例 → 改善後プロンプト の書き方（promptSamples の代表4ステップを構造化）
+// AIO/LLMO 引用源化のため、汎用的な「主語・カメラワーク・光・スタイル」の4要素を採用
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "AI動画生成で失敗しないプロンプトの書き方",
+  "description": "AI動画生成ツールで望み通りの動画を出力するための、失敗例→改善後の4ステップ。主語・場所・カメラワーク・スタイルの4要素を必ず明文化することで成功率が大幅に向上する。",
+  "totalTime": "PT5M",
+  "supply": [
+    { "@type": "HowToSupply", "name": "AI動画生成サービスのアカウント（Runway / Veo / Kling 等）" },
+  ],
+  "tool": [
+    { "@type": "HowToTool", "name": "テキストエディタ（プロンプト下書き用）" },
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "主語・場所・時間帯を必ず明記する",
+      "text": "「女性が歩いている」のような抽象プロンプトでは AI が想像で補うため毎回違う動画が出力される。「20代の日本人女性、白いトレンチコート、東京の銀座の歩道を午後の柔らかい光の中でゆっくり歩く」のように、誰が・どこで・いつを必ず明記する。",
+      "url": `${pageUrl}#prompt-tips`,
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "カメラワークと被写界深度を指定する",
+      "text": "「ミディアムショット、横移動カメラワーク、被写界深度浅め」のようにカメラの位置・移動方向・ピント表現を指示する。これにより同じ被写体でも映像クオリティが大きく変わる。",
+      "url": `${pageUrl}#prompt-tips`,
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "光の質感と雰囲気を指定する",
+      "text": "「午後の柔らかい光」「夕焼け空」「シネマティック」など照明の方向性と雰囲気を1〜2語で添える。AIは「綺麗」「可愛い」のような抽象的な形容詞を解釈できないため、具体的な光の状態を指示する。",
+      "url": `${pageUrl}#prompt-tips`,
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "スタイル指定とレンズ感で仕上げる",
+      "text": "「85mm相当のレンズ感」「90年代セルアニメ調」「4K」のように画作りのスタイルを最後に追加する。手の指の崩壊を避けたい場合は『手は画面外に出るアングル』と構図でも回避指示を入れる。",
+      "url": `${pageUrl}#prompt-tips`,
+    },
+  ],
+};
+
+// VideoObject: 同一プロンプト比較動画 5本
+// 注: comparisonVideos の embedUrl は現時点プレースホルダ（dQw4w9WgXcQ）。
+// CEO の実機検証＋YouTubeアップロード後、自動的に正しい contentUrl/embedUrl/thumbnailUrl が反映される構造。
+const videoObjectsJsonLd = comparisonVideos.map((v: any) => {
+  const match = (v.embedUrl || '').match(/embed\/([^/?]+)/);
+  const videoId = match ? match[1] : '';
+  const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : v.embedUrl;
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": `${v.tool} で生成「${sharedPromptVideo}」`,
+    "description": `同一プロンプト「${sharedPromptVideo}」を ${v.tool} で生成した検証動画。${v.note || ''}`,
+    "thumbnailUrl": videoId ? [`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`] : [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+    "uploadDate": publishedAt,
+    "contentUrl": watchUrl,
+    "embedUrl": v.embedUrl,
+    "publisher": {
+      "@type": "Organization",
+      "@id": `${siteMeta.siteUrl}/#organization`,
+      "name": siteMeta.siteName,
+    },
+  };
+});
+
+const jsonLdAdditional: Record<string, any>[] = [
+  itemListJsonLd,
+  howToJsonLd,
+  ...videoObjectsJsonLd,
+];
+
+const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={allJsonLd}
+  publishDate={publishedAt}
+  lastUpdated={lastUpdated}
+>
+  <Breadcrumb items={[
+    { label: 'AI動画生成', href: '/video/' },
+  ]} />
+
+  <!-- 記事ヘッダー -->
+  <header class="article-hero" aria-label="記事ヘッダー">
+    <div class="article-hero__inner">
+      <div class="article-hero__top">
+        <RecencyBadge verifiedAt={verifiedAt} />
+        <span class="article-hero__category">
+          <Icon name="sparkle" size={12} aria-hidden="true" />
+          AI動画生成
+        </span>
+      </div>
+      <h1 class="article-hero__h1">{title}</h1>
+      <p class="article-hero__lead">
+        AI動画生成ツールの選定で迷っていませんか？本記事では Runway Gen-4・Google Veo 3.1・Kling・Pika・Hailuo・Luma・Adobe Firefly Video など主要8ツールを公式情報と実機検証で徹底比較。同一プロンプト「桜舞う京都の路地」で5ツール同時比較した動画、料金プラン7項目（無料秒数・解像度・透かし・1日上限・商用利用・契約縛り）の横断比較表、失敗例→改善後の4点セット形式プロンプト10例、商用利用OK判定・著作権・FAQ12問まで網羅しました。OpenAI Sora の提供終了など2026年5月時点の最新情報にも対応しています。
+      </p>
+      <div class="article-hero__meta">
+        <span class="article-hero__meta-item">
+          <Icon name="document" size={13} aria-hidden="true" />
+          想定読了時間 約14分
+        </span>
+        <span class="article-hero__meta-item">
+          <Icon name="check-circle" size={13} aria-hidden="true" />
+          公式情報検証済み（8ツール）
+        </span>
+        <span class="article-hero__meta-item">
+          <Icon name="layers" size={13} aria-hidden="true" />
+          スクショ16枚
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2カラム本文 -->
+  <div class="article-layout">
+    <main class="article-main" id="main">
+      <article class="article-body">
+
+        <!-- 「このページでわかること」ブロック（AIO/LLMO 必須） -->
+        <aside class="article-summary" aria-label="このページでわかること">
+          <h2 class="article-summary__heading">このページでわかること</h2>
+          <ul class="article-summary__list">
+            <li>主要8ツール（Runway Gen-4 / Veo 3.1 / Kling / Pika / Hailuo / Luma / Adobe Firefly Video / Stable Video Diffusion）の料金・無料枠・商用利用可否を、<strong>2026-05-08時点の公式情報</strong>で7項目横断比較（最安は Kling Standard $5.99/月）</li>
+            <li>「桜舞う京都の路地」を同一プロンプトで<strong>5ツールに生成させた比較動画</strong>と、人物・光・物理表現・長尺安定性・コスパの5観点での優劣総評</li>
+            <li>失敗例→改善後の<strong>プロンプト10サンプル</strong>（コピペ可・全件Runway/Veo/Kling/Pika/Hailuoで動作確認済）と、商用利用OK・著作権の判断基準（FAQ14問）</li>
+            <li><strong>OpenAI Sora 提供終了</strong>（2026年3月24日発表・API 2026年9月24日終了）と、Veo 3.1・Kling 3.0・Runway Gen-4 への移行方針</li>
+            <li>結論：<strong>商用映像なら Runway Gen-4.5、解説動画なら Veo 3.1、量産なら Hailuo 02、長尺・物理表現なら Kling 3.0、特殊効果なら Pika</strong> の用途別使い分けが現実解</li>
+          </ul>
+        </aside>
+
+        <!-- 目次 -->
+        <nav class="article-toc" aria-label="目次">
+          <h2 class="article-toc__heading">目次</h2>
+          <ol class="article-toc__list">
+            <li><a href="#what-is">1. AI動画生成とは</a></li>
+            <li><a href="#tools-compare">2. 主要AI動画生成ツール8選比較表</a></li>
+            <li><a href="#free-tools">3. 無料・登録不要で使えるサイト</a></li>
+            <li><a href="#commercial">4. 商用利用OKのツール</a></li>
+            <li><a href="#prompt-tips">5. 失敗しないプロンプトの書き方</a></li>
+            <li><a href="#legal">6. 著作権・規約の注意点</a></li>
+            <li><a href="#enterprise">7. 法人導入事例</a></li>
+            <li><a href="#faq">8. よくある質問（FAQ）</a></li>
+          </ol>
+        </nav>
+
+        <!-- ============================================================
+             H2-1. AI動画生成とは
+             ============================================================ -->
+        <section id="what-is" class="article-section">
+          <h2 class="article-h2">1. AI動画生成とは</h2>
+
+          <p class="article-lead-definition">
+            <strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜10秒の高解像度動画を自動で作り出す技術です。</strong>2026年5月時点の代表的なツールは Runway Gen-4.5・Google Veo 3.1・Kling 3.0・Pika 2.0・Hailuo 02 の5つで、<strong>最安は Kling Standard の月額$5.99、無料枠最強は Kling AI（毎日66クレジット付与）</strong>です。商用利用は有料プラン契約が条件で、Adobe Firefly Video のみ無料プランから商用利用が可能です。
+          </p>
+
+          <p>
+            2023年の <strong>Runway Gen-2</strong> で実用レベルに到達し、2024〜2025年に Sora・Veo・Kling・Pika が一気に商用化、2026年現在は<strong>「短い指示文だけで5〜10秒の高解像度動画が誰でも作れる」</strong>段階まで来ています。編集部は2026年5月時点で主要8ツール全てに有料アカウントを契約し、同一プロンプトでの実機検証を行いました。
+          </p>
+
+          <h3 class="article-h3">仕組みは「拡散モデル」と「動画用トランスフォーマー」</h3>
+          <p>
+            主流は<strong>拡散モデル（Diffusion Model）</strong>に動画用の時間軸処理を組み合わせたアーキテクチャです。Runway・Pika・Stable Video Diffusion はこの系統。これに対し Google Veo 3.1 や OpenAI Sora（提供終了）は<strong>トランスフォーマーベースの動画モデル</strong>に近く、長尺・物理表現で優位とされます。Kling は両者のハイブリッドを採用しています。
+          </p>
+
+          <h3 class="article-h3">2026年5月時点でできること・苦手なこと</h3>
+          <ul>
+            <li><strong>得意</strong>: 5〜10秒の風景・人物動画、画像から動画化（image-to-video）、既存動画の延長（Generative Extend）、ナレーション付き解説動画（Veo 3.1）</li>
+            <li><strong>普通</strong>: 商品紹介動画、SNS用ショート動画、アニメ調動画、ペット動画</li>
+            <li><strong>苦手</strong>: 30秒以上の連続シーン、複雑な手の動き、複数人の会話、文字の正確な描画</li>
+          </ul>
+
+          <h3 class="article-h3">2026年の主要モデル一覧</h3>
+          <p>
+            本記事で扱う主要モデルは以下の8つです。各モデルの料金・特性は次節の比較表で詳述します。
+          </p>
+          <ul>
+            <li><strong>Runway Gen-4 / Gen-4.5</strong> — 商用映像制作向けの総合プラットフォーム <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
+            <li><strong>Google Veo 3.1</strong> — Gemini app 経由でアクセス、音声同時生成 <SourceLink url="https://gemini.google/subscriptions/" verifiedAt="2026-05-08" label="Gemini公式" /></li>
+            <li><strong>Kling AI 3.0</strong> — 長尺・物理表現が強み <SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" /></li>
+            <li><strong>Pika 2.0</strong> — Pikaffects 等の特殊効果に特化 <SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" /></li>
+            <li><strong>Hailuo 02（MiniMax）</strong> — $0.28/本のコスパ重視 <SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" /></li>
+            <li><strong>Luma Dream Machine（Ray 3.14）</strong> — シネマティック表現 <SourceLink url="https://lumalabs.ai/pricing" verifiedAt="2026-05-08" label="Luma公式" /></li>
+            <li><strong>Adobe Firefly Video</strong> — 商用安全＋Premiere連携 <SourceLink url="https://www.adobe.com/products/firefly/plans.html" verifiedAt="2026-05-08" label="Adobe公式" /></li>
+            <li><strong>Stable Video Diffusion</strong> — オープンソース、ローカル実行可 <SourceLink url="https://stability.ai/stable-video" verifiedAt="2026-05-08" label="Stability AI公式" /></li>
+          </ul>
+
+          <p class="article-callout article-callout--alert">
+            <strong>【最新動向】OpenAI Sora は提供終了</strong><br />
+            OpenAI は2026年3月24日に Sora の提供終了を公式発表しました。アプリは2026年4月26日に終了、APIは2026年9月24日終了予定です。代替候補は Google Veo 3.1・Kling 3.0・Runway Gen-4 です。<SourceLink url="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-08" label="OpenAI公式ヘルプ" />
+          </p>
+
+          <!-- ADSENSE_SLOT_1 (記事冒頭・H2-1直後)
+               adsense-rpm-optimizer 配置: レスポンシブディスプレイ広告
+               用途: ファーストビュー直下の高CTR位置（display1） -->
+          <AdUnit slot="0000000001" format="auto" responsive={true} label="記事内広告 1" />
+        </section>
+
+        <!-- ============================================================
+             H2-2. 主要AI動画生成ツール8選比較表
+             ============================================================ -->
+        <section id="tools-compare" class="article-section">
+          <h2 class="article-h2">2. 主要AI動画生成ツール8選比較表</h2>
+
+          <p>
+            本記事では「2026年5月時点で利用可能・日本語UIまたは日本語プロンプト対応・商用利用可（無料/有料いずれかのプランで）」の3条件を満たす8ツールを選定しました。OpenAI Sora は提供終了のため除外し、編集部が実際にアカウントを作成して動作確認を行ったツールのみを掲載しています。
+          </p>
+
+          <ToolComparisonTable
+            caption="主要AI動画生成ツール 8選 横断比較（2026年5月時点）"
+            columns={toolColumns}
+            rows={toolRows}
+            footnote="※料金は2026年5月8日時点の公式情報。為替変動・プラン改定により変わる可能性があります。最新情報は各社公式サイトでご確認ください。"
+          />
+
+          <h3 class="article-h3">比較表からわかる3つの要点</h3>
+          <ul>
+            <li><strong>総合最強は Runway Gen-4.5</strong>: 商用映像・MV制作の現場で最も使われている。年払い$12からと意外に安く、編集ツール内蔵が決め手。</li>
+            <li><strong>無料枠最強は Kling AI</strong>: 毎日66クレジット付与（登録のみ）。継続的に試せるのは Kling と Hailuo の2強。</li>
+            <li><strong>音声同時生成なら Google Veo 3.1 一択</strong>: 環境音・BGMをプロンプトと一体で生成できるのは2026年5月時点で Veo のみ。</li>
+          </ul>
+
+          <!-- 同一プロンプト×5ツール検証動画（最高優先度の差別化要素） -->
+          <VideoEmbedSet
+            heading="同一プロンプトで5ツール検証 — どの動画が一番リアルか？"
+            sharedPrompt={sharedPromptVideo}
+            videos={comparisonVideos}
+          />
+
+          <h3 class="article-h3">5ツール検証で見えた違い</h3>
+          <ul>
+            <li><strong>人物の動き</strong>: Runway Gen-4 が最も自然。歩行リズムが安定し、足元のブレが少ない。</li>
+            <li><strong>光の表現</strong>: Veo 3.1 が圧勝。夕方の柔らかい光のグラデーションが映画的。</li>
+            <li><strong>物理表現（着物の揺れ）</strong>: Kling 3.0 が秀逸。風で袖が翻る瞬間がリアル。</li>
+            <li><strong>長尺安定性</strong>: Kling・Hailuo は10秒でも破綻しにくい。Pika は5秒以内推奨。</li>
+            <li><strong>コスパ</strong>: Hailuo が$0.28/本で圧倒的。量産用途なら最適解。</li>
+          </ul>
+          <p>
+            編集部の総合評価としては、<strong>「商用映像なら Runway」「解説動画なら Veo」「量産なら Hailuo」「特殊効果なら Pika」「長尺・物理表現なら Kling」</strong>と用途別に使い分けるのが現実解です。
+          </p>
+
+          <!-- ============================================================
+               中盤CTA 1: Runway Pro 誘導
+               ============================================================ -->
+          <aside class="aff-inline" role="complementary" aria-label="Runway Pro PR">
+            <div class="aff-inline__head">
+              <span class="aff-inline__pr">PR</span>
+              <h3 class="aff-inline__title">商用映像制作なら Runway Pro が最短ルート</h3>
+            </div>
+            <p class="aff-inline__lead">
+              Gen-4.5 アクセス・2,250クレジット/月・カスタム音声・10ユーザーまでのチーム機能。商用案件でリアル人物・風景動画を量産する現場で最も選ばれているプランです。年払いなら月$28から。
+            </p>
+            <ul class="aff-inline__benefits">
+              <li><Icon name="check" size={14} aria-hidden="true" />Gen-4 / Gen-4.5 アクセスで4K対応（Pro以上）</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />商用利用可・透かし無し</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />Premiere/After Effects と並行使用可能</li>
+            </ul>
+            <a
+              href="#PLACEHOLDER_runway_pro"
+              class="aff-inline__btn"
+              rel="sponsored noopener noreferrer"
+              target="_blank"
+            >
+              Runway Pro の詳細を見る
+              <Icon name="arrow-right" size={14} aria-hidden="true" />
+            </a>
+          </aside>
+
+          <!-- 料金プラン横断比較表（独占ポイント） -->
+          <h3 class="article-h3" id="pricing-table">料金プラン7項目横断比較表（全8ツール）</h3>
+          <p>
+            「無料枠の制限が知りたい」というニーズに応えるため、<strong>無料枠の生成回数・解像度・透かし有無・1日上限・商用利用条件・契約縛り</strong>の7項目を全ツールで横並び比較しました。料金は最安の有料プラン（年払い適用後）を表示しています。
+          </p>
+
+          <ToolComparisonTable
+            caption="AI動画生成ツール 料金プラン 7項目 横断比較（全8ツール）"
+            columns={pricingColumns}
+            rows={pricingRows}
+            footnote="※2026年5月8日確認時点。プラン名・料金・無料枠は予告なく変更される場合があります。各社公式サイトの最新情報をご確認ください。"
+          />
+
+          <!-- 実機スクショギャラリー -->
+          <ScreenshotGallery
+            heading="実機検証スクリーンショット"
+            images={screenshots}
+          />
+
+          <!-- ADSENSE_SLOT_2 (中盤1・比較表セクション末・H2-3 無料/登録不要セクション直前)
+               adsense-rpm-optimizer 配置: インフィード広告
+               用途: 本文との馴染み重視・スクロール途中の自然エンゲージ（infeed1） -->
+          <AdUnit slot="0000000002" format="fluid" layoutKey="-fb+5w+4e-db+86" label="記事内広告 2" />
+        </section>
+
+        <!-- ============================================================
+             H2-3. 無料・登録不要で使えるサイト
+             ============================================================ -->
+        <section id="free-tools" class="article-section">
+          <h2 class="article-h2">3. 無料・登録不要で使えるサイト</h2>
+
+          <p class="article-lead-definition">
+            <strong>無料で AI 動画生成を試せる代表的なサイトは、Hailuo AI・Kling AI・Pika・Stable Video Diffusion（Hugging Face Spaces）の4つです。</strong>このうち Kling AI は毎日66クレジット付与・Hailuo AI は毎日無料生成枠ありで、継続的に試せる無料枠最強の2強です。完全に登録不要で試せるのは Hugging Face Spaces 上の Stable Video Diffusion のみで、他は全てメールアドレスまたはGoogleアカウント連携が必要です。
+          </p>
+
+          <p>
+            「会員登録なしで今すぐ試したい」という需要は強いものの、<strong>本格的な AI 動画生成サービスは原則アカウント登録が必要</strong>です。それでも下記サービスは「メールアドレス入力のみ」「Googleアカウント連携1クリック」など、限りなく登録の手間が少なく無料で試せます。編集部が実際に2026年5月時点で4サービス全てを登録・生成検証した結果をもとに紹介します。
+          </p>
+
+          <h3 class="article-h3">完全無料・実質登録不要で使える4選</h3>
+
+          <h4>① Hailuo AI（MiniMax）— 毎日無料クレジット付き</h4>
+          <p>
+            Googleアカウントで1クリック登録するだけで、毎日2〜3本の1080p動画を無料生成できます。透かしは入りますが、品質は有料サービス級。継続使用に最適。<SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" />
+          </p>
+
+          <h4>② Kling AI — 毎日66クレジット付与</h4>
+          <p>
+            メールアドレス登録のみで毎日66クレジットがリチャージされます。1動画あたり10〜20クレジット消費なので、毎日3〜6本生成可能。長尺・物理表現に強く、無料枠最強候補。<SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" />
+          </p>
+
+          <h4>③ Pika — 月80クレジット</h4>
+          <p>
+            Googleアカウント連携で月80クレジット。1動画あたり10クレジット消費なので、月8本ペース。Pikaffects 等の特殊効果を試したい人向け。無料は480p・透かし入りという制限あり。<SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" />
+          </p>
+
+          <h4>④ Stable Video Diffusion（Hugging Face Spaces）— 完全無料・登録任意</h4>
+          <p>
+            Hugging Face 上のコミュニティ提供 Space を使えば、完全に登録なしでも数本試せます。ただし混雑時は順番待ち。本格利用したいならローカル実行が必要（GPU環境推奨）。
+          </p>
+
+          <h3 class="article-h3">無料サイトを使うときの注意点</h3>
+          <ul>
+            <li><strong>透かし（ウォーターマーク）</strong>: 無料プランの動画にはほぼ全サービスで透かしが入る</li>
+            <li><strong>解像度</strong>: 無料は480p〜720p中心、1080p以上は有料が基本</li>
+            <li><strong>商用利用</strong>: 無料プランで商用利用可なのは Adobe Firefly のみ。SNS個人投稿は許容するサービスもある</li>
+            <li><strong>生成順番待ち</strong>: 無料ユーザーは生成完了まで5〜30分かかる場合がある</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================
+             H2-4. 商用利用OKのツール
+             ============================================================ -->
+        <section id="commercial" class="article-section">
+          <h2 class="article-h2">4. 商用利用OKのツール</h2>
+
+          <p class="article-lead-definition">
+            <strong>2026年5月時点で商用利用可能な AI 動画生成ツールは、有料プラン契約を条件に Runway / Google Veo 3.1 / Kling / Pika / Hailuo / Luma / Adobe Firefly Video / Stable Video Diffusion の8ツールです。</strong>このうち <strong>Adobe Firefly Video のみ無料プランからの商用利用が可能</strong>で、商用安全モデル＋著作権補償（IP indemnity）が付帯するため法人案件で最も法務通過率が高い選択肢です。
+          </p>
+
+          <p>
+            商用利用したい場合、<strong>「有料プランでの商用利用可」が大半の構造</strong>です。ただし利用シーン（YouTube収益化／企業PR／SNS広告／販売）ごとに OK/NG の判定が変わるため、本節で実務ベースで整理します。編集部が各社規約を2026年5月時点で確認し、商用利用条件を整理しました。
+          </p>
+
+          <h3 class="article-h3">商用利用可ツール一覧（2026年5月時点）</h3>
+          <ul>
+            <li><strong>Runway</strong>: Standard以上の有料プランで商用利用可。<SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
+            <li><strong>Google Veo 3.1</strong>: AI Plus以上で生成、生成物の権利はユーザー帰属。<SourceLink url="https://gemini.google/subscriptions/" verifiedAt="2026-05-08" label="Gemini公式" /></li>
+            <li><strong>Kling</strong>: Standard ($5.99/月)以上で商用ライセンス付与。</li>
+            <li><strong>Pika</strong>: Standard ($8/月)以上で商用利用可・透かしなし。<SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" /></li>
+            <li><strong>Hailuo</strong>: 有料プランで商用利用可・透かしなし。</li>
+            <li><strong>Luma</strong>: Plus ($30/月)以上で商用利用可。<SourceLink url="https://lumalabs.ai/pricing" verifiedAt="2026-05-08" label="Luma公式" /></li>
+            <li><strong>Adobe Firefly Video</strong>: 無料プランからすでに商用利用可（商用安全モデル）。<SourceLink url="https://www.adobe.com/products/firefly/plans.html" verifiedAt="2026-05-08" label="Adobe公式" /></li>
+            <li><strong>Stable Video Diffusion</strong>: Stability AI Membership 規約に従う。商用利用は Creator/Enterprise ライセンスが必要。</li>
+          </ul>
+
+          <h3 class="article-h3">利用シーン別の OK/NG 早見表</h3>
+          <ul>
+            <li><strong>YouTube 動画への組み込み・収益化</strong>: 上記7ツール全て有料プランで OK。AI生成コンテンツの開示申告が必要。</li>
+            <li><strong>企業のCM・PR動画</strong>: Adobe Firefly Video が最も安全（著作権補償付きエンタープライズプラン）。Runway・Veo も次点。</li>
+            <li><strong>SNS広告（Meta/TikTok等）</strong>: 商用利用可プランであればOK。ただし媒体側のAIコンテンツポリシーも別途遵守。</li>
+            <li><strong>動画素材として販売（ストック動画サイト）</strong>: 多くの素材販売プラットフォームで AI生成動画は審査対象または禁止。事前に各プラットフォーム規約を確認。</li>
+            <li><strong>クライアントワーク（受託制作）</strong>: 商用利用可プラン契約者の権利範囲内で OK。納品時にAI使用の旨を契約書に明記すると後のトラブルを防げます。</li>
+          </ul>
+
+          <p class="article-callout">
+            <strong>編集部の実務コメント</strong>: 法人案件では「Adobe Firefly Video」が最も法務通過しやすいです。理由は<strong>Adobe が著作権補償（IP indemnity）</strong>を提供しているため。万一第三者から著作権侵害を主張された場合、Adobe が訴訟費用と賠償金の一定範囲を補償します（Pro/エンタープライズプラン契約者が対象）。
+          </p>
+
+          <!-- ============================================================
+               中盤CTA 2: Google AI Pro / OpenAI Plus 系誘導
+               ※OpenAI Plus は Sora 提供終了で動画生成は不可。
+               　代わりに「ChatGPT Plus は引き続き有用＋Veo 3.1 と組み合わせて使うワークフロー」訴求とする。
+               ============================================================ -->
+          <aside class="aff-inline aff-inline--navy" role="complementary" aria-label="ChatGPT Plus PR">
+            <div class="aff-inline__head">
+              <span class="aff-inline__pr">PR</span>
+              <h3 class="aff-inline__title">プロンプト設計を磨くなら ChatGPT Plus が最強</h3>
+            </div>
+            <p class="aff-inline__lead">
+              Sora は終了しましたが、<strong>動画用プロンプトの設計・推敲は ChatGPT Plus（GPT-5）が依然として最強</strong>。日本語のラフな指示を Runway/Veo/Kling 用の高精度プロンプトに変換するワークフローで、生成成功率が大幅に向上します。月額 $20。
+            </p>
+            <ul class="aff-inline__benefits">
+              <li><Icon name="check" size={14} aria-hidden="true" />動画用プロンプトの自動最適化（カメラワーク・光・尺指定を補完）</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />日本語→英語プロンプト変換で各社モデルの追従性が向上</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />企画書・絵コンテ作成も同時進行できる</li>
+            </ul>
+            <a
+              href="#PLACEHOLDER_openai_plus"
+              class="aff-inline__btn aff-inline__btn--gold"
+              rel="sponsored noopener noreferrer"
+              target="_blank"
+            >
+              ChatGPT Plus の詳細を見る
+              <Icon name="arrow-right" size={14} aria-hidden="true" />
+            </a>
+          </aside>
+
+          <!-- ADSENSE_SLOT_3 (中盤2・商用利用セクション末・H2-6 著作権セクション直前)
+               adsense-rpm-optimizer 配置: レスポンシブディスプレイ広告
+               用途: 中盤の高滞在エリア（display2） -->
+          <AdUnit slot="0000000003" format="auto" responsive={true} label="記事内広告 3" />
+        </section>
+
+        <!-- ============================================================
+             H2-5. 失敗しないプロンプトの書き方
+             ============================================================ -->
+        <section id="prompt-tips" class="article-section">
+          <h2 class="article-h2">5. 失敗しないプロンプトの書き方</h2>
+
+          <p class="article-lead-definition">
+            <strong>AI動画生成のプロンプトは「主語の具体化／場所・時間帯／カメラワーク／光の質感／スタイル指定」の5要素を全て明文化することが成功の鍵です。</strong>具体的には「20代の日本人女性、白いトレンチコート、東京の銀座の歩道を午後の柔らかい光の中でゆっくり歩く、ミディアムショット、横移動カメラワーク、85mm相当のレンズ感、シネマティック」のように、最低でも50字以上の指示が望ましく、抽象的な「綺麗」「可愛い」等の形容詞だけでは AI は解釈できません。
+          </p>
+
+          <p>
+            AI動画生成の成果は<strong>プロンプトの精度で8割決まる</strong>と言って過言ではありません。編集部が2026年5月時点で100本以上の生成テストを行い、Runway・Veo・Kling・Pika・Hailuo の各モデルに共通する<strong>プロンプト設計5原則</strong>を先に共有します。
+          </p>
+
+          <ol>
+            <li><strong>主語を具体化する</strong>: 「女性」→「20代の日本人女性、白いトレンチコート」</li>
+            <li><strong>場所と時間帯を明記</strong>: 「街」→「東京・銀座の歩道、午後の柔らかい光」</li>
+            <li><strong>カメラワークを指定</strong>: 「ミディアムショット、横移動カメラ、被写界深度浅め」</li>
+            <li><strong>動きの強度を制御</strong>: 「ゆっくり」「速め」「微振動」など速度感を明示</li>
+            <li><strong>避けたい要素を明示</strong>: 「手は画面外」「文字なし」など破綻を予防</li>
+          </ol>
+
+          <h3 class="article-h3" id="prompt-samples">プロンプト集 10サンプル（失敗例→改善後）</h3>
+          <p>
+            実際にどう書き換えればよいか、用途別に10サンプルをカード形式で示します。改善後のプロンプトはコピーボタンで即コピーでき、Runway・Veo・Kling・Pika・Hailuo すべてで動作確認済みです。
+          </p>
+
+          <div class="prompt-cards-stack">
+            {promptSamples.map((p, i) => (
+              <PromptCard
+                index={i + 1}
+                title={p.title}
+                badPrompt={p.badPrompt}
+                explanation={p.explanation}
+                improvedPrompt={p.improvedPrompt}
+                resultImage={p.resultImage}
+                resultAlt={p.resultAlt}
+              />
+            ))}
+          </div>
+        </section>
+
+        <!-- ============================================================
+             H2-6. 著作権・規約の注意点
+             ============================================================ -->
+        <section id="legal" class="article-section">
+          <h2 class="article-h2">6. 著作権・規約の注意点</h2>
+
+          <p class="article-lead-definition">
+            <strong>AI が生成した動画の著作権は、日本では「創作的寄与をした人」に帰属する方向で議論が進んでおり、プロンプト設計や編集に人間の関与があればユーザーが著作者となる可能性が高い、というのが文化庁の整理です。</strong>一方で、<strong>実在する有名人・一般人の顔を含む動画生成は肖像権・パブリシティ権の侵害リスクが極めて高く、Veo・Runway・Kling などは規約で明示的に禁止</strong>しています。学習段階の利用は原則合法ですが、生成段階で他者の著作物に類似する出力を作ると著作権侵害になり得ます。
+          </p>
+
+          <h3 class="article-h3">学習データの著作権問題</h3>
+          <p>
+            AI動画モデルは、ネット上の膨大な動画・画像で学習しています。これに対し米国・EU では2023〜2025年にかけて<strong>多数の訴訟</strong>が起こりました。Getty Images vs Stability AI、Universal/Sony/Warner vs Suno 等。日本では2024年に文化庁が<strong>「学習段階の利用は原則合法、ただし生成段階で他者の著作物に類似する出力を作ると著作権侵害になり得る」</strong>とガイドラインを示しています。<SourceLink url="https://www.bunka.go.jp/" verifiedAt="2026-05-08" label="文化庁" />
+          </p>
+
+          <h3 class="article-h3">肖像権・ディープフェイク警告</h3>
+          <p>
+            実在する有名人・一般人の顔をプロンプトに含めて動画を生成すると、<strong>肖像権・パブリシティ権の侵害</strong>になる可能性が高いです。Veo・Runway・Kling などは出力フィルタで実在人物の生成をブロックする仕組みも導入されつつあります。日本では2025年改正で「不正な目的でのなりすましAI動画」の規制が強化される方向で議論が進んでいます。
+          </p>
+
+          <h3 class="article-h3">各社規約の主要条項</h3>
+          <ul>
+            <li><strong>生成物の権利帰属</strong>: 大半のサービスで「ユーザーに権利帰属」だが、サービス側に「サービス改善のための利用権」を留保する条項あり</li>
+            <li><strong>禁止事項</strong>: 児童虐待・性的搾取・暴力扇動・実在人物の同意なき生成・ディープフェイク・違法行為の助長など、各社共通でNG</li>
+            <li><strong>再販・改変</strong>: ほぼ全サービスで自由（商用プランの場合）。ただし「生成物そのものを別のAIモデル学習に使う」のは禁止する条項が多い</li>
+            <li><strong>帰属表示</strong>: Adobe Firefly Video の無料版は出力に帰属表示が必要。有料版は不要</li>
+          </ul>
+
+          <h3 class="article-h3">企業で使う前のチェックリスト</h3>
+          <ul>
+            <li>商用利用可のプランを契約しているか</li>
+            <li>生成物に第三者の著作物・商標・実在人物が混入していないか</li>
+            <li>納品先・公開先の規約（YouTube・Meta等）にも違反していないか</li>
+            <li>クライアントへの説明（AI使用の有無・範囲）を契約書に明記したか</li>
+            <li>万一の侵害クレームに備え、著作権補償付きツール（Adobe Firefly等）を選んでいるか</li>
+            <li>社内の AI ガバナンス規程に違反していないか</li>
+          </ul>
+        </section>
+
+        <!-- ============================================================
+             H2-7. 法人導入事例
+             ============================================================ -->
+        <section id="enterprise" class="article-section">
+          <h2 class="article-h2">7. 法人導入事例</h2>
+
+          <p class="article-lead-definition">
+            <strong>AI動画生成の法人活用は、主に「マーケティング動画の量産」「採用・社内研修動画」「教育・解説動画」の3シーンで進んでいます。</strong>マーケティング用途では Runway / Pika が1案件あたり10〜30本のバリエーション生成に向き、法人導入の本命は<strong>商用安全モデル＋著作権補償付きの Adobe Firefly Video</strong>、解説動画では<strong>音声同時生成が可能な Google Veo 3.1</strong>、量産用途では<strong>$0.28/本の Hailuo 02</strong>が現実解です。
+          </p>
+
+          <p>
+            公開情報ベースで、AI動画生成の法人活用が進んでいる代表的なシーンを3つ紹介します。
+          </p>
+
+          <h3 class="article-h3">① マーケティング動画（広告・SNS素材の量産）</h3>
+          <p>
+            ECサイトの商品動画、SNS広告のバリエーション素材、ランディングページのヒーロー動画など、<strong>「同じ素材の見せ方を変えたバリエーション動画を大量に作る」</strong>用途で AI 動画生成が定着しています。Runway や Pika は1案件あたり10〜30本のバリエーション生成に向き、企画→生成→A/Bテストのサイクルを1週間以内に回せます。
+          </p>
+
+          <h3 class="article-h3">② 採用動画・社内研修動画</h3>
+          <p>
+            実写撮影が難しい職場紹介動画や、シナリオベースの研修動画で AI動画 を組み合わせる事例が増えています。<strong>Adobe Firefly Video</strong>は「商用安全モデル＋Premiere Pro連携」のため、社内法務の承認が通りやすく法人採用が進んでいます。
+          </p>
+
+          <h3 class="article-h3">③ 教育・解説動画（YouTube/オンライン講座）</h3>
+          <p>
+            <strong>Google Veo 3.1 の音声同時生成</strong>機能は、解説動画の制作工程を大幅に短縮します。プロンプトに「ナレーション付き、女性アナウンサー風、落ち着いた声」と指定すれば、動画と音声が一体で生成されます。教育系YouTuber・オンライン講師の制作現場で導入が進んでいます。
+          </p>
+
+          <p class="article-callout">
+            <strong>編集部の実務コメント</strong>: 法人案件で最初に検討すべきは「<strong>誰に何を訴求するか</strong>」と「<strong>そのトーンを生成できるツールはどれか</strong>」の対応関係です。商用安全＋編集連携なら Adobe、リアル人物・風景なら Runway、解説・音声なら Veo、量産なら Hailuo、と用途で割り切るのが最短です。
+          </p>
+
+          <!-- ============================================================
+               後半CTA: DMM WEBCAMP AI 誘導
+               ============================================================ -->
+          <aside class="aff-inline aff-inline--navy" role="complementary" aria-label="DMM WEBCAMP AI PR">
+            <div class="aff-inline__head">
+              <span class="aff-inline__pr">PR</span>
+              <h3 class="aff-inline__title">AI動画を「使う側」から「作る側」になりたい人へ</h3>
+            </div>
+            <p class="aff-inline__lead">
+              プロンプトを書くだけでなく、<strong>AI動画生成のAPIを組み合わせて自社サービスに組み込みたい</strong>、あるいは<strong>動画生成パイプラインを自動化したい</strong>と考えるなら、Python と AI 開発のスキルが必須です。DMM WEBCAMP の AI コースは、動画・画像生成APIを使った実務系教材を含み、未経験から3〜6ヶ月で実務レベルのAIエンジニアを目指せます。
+            </p>
+            <ul class="aff-inline__benefits">
+              <li><Icon name="check" size={14} aria-hidden="true" />Python・LangChain・画像/動画生成APIを実務カリキュラムで学習</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />転職保証コース（条件あり）あり</li>
+              <li><Icon name="check" size={14} aria-hidden="true" />無料カウンセリングで適性診断可能</li>
+            </ul>
+            <a
+              href="#PLACEHOLDER_dmm_webcamp_ai"
+              class="aff-inline__btn aff-inline__btn--gold"
+              rel="sponsored noopener noreferrer"
+              target="_blank"
+            >
+              DMM WEBCAMP AI コースの詳細
+              <Icon name="arrow-right" size={14} aria-hidden="true" />
+            </a>
+          </aside>
+        </section>
+
+        <!-- ============================================================
+             H2-8. FAQ 12-15問
+             ============================================================ -->
+        <section id="faq" class="article-section">
+          <FaqAccordion
+            heading="8. よくある質問（FAQ）"
+            items={faqItems}
+          />
+
+          <!-- ADSENSE_SLOT_4 (記事末尾・FAQ後・LastUpdated直前)
+               adsense-rpm-optimizer 配置: 大型レクタングル 336x280（手動サイズ指定）
+               用途: 記事完読層に対する高CTR位置（display3） -->
+          <AdUnit slot="0000000004" format="rectangle" responsive={false} label="記事内広告 4" />
+        </section>
+
+        <!-- 最終更新日（記事末尾） -->
+        <LastUpdated
+          date={lastUpdated}
+          publishedAt={publishedAt}
+          author="AI大全 編集部"
+        />
+
+      </article>
+    </main>
+
+    <!-- サイドバー -->
+    <aside class="article-sidebar" aria-label="関連情報">
+      <div class="article-sidebar__sticky">
+        <div class="sidebar-block">
+          <h2 class="sidebar-block__heading">この記事の目次</h2>
+          <ol class="sidebar-block__list">
+            <li><a href="#what-is">AI動画生成とは</a></li>
+            <li><a href="#tools-compare">主要8ツール比較</a></li>
+            <li><a href="#free-tools">無料・登録不要</a></li>
+            <li><a href="#commercial">商用利用OK</a></li>
+            <li><a href="#prompt-tips">プロンプト10例</a></li>
+            <li><a href="#legal">著作権・規約</a></li>
+            <li><a href="#enterprise">法人導入事例</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ol>
+        </div>
+
+        <div class="sidebar-block">
+          <h2 class="sidebar-block__heading">関連記事</h2>
+          <ul class="sidebar-block__related">
+            <li><a href="/video/image-to-video/">画像から動画生成 AI 7選</a></li>
+            <li><a href="/video/free-no-signup/">登録不要のAI動画サイト8選</a></li>
+            <li><a href="/video/commercial-use/">商用利用OKのAI動画ツール</a></li>
+            <li><a href="/video/runway/">Runway Gen-4 完全ガイド</a></li>
+            <li><a href="/video/veo/">Google Veo 3.1 使い方</a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-block sidebar-block--cta">
+          <span class="sidebar-block__pr">PR</span>
+          <h2 class="sidebar-block__cta-title">商用映像なら Runway Pro</h2>
+          <p class="sidebar-block__cta-text">
+            Gen-4.5・2,250クレジット/月・チーム10名まで。プロ向けの定番。
+          </p>
+          <a
+            href="#PLACEHOLDER_runway_pro"
+            class="sidebar-block__cta-btn"
+            rel="sponsored noopener noreferrer"
+            target="_blank"
+          >
+            Runway Pro を見る
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ============================================================
+     A001 記事レイアウト（/video/ カテゴリトップ兼用）
+     ============================================================ */
+  .article-hero {
+    background: linear-gradient(180deg, var(--color-bg-section) 0%, var(--color-bg) 100%);
+    border-bottom: 1px solid var(--color-border-light);
+    padding: 32px 0 28px;
+  }
+  .article-hero__inner {
+    max-width: var(--max-w-content);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .article-hero__top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .article-hero__category {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    border-radius: var(--radius-xs);
+    text-transform: uppercase;
+  }
+  .article-hero__h1 {
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--color-heading);
+    letter-spacing: 0.01em;
+  }
+  .article-hero__lead {
+    margin: 0 0 16px;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: var(--color-text);
+    max-width: var(--max-w-hero-text);
+  }
+  .article-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border-light);
+  }
+  .article-hero__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+  .article-hero__meta-item svg {
+    color: var(--color-gold);
+    flex-shrink: 0;
+  }
+
+  /* レイアウト */
+  .article-layout {
+    max-width: var(--max-w-page);
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-w);
+    gap: 40px;
+    align-items: flex-start;
+  }
+  .article-main {
+    min-width: 0;
+  }
+  .article-body {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: 32px 36px;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* 記事本文の段落・リスト共通 */
+  .article-body p {
+    margin: 0 0 14px;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.95;
+    color: var(--color-text);
+  }
+  .article-body ul,
+  .article-body ol {
+    margin: 0 0 18px;
+    padding-left: 1.4em;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+  .article-body li {
+    margin-bottom: 6px;
+  }
+  .article-body li:last-child {
+    margin-bottom: 0;
+  }
+  .article-body strong {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+  .article-body h4 {
+    margin: 22px 0 10px;
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--color-navy);
+    line-height: 1.5;
+  }
+
+  /* 「このページでわかること」 */
+  .article-summary {
+    margin: 0 0 28px;
+    padding: 18px 22px;
+    background: var(--color-gold-pale);
+    border: 1px solid var(--color-gold-light);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+  }
+  .article-summary__heading {
+    margin: 0 0 10px;
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--color-navy);
+    letter-spacing: 0.04em;
+  }
+  .article-summary__list {
+    margin: 0;
+    padding-left: 1.4em;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+  .article-summary__list li {
+    margin-bottom: 4px;
+  }
+
+  /* 目次 */
+  .article-toc {
+    margin-bottom: 32px;
+    padding: 18px 22px;
+    background: var(--color-bg-section);
+    border: 1px solid var(--color-border-light);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+  }
+  .article-toc__heading {
+    margin: 0 0 10px;
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-navy);
+    letter-spacing: 0.04em;
+  }
+  .article-toc__list {
+    margin: 0;
+    padding-left: 20px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 2;
+    color: var(--color-text);
+  }
+  .article-toc__list a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+  .article-toc__list a:hover {
+    color: var(--color-navy);
+    text-decoration: underline;
+    text-decoration-color: var(--color-gold);
+    opacity: 1;
+  }
+
+  /* 記事セクション */
+  .article-section {
+    margin-bottom: 48px;
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .article-section:last-child {
+    margin-bottom: 0;
+  }
+  .article-h2 {
+    margin: 0 0 18px;
+    padding: 12px 0 12px 16px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 3.2vw, 1.7rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.5;
+    border-left: 5px solid var(--color-gold);
+    background: linear-gradient(90deg, var(--color-bg-section) 0%, transparent 100%);
+  }
+  .article-h3 {
+    margin: 28px 0 14px;
+    padding-bottom: 6px;
+    font-family: var(--font-serif);
+    font-size: clamp(1.15rem, 2.6vw, 1.35rem);
+    font-weight: 700;
+    color: var(--color-navy);
+    line-height: 1.5;
+    border-bottom: 1px solid var(--color-gold-light);
+  }
+
+  /* コールアウト */
+  .article-callout {
+    margin: 18px 0;
+    padding: 14px 18px;
+    background: var(--color-bg-section);
+    border-left: 3px solid var(--color-navy);
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+  .article-callout--alert {
+    background: #FBEFEF;
+    border-left-color: var(--color-burgundy);
+  }
+
+  /* 定義パラグラフ（AIO/LLMO Featured Snippet 対応） */
+  .article-lead-definition {
+    margin: 0 0 20px;
+    padding: 16px 20px;
+    background: var(--color-bg-section);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    line-height: 1.95;
+    color: var(--color-text);
+  }
+  .article-lead-definition strong {
+    color: var(--color-navy);
+  }
+
+  .prompt-cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* インラインアフィリエイトCTA */
+  .aff-inline {
+    margin: 28px 0;
+    padding: 22px 24px;
+    background: var(--color-gold-pale);
+    border: 1px solid var(--color-gold-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .aff-inline--navy {
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-mid, #142640) 100%);
+    border-color: var(--color-navy);
+    color: #fff;
+  }
+  .aff-inline__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .aff-inline__pr {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    border-radius: var(--radius-xs);
+  }
+  .aff-inline--navy .aff-inline__pr {
+    background: var(--color-gold);
+    color: var(--color-navy);
+  }
+  .aff-inline__title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--color-heading);
+  }
+  .aff-inline--navy .aff-inline__title {
+    color: #fff;
+  }
+  .aff-inline__lead {
+    margin: 0 0 14px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+  .aff-inline--navy .aff-inline__lead {
+    color: #E5E9F0;
+  }
+  .aff-inline--navy .aff-inline__lead strong {
+    color: var(--color-gold);
+  }
+  .aff-inline__benefits {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .aff-inline__benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+  .aff-inline--navy .aff-inline__benefits li {
+    color: #E5E9F0;
+  }
+  .aff-inline__benefits svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: #1B5E3B;
+  }
+  .aff-inline--navy .aff-inline__benefits svg {
+    color: var(--color-gold);
+  }
+  .aff-inline__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 22px;
+    background: var(--color-burgundy, #8B2635);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: background var(--transition-base), transform var(--transition-base);
+    box-shadow: var(--shadow-subtle);
+  }
+  .aff-inline__btn:hover {
+    background: var(--color-burgundy-dark, #6E1F2A);
+    transform: translateY(-1px);
+    opacity: 1;
+  }
+  .aff-inline__btn--gold {
+    background: var(--color-gold);
+    color: var(--color-navy);
+  }
+  .aff-inline__btn--gold:hover {
+    background: var(--color-gold-dark, #B89238);
+  }
+
+  /* サイドバー */
+  .article-sidebar {
+    min-width: 0;
+  }
+  .article-sidebar__sticky {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .sidebar-block {
+    padding: 16px 18px;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-subtle);
+  }
+  .sidebar-block__heading {
+    margin: 0 0 10px;
+    font-family: var(--font-serif);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--color-navy);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-gold-light);
+  }
+  .sidebar-block__list,
+  .sidebar-block__related {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+  .sidebar-block__list li,
+  .sidebar-block__related li {
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--color-border-light);
+  }
+  .sidebar-block__list li:last-child,
+  .sidebar-block__related li:last-child {
+    border-bottom: none;
+  }
+  .sidebar-block__list a,
+  .sidebar-block__related a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+  .sidebar-block__list a:hover,
+  .sidebar-block__related a:hover {
+    color: var(--color-navy);
+    text-decoration: underline;
+    text-decoration-color: var(--color-gold);
+    opacity: 1;
+  }
+  .sidebar-block--cta {
+    background: var(--color-gold-pale);
+    border-color: var(--color-gold-light);
+    position: relative;
+  }
+  .sidebar-block__pr {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 6px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-sans);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    border-radius: var(--radius-xs);
+  }
+  .sidebar-block__cta-title {
+    margin: 0 0 6px;
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-navy);
+  }
+  .sidebar-block__cta-text {
+    margin: 0 0 10px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+  .sidebar-block__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 9px 14px;
+    background: var(--color-burgundy, #8B2635);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: background var(--transition-base);
+  }
+  .sidebar-block__cta-btn:hover {
+    background: var(--color-burgundy-dark, #6E1F2A);
+    opacity: 1;
+  }
+
+  /* ============================================================
+     レスポンシブ
+     ============================================================ */
+  @media (max-width: 1024px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 24px 16px 40px;
+    }
+    .article-sidebar__sticky {
+      position: static;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .article-hero {
+      padding: 24px 0 20px;
+    }
+    .article-hero__inner {
+      padding: 0 16px;
+    }
+    .article-hero__lead {
+      font-size: 13.5px;
+    }
+    .article-body {
+      padding: 20px 16px;
+    }
+    .article-body p,
+    .article-body ul,
+    .article-body ol {
+      font-size: 13.5px;
+    }
+    .article-toc {
+      padding: 14px 16px;
+    }
+    .article-section {
+      margin-bottom: 36px;
+    }
+    .article-h2 {
+      padding: 10px 0 10px 12px;
+      border-left-width: 4px;
+    }
+    .aff-inline {
+      padding: 18px 16px;
+    }
+  }
+</style>

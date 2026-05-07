@@ -1,0 +1,63 @@
+---
+import Icon from '../Icon.astro';
+
+interface Props {
+  /** 確認日 (YYYY-MM-DD) */
+  verifiedAt: string;
+  /** 表示ラベル接尾辞（既定: 「時点の情報」） */
+  label?: string;
+}
+
+const { verifiedAt, label = '時点の情報' } = Astro.props;
+
+// YYYY-MM-DD → YYYY年M月D日
+const date = new Date(verifiedAt + 'T00:00:00+09:00');
+const formatted = isNaN(date.getTime())
+  ? verifiedAt
+  : `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+---
+
+<div class="recency-badge" role="status" aria-label={`情報の確認日 ${formatted}`}>
+  <span class="recency-badge__icon" aria-hidden="true">
+    <Icon name="shield" size={12} />
+  </span>
+  <span class="recency-badge__date">{formatted}</span>
+  <span class="recency-badge__label">{label}</span>
+</div>
+
+<style>
+  .recency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--color-gold-pale);
+    color: var(--color-navy);
+    border: 1px solid var(--color-gold-light);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-subtle);
+  }
+  .recency-badge__icon {
+    display: inline-flex;
+    color: var(--color-gold);
+  }
+  .recency-badge__date {
+    font-feature-settings: 'tnum';
+    font-weight: 700;
+  }
+  .recency-badge__label {
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+  @media (max-width: 768px) {
+    .recency-badge {
+      font-size: 11.5px;
+      padding: 5px 10px;
+    }
+  }
+</style>

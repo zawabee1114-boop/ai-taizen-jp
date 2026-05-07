@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import siteMeta from '../data/site-meta.json';
+---
+
+<BaseLayout title={`プライバシーポリシー｜${siteMeta.siteName}`} description="テンプレートフリーのプライバシーポリシー。">
+  <Breadcrumb items={[{ label: 'プライバシーポリシー' }]} />
+  <div class="legal-wrap">
+    <h1 class="legal-h1">プライバシーポリシー</h1>
+
+    <h2 class="legal-h2">第1条（個人情報の取扱い）</h2>
+    <p class="legal-p">{siteMeta.operator.name}（以下「当サイト」）は、当サイトを利用するユーザーのプライバシーを尊重し、適切な個人情報の取扱いに努めます。</p>
+
+    <h2 class="legal-h2">第2条（取得する情報）</h2>
+    <p class="legal-p">当サイトはテンプレートのダウンロードに会員登録を必要としないため、ユーザーの氏名・メールアドレス・電話番号等の個人情報を取得しません。お問い合わせ時に提供された情報のみを保管します。</p>
+
+    <h2 class="legal-h2">第3条（Cookie・アクセス解析）</h2>
+    <p class="legal-p">当サイトはアクセス解析ツール（Google Analytics 4）を利用しています。Cookie によりユーザーの行動履歴を匿名で収集する場合があります。Cookie を無効化することで収集を拒否できます。</p>
+
+    <h2 class="legal-h2">第4条（広告配信）</h2>
+    <p class="legal-p">当サイトは Google AdSense およびアフィリエイトプログラムを利用しています。第三者配信事業者は Cookie を使用してユーザーの興味に応じた広告を配信する場合があります。広告のパーソナライズは <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google 広告設定</a> から無効化できます。</p>
+
+    <h2 class="legal-h2">第5条（個人情報の第三者提供）</h2>
+    <p class="legal-p">当サイトは法令に定める場合を除き、ユーザーの個人情報を第三者に提供しません。</p>
+
+    <h2 class="legal-h2">第6条（プライバシーポリシーの変更）</h2>
+    <p class="legal-p">本ポリシーの内容は、ユーザーへの通知なしに変更することがあります。変更後の内容は本ページに掲載した時点から効力を生じます。</p>
+
+    <p class="legal-updated">最終更新日: {siteMeta.lastUpdated}</p>
+  </div>
+</BaseLayout>
+
+<style>
+.legal-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+.legal-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 32px;
+  letter-spacing: -0.01em;
+}
+.legal-h2 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 36px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.legal-p {
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin: 0 0 14px;
+}
+.legal-p a {
+  color: var(--color-navy);
+  border-bottom: 1px solid var(--color-border);
+}
+.legal-p a:hover {
+  color: var(--color-gold);
+  border-bottom-color: var(--color-gold);
+  opacity: 1;
+}
+.legal-updated {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-top: 40px;
+}
+@media (max-width: 768px) {
+  .legal-wrap { padding: 24px 16px 64px; }
+  .legal-h1 { font-size: clamp(1.4rem, 6vw, 1.8rem); margin-bottom: 24px; }
+  .legal-h2 { font-size: 1.05rem; margin-top: 28px; }
+  .legal-p { font-size: 14px; }
+}
+</style>

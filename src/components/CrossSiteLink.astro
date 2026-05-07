@@ -1,0 +1,27 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  url: string;
+  reason: string;
+  buttonLabel?: string;
+}
+
+const { title, url, reason, buttonLabel = '計算してみる' } = Astro.props;
+---
+
+<div class="cross-site-link">
+  <div class="cross-site-link__icon" aria-hidden="true">
+    <Icon name="external-link" size={20} />
+  </div>
+  <div class="cross-site-link__content">
+    <span class="cross-site-link__tag">Group Site &mdash; 計算ナビ.jp</span>
+    <h3 class="cross-site-link__title">{title}</h3>
+    <p class="cross-site-link__reason">{reason}</p>
+    <a href={url} class="cross-site-link__btn" target="_blank" rel="noopener noreferrer">
+      {buttonLabel}
+      <Icon name="arrow-right" size={14} />
+    </a>
+  </div>
+</div>

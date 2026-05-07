@@ -1,0 +1,221 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Icon from '../components/Icon.astro';
+import siteMeta from '../data/site-meta.json';
+import { getCategory } from '../data/categories';
+import type { TemplateMeta, DownloadFile } from '../data/templates';
+
+interface Props {
+  template: TemplateMeta;
+  catchCopy?: string;
+}
+
+const { template, catchCopy } = Astro.props;
+const category = getCategory(template.category)!;
+
+// ファイル形式ラベル
+function getFormatLabel(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return 'Word';
+    case 'excel':        return 'Excel';
+    case 'google-doc':   return 'Google ドキュメント';
+    case 'google-sheet': return 'Google スプレッドシート';
+    case 'pdf':          return 'PDF';
+    default:             return format;
+  }
+}
+
+// ユニークなフォーマット一覧（バッジ用）
+const uniqueFormats = [...new Set(template.files.map(f => {
+  if (f.format === 'word') return 'Word';
+  if (f.format === 'excel') return 'Excel';
+  if (f.format === 'google-doc' || f.format === 'google-sheet') return 'Google';
+  return f.format.toUpperCase();
+}))];
+
+// DLボタン色（フォーマット別）
+function getBtnColor(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return '#2B579A';
+    case 'excel':        return '#107C41';
+    case 'google-doc':
+    case 'google-sheet': return '#0F9D58';
+    case 'pdf':          return '#CC2222';
+    default:             return '#1A2940';
+  }
+}
+
+// アイコン名
+function getIconName(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return 'file-word';
+    case 'excel':        return 'file-excel';
+    case 'google-doc':
+    case 'google-sheet': return 'file-google';
+    case 'pdf':          return 'file-pdf';
+    default:             return 'document';
+  }
+}
+
+function getSubLabel(format: DownloadFile['format']): string {
+  if (format === 'google-doc' || format === 'google-sheet') return 'ワンクリックでコピー';
+  return '会員登録不要・即DL';
+}
+
+// 更新日フォーマット
+const lastUpdatedFormatted = new Date(template.lastUpdated).toLocaleDateString('ja-JP', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// JSON-LD
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": template.shortTitle,
+  "description": template.description,
+  "datePublished": siteMeta.publishDate,
+  "dateModified": template.lastUpdated,
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `${siteMeta.siteUrl}${template.url}`,
+  },
+};
+---
+
+<BaseLayout
+  title={template.title}
+  description={template.metaDescription}
+  jsonLd={articleJsonLd}
+  publishDate={siteMeta.publishDate}
+  lastUpdated={template.lastUpdated}
+  showEditorialMeta={true}
+>
+  <Breadcrumb items={[
+    { label: category.shortName, href: `/${category.slug}/` },
+    { label: template.shortTitle },
+  ]} />
+
+  <!-- テンプレートヒーロー v2 -->
+  <header class="tmpl-hero-v2" aria-label="テンプレート情報">
+    <div class="tmpl-hero-v2__inner">
+      <span class="tmpl-hero-v2__eyebrow">
+        <Icon name={
+          category.slug === 'rodo' ? 'briefcase' :
+          category.slug === 'kaikei' ? 'chart-bar' :
+          category.slug === 'business' ? 'clipboard' : 'grid'
+        } size={12} aria-hidden="true" />
+        {category.shortName}
+      </span>
+      <h1 class="tmpl-hero-v2__h1">{template.shortTitle}</h1>
+      <p class="tmpl-hero-v2__lead">{catchCopy || template.description}</p>
+      <div class="tmpl-hero-v2__meta">
+        <span class="tmpl-hero-v2__meta-badge tmpl-hero-v2__meta-badge--date">
+          <Icon name="clock" size={12} aria-hidden="true" />
+          最終更新: {lastUpdatedFormatted}
+        </span>
+        {uniqueFormats.map(fmt => (
+          <span class="tmpl-hero-v2__meta-badge tmpl-hero-v2__meta-badge--format">{fmt}</span>
+        ))}
+        <span class="tmpl-hero-v2__meta-badge tmpl-hero-v2__meta-badge--free">
+          <Icon name="lock-open" size={12} aria-hidden="true" />
+          会員登録不要・無料
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- DLセクションバー -->
+  <section class="dl-section" aria-label="ダウンロード">
+    <div class="dl-section__inner">
+      <div class="dl-section__top-bar">
+        <span class="dl-section__label">Download</span>
+        <span class="dl-section__free-badge">全て無料・会員登録不要・即ダウンロード</span>
+      </div>
+
+      {/* メイン（空欄テンプレ） */}
+      <div class="dl-group" aria-label="テンプレート（空欄）">
+        <h3 class="dl-group__head">
+          <Icon name="document" size={14} aria-hidden="true" />
+          テンプレート（空欄・編集可能）
+        </h3>
+        <div class="dl-section__buttons" role="group">
+          {template.files.filter(f => !f.isExample).map(file => (
+            <a
+              href={file.href}
+              class="dl-btn-v2"
+              style={`background: ${getBtnColor(file.format)}`}
+              download={file.format !== 'google-doc' && file.format !== 'google-sheet' ? true : undefined}
+              target={file.format === 'google-doc' || file.format === 'google-sheet' ? '_blank' : undefined}
+              rel={file.format === 'google-doc' || file.format === 'google-sheet' ? 'noopener noreferrer' : undefined}
+              aria-label={`${getFormatLabel(file.format)}でダウンロード`}
+            >
+              <div class="dl-btn-v2__icon-wrap" aria-hidden="true">
+                <Icon name={getIconName(file.format)} size={22} />
+              </div>
+              <div class="dl-btn-v2__text">
+                <span class="dl-btn-v2__main">{file.label}</span>
+                <span class="dl-btn-v2__sub">{getSubLabel(file.format)}</span>
+              </div>
+              <Icon name="download" size={16} class="dl-btn-v2__dl-icon" aria-hidden="true" />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* 記入例（書き方サンプル） */}
+      {template.files.some(f => f.isExample) && (
+        <div class="dl-group dl-group--example" aria-label="記入例（書き方サンプル）">
+          <h3 class="dl-group__head">
+            <Icon name="pen" size={14} aria-hidden="true" />
+            記入例・書き方サンプル
+            <span class="dl-group__head-note">（記入済みのサンプルPDF）</span>
+          </h3>
+          <div class="dl-section__buttons" role="group">
+            {template.files.filter(f => f.isExample).map(file => (
+              <a
+                href={file.href}
+                class="dl-btn-v2 dl-btn-v2--example"
+                style={`background: ${getBtnColor(file.format)}`}
+                download={true}
+                aria-label={`${file.label}をダウンロード`}
+              >
+                <div class="dl-btn-v2__icon-wrap" aria-hidden="true">
+                  <Icon name={getIconName(file.format)} size={22} />
+                </div>
+                <div class="dl-btn-v2__text">
+                  <span class="dl-btn-v2__main">{file.label}</span>
+                  <span class="dl-btn-v2__sub">記入例つき・参考用</span>
+                </div>
+                <Icon name="download" size={16} class="dl-btn-v2__dl-icon" aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- 2カラム本文 -->
+  <div class="template-layout">
+    <main class="template-main">
+      <article class="template-body-v2">
+        <slot />
+      </article>
+    </main>
+
+    <Sidebar currentSlug={template.slug} category={template.category} template={template} />
+  </div>
+</BaseLayout>

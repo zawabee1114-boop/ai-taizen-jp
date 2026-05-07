@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+
+interface FAQItem {
+  q: string;
+  a: string;
+}
+
+interface Props {
+  items: FAQItem[];
+  withSchema?: boolean;
+}
+
+const { items, withSchema = true } = Astro.props;
+
+const faqJsonLd = withSchema ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": items.map(item => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.a.replace(/<[^>]*>/g, ''),
+    },
+  })),
+} : null;
+---
+
+<div class="faq-list">
+  {items.map((item, idx) => (
+    <details class="faq-item" id={`faq-${idx}`}>
+      <summary>
+        {item.q}
+        <span class="faq-chevron" aria-hidden="true">
+          <Icon name="chevron-down" size={18} />
+        </span>
+      </summary>
+      <div class="faq-item__body" set:html={item.a} />
+    </details>
+  ))}
+</div>
+
+{faqJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+)}

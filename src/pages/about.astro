@@ -1,0 +1,352 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import BizoceanCompare from '../components/BizoceanCompare.astro';
+import Icon from '../components/Icon.astro';
+import siteMeta from '../data/site-meta.json';
+
+const promises = [
+  {
+    icon: 'lock-open',
+    title: '会員登録不要・即DL',
+    desc: '他社サイトのような会員登録の壁はありません。ページを開いたら3秒でダウンロードボタンを押せる体験を最優先設計しています。広告メールも一切送りません。',
+  },
+  {
+    icon: 'clock',
+    title: '3秒で即ダウンロード',
+    desc: '主要3形式（Word・Excel・印刷用PDF）と記入例PDFを1ページにまとめて配布。ダウンロード後すぐ編集・印刷でき、必要なら Google ドライブにアップロードして Google ドキュメント／スプレッドシートとしても利用できます。',
+  },
+  {
+    icon: 'sparkle',
+    title: 'AI監修・最新法令対応',
+    desc: 'Claude / GPT による文書品質チェック＋編集部レビューで、フリーランス保護新法・労働基準法改正等の最新法令に対応しています。',
+  },
+  {
+    icon: 'shield',
+    title: '公開情報のみで構築（取材なし）',
+    desc: 'テンプレートは厚生労働省・国税庁等の公的様式・公開情報のみを参照して制作しています。架空の「人間監修者」を立てる景品表示法・ステマ規制違反は行いません。',
+  },
+];
+---
+
+<BaseLayout
+  title={`運営者情報｜${siteMeta.siteName}`}
+  description="テンプレートフリーの運営方針・編集体制・データソース・収益モデル・透明性ポリシーについて。AI監修＋編集部レビューで2026年最新法令に対応した業務テンプレートを会員登録不要で配布しています。"
+>
+  <Breadcrumb items={[{ label: '運営者情報' }]} />
+  <div class="about-wrap">
+
+    <h1 class="about-h1">運営者情報・編集方針</h1>
+
+    <!-- サイト概要テーブル -->
+    <section class="about-section" aria-labelledby="overview-title">
+      <h2 class="about-h2" id="overview-title">サイト概要</h2>
+      <table class="about-table">
+        <tbody>
+          <tr><th>サイト名</th><td>{siteMeta.siteName}</td></tr>
+          <tr><th>URL</th><td>{siteMeta.siteUrl}</td></tr>
+          <tr><th>運営</th><td>{siteMeta.operator.name}</td></tr>
+          <tr><th>公開開始</th><td>2026年5月</td></tr>
+          <tr><th>提供テンプレ</th><td>Vol.1 で40種類以上を順次公開</td></tr>
+          <tr><th>料金</th><td>完全無料・会員登録不要</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4つの運営方針 -->
+    <section class="about-section" aria-labelledby="promise-title">
+      <h2 class="about-h2" id="promise-title">運営方針（4つの約束）</h2>
+      <div class="promise-grid">
+        {promises.map(p => (
+          <div class="promise-card">
+            <div class="promise-card__icon" aria-hidden="true">
+              <Icon name={p.icon} size={22} />
+            </div>
+            <h3 class="promise-card__title">{p.title}</h3>
+            <p class="promise-card__desc">{p.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- AI監修プロセス -->
+    <section class="about-section" aria-labelledby="supervised-title">
+      <h2 class="about-h2" id="supervised-title">AI監修プロセス</h2>
+      <div class="supervised-steps">
+        <div class="supervised-step">
+          <div class="supervised-step__num" aria-hidden="true">01</div>
+          <div class="supervised-step__body">
+            <h3 class="supervised-step__title">
+              <Icon name="sparkle" size={17} />
+              AI文書品質チェック
+            </h3>
+            <p>Claude / GPT-4 を使用し、法令準拠・文体一貫性・抜け漏れをチェック。公的様式（厚労省・国税庁）との差分を自動検出します。</p>
+          </div>
+        </div>
+        <div class="supervised-step">
+          <div class="supervised-step__num" aria-hidden="true">02</div>
+          <div class="supervised-step__body">
+            <h3 class="supervised-step__title">
+              <Icon name="check-circle" size={17} />
+              編集部レビュー
+            </h3>
+            <p>AIのチェックを受けた後、編集部が最終確認。法改正情報（2024年フリーランス新法・労基法改正等）への対応を人間の目で確認しています。</p>
+          </div>
+        </div>
+        <div class="supervised-step">
+          <div class="supervised-step__num" aria-hidden="true">03</div>
+          <div class="supervised-step__body">
+            <h3 class="supervised-step__title">
+              <Icon name="clock" size={17} />
+              定期更新
+            </h3>
+            <p>法改正・省令改正のたびに自動アラートを設定。改正施行後30日以内にテンプレートを更新・再公開しています。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 他社との比較 -->
+    <section class="about-section" aria-labelledby="compare-title">
+      <h2 class="about-h2" id="compare-title">他社との比較</h2>
+      <p class="about-lead">会員登録が必要な大手テンプレートサイトと機能・利便性を比較しています。</p>
+      <BizoceanCompare />
+    </section>
+
+    <!-- グループサイト -->
+    <section class="about-section" aria-labelledby="group-title">
+      <h2 class="about-h2" id="group-title">グループサイトのご案内</h2>
+      <p class="about-lead">本サイトは以下の関連サイトと共通の運営者によるグループ運営です。</p>
+      <ul class="about-group-list">
+        {siteMeta.groupSites.map(site => (
+          <li>
+            <a href={site.url} target="_blank" rel="noopener">{site.name}</a>: {site.description}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 収益モデル -->
+    <section class="about-section" aria-labelledby="revenue-title">
+      <h2 class="about-h2" id="revenue-title">収益モデル</h2>
+      <p class="about-lead">本サイトは以下の方法で運営費を賄っています：</p>
+      <ul class="about-list">
+        <li><strong>Google AdSense</strong>: 広告表示</li>
+        <li><strong>アフィリエイトプログラム</strong>: 退職代行・転職・弁護士紹介・電子契約・会計SaaS等</li>
+      </ul>
+      <p class="about-note">アフィリエイトリンクからお申し込みいただいた場合、提携先から当サイトに紹介料が支払われることがあります。<strong>テンプレートの提供内容や紹介順位は紹介料の有無や金額に左右されません。</strong></p>
+    </section>
+
+    <!-- 免責事項 -->
+    <section class="about-section" aria-labelledby="disclaimer-title">
+      <h2 class="about-h2" id="disclaimer-title">免責事項</h2>
+      <p class="about-lead">本サイトのテンプレートは一般的な業務文書の参考として提供しています。実際の利用にあたっては、個別事情に応じて専門家（弁護士・税理士・社労士・行政書士等）にご相談ください。詳しくは <a href="/disclaimer/">免責事項</a> をご覧ください。</p>
+    </section>
+
+    <!-- 連絡先 -->
+    <section class="about-section" aria-labelledby="contact-title">
+      <h2 class="about-h2" id="contact-title">連絡先</h2>
+      <p class="about-lead">お問い合わせは <a href="/contact/">お問い合わせフォーム</a> または <code>{siteMeta.operator.email}</code> までお願いします。</p>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+.about-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+
+.about-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 48px;
+  letter-spacing: -0.01em;
+}
+
+.about-section {
+  margin-bottom: 64px;
+}
+
+.about-h2 {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.about-h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.2em;
+  background: var(--color-navy);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.about-lead {
+  font-size: 14.5px;
+  color: var(--color-muted);
+  line-height: 1.85;
+  margin: 0 0 20px;
+}
+
+.about-note {
+  font-size: 14px;
+  color: var(--color-muted);
+  line-height: 1.85;
+  margin: 12px 0 0;
+  padding: 16px 20px;
+  background: var(--color-bg-section);
+  border-left: 3px solid var(--color-gold);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.about-list {
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--color-text);
+}
+
+.about-group-list {
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--color-text);
+}
+.about-group-list a {
+  color: var(--color-navy);
+  font-weight: 700;
+}
+.about-group-list a:hover { color: var(--color-gold); }
+
+.about-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.about-table th {
+  width: 30%;
+  padding: 11px 16px;
+  text-align: left;
+  border: 1px solid var(--color-border-light);
+  background: var(--color-bg-section);
+  font-weight: 700;
+  color: var(--color-heading);
+  vertical-align: top;
+}
+.about-table td {
+  padding: 11px 16px;
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+/* 4つの約束グリッド */
+.promise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.promise-card {
+  padding: 28px 24px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.promise-card__icon {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-navy);
+  margin-bottom: 14px;
+}
+.promise-card__title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 10px;
+}
+.promise-card__desc {
+  font-size: 13.5px;
+  color: var(--color-muted);
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* 監修3ステップ */
+.supervised-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.supervised-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 28px 32px;
+  background: var(--color-bg-white);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.supervised-step:last-child { border-bottom: none; }
+
+.supervised-step__num {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-gold-pale);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  min-width: 48px;
+  flex-shrink: 0;
+}
+
+.supervised-step__body p {
+  font-size: 14px;
+  color: var(--color-muted);
+  line-height: 1.85;
+  margin: 0;
+}
+
+.supervised-step__title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.supervised-step__title svg { color: var(--color-gold); flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  .about-wrap { padding: 24px 16px 60px; }
+  .about-section { margin-bottom: 48px; }
+  .promise-grid { grid-template-columns: 1fr; }
+  .supervised-step { padding: 20px; gap: 16px; }
+  .supervised-step__num { font-size: 2rem; }
+  .about-table th { width: auto; }
+}
+</style>

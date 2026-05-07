@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+
+const rows = [
+  { feature: '会員登録', us: '不要', them: '必須（メアド・氏名・職業）', usGood: true },
+  { feature: 'DLまでの時間', us: '3秒', them: '1〜3分', usGood: true },
+  { feature: '広告メール', us: '一切送らない', them: '受信あり', usGood: true },
+  { feature: 'AI監修・最新法令対応', us: '対応', them: '一部', usGood: true },
+  { feature: 'Word / Excel / Google / 印刷PDF', us: '4形式 + 記入例PDF', them: 'プランによる', usGood: true },
+  { feature: '料金', us: '完全無料', them: '無料 / プレミアム制', usGood: true },
+];
+---
+
+<div class="bizocean-compare">
+  <div class="bizocean-compare__header">
+    <h2 class="bizocean-compare__title">他社テンプレ配布サイトとの比較</h2>
+    <p class="bizocean-compare__sub">会員登録制の大手サービスと機能・利便性を比較</p>
+  </div>
+  <div class="compare-table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th scope="col">比較項目</th>
+          <th scope="col" class="col-us">テンプレートフリー</th>
+          <th scope="col" class="col-them">他社（会員登録制）</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(row => (
+          <tr>
+            <td class="col-feature">{row.feature}</td>
+            <td class="col-us">
+              {row.usGood && (
+                <span class="check-icon" aria-hidden="true">
+                  <Icon name="check" size={14} />
+                </span>
+              )}
+              {row.us}
+            </td>
+            <td class="col-them">{row.them}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>

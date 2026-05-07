@@ -1,0 +1,39 @@
+---
+import siteMeta from '../data/site-meta.json';
+import Icon from './Icon.astro';
+---
+
+<aside class="editorial-meta" aria-label="編集体制と調査方法">
+  <div class="editorial-meta__inner">
+    <div class="editorial-meta__label-col">
+      <div class="editorial-meta__badge">
+        <Icon name="shield" size={14} />
+        Editorial
+      </div>
+      <h2 class="editorial-meta__title">編集体制と調査方法</h2>
+      <p class="editorial-meta__sub">
+        透明性・信頼性を担保するため、情報収集・制作プロセスを公開しています。
+      </p>
+    </div>
+
+    <dl>
+      <dt>編集・運営</dt>
+      <dd>{siteMeta.operator.name}</dd>
+
+      <dt>監修</dt>
+      <dd>{siteMeta.operator.supervised_by}（特定団体・個人による商業的監修は受けていません）</dd>
+
+      <dt>調査方法</dt>
+      <dd>厚生労働省・国税庁等の公的様式・公開情報のみを使用。編集部による現地取材・関係者ヒアリングは行っていません。</dd>
+
+      <dt>取り次ぎ</dt>
+      <dd>当サイトは予約・問い合わせの取り次ぎを行いません。アフィリエイト先への遷移は読者の自己判断でお願いします。</dd>
+
+      <dt>最終更新</dt>
+      <dd>{siteMeta.lastUpdated}</dd>
+
+      <dt>お問い合わせ</dt>
+      <dd><a href="/contact/">お問い合わせフォーム</a></dd>
+    </dl>
+  </div>
+</aside>

@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import siteMeta from '../data/site-meta.json';
+
+const contactJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "お問い合わせ",
+  "url": `${siteMeta.siteUrl}/contact/`,
+  "mainEntity": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": siteMeta.operator.email,
+      "availableLanguage": "Japanese",
+    },
+  },
+};
+---
+
+<BaseLayout
+  title={`お問い合わせ｜${siteMeta.siteName}`}
+  description="テンプレートフリーへのお問い合わせ・テンプレ修正依頼・取材依頼など。"
+  jsonLd={contactJsonLd}
+>
+  <Breadcrumb items={[{ label: 'お問い合わせ' }]} />
+  <div class="contact-wrap">
+    <h1 class="contact-h1">お問い合わせ</h1>
+
+    <p class="contact-lead">テンプレートフリーへのお問い合わせは、メールにて承っております。以下のメールアドレスまでご連絡ください。</p>
+
+    <div class="contact-email-box">
+      <strong class="contact-email">{siteMeta.operator.email}</strong>
+    </div>
+
+    <h2 class="contact-h2">お問い合わせ可能な内容</h2>
+    <ul class="contact-list">
+      <li><strong>テンプレートの誤り指摘</strong>: 誤字・法令対応漏れ・項目不足等</li>
+      <li><strong>追加リクエスト</strong>: 「○○のテンプレートが欲しい」</li>
+      <li><strong>取材・コラボのご依頼</strong>: メディア掲載・記事監修・共同企画</li>
+      <li><strong>広告掲載のご相談</strong>: バナー広告・タイアップ記事</li>
+    </ul>
+
+    <h2 class="contact-h2">ご返信について</h2>
+    <ul class="contact-list">
+      <li>返信までに <strong>3〜5営業日</strong> いただく場合があります</li>
+      <li>個別の法律相談・税務相談にはお答えできません（弁護士・税理士・社労士等の専門家にご相談ください）</li>
+      <li>スパム・営業メールへの返信は行いません</li>
+    </ul>
+
+    <h2 class="contact-h2">個人情報の取り扱い</h2>
+    <p class="contact-lead">お問い合わせいただいた際の個人情報は、お問い合わせへの回答以外の目的では使用しません。詳しくは <a href="/privacy/">プライバシーポリシー</a> をご覧ください。</p>
+  </div>
+</BaseLayout>
+
+<style>
+.contact-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+
+.contact-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 24px;
+  letter-spacing: -0.01em;
+}
+
+.contact-h2 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 36px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.contact-h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.2em;
+  background: var(--color-navy);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.contact-lead {
+  font-size: 14.5px;
+  color: var(--color-muted);
+  line-height: 1.85;
+  margin: 0 0 20px;
+}
+
+.contact-email-box {
+  background: var(--color-gold-pale);
+  border: 2px solid var(--color-gold);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  margin: 24px 0;
+  text-align: center;
+}
+
+.contact-email {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-navy);
+  letter-spacing: 0.02em;
+}
+
+.contact-list {
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--color-text);
+}
+.contact-list li { margin-bottom: 6px; }
+.contact-list a { color: var(--color-navy); border-bottom: 1px solid var(--color-border); }
+.contact-list a:hover { color: var(--color-gold); border-bottom-color: var(--color-gold); }
+
+@media (max-width: 768px) {
+  .contact-wrap { padding: 24px 16px 64px; }
+  .contact-h1 { font-size: clamp(1.4rem, 6vw, 1.8rem); }
+  .contact-h2 { font-size: 1.1rem; margin-top: 28px; }
+  .contact-email { font-size: 1rem; word-break: break-all; }
+  .contact-list { padding-left: 18px; font-size: 13.5px; }
+}
+</style>

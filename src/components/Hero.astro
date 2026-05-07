@@ -1,0 +1,107 @@
+---
+import siteMeta from '../data/site-meta.json';
+import Icon from './Icon.astro';
+---
+
+<section class="hero-compact" aria-label="ヒーロー">
+  <div class="hero-compact__inner">
+    <p class="hero-compact__eyebrow">Business Document Templates — Free &amp; Instant</p>
+
+    <h1 class="hero-compact__h1">
+      業務テンプレートを、<em>即ダウンロード。</em>
+    </h1>
+
+    <p class="hero-compact__sub">
+      退職届・契約書・請求書を Word / Excel / 印刷用PDFで即配布。
+      会員登録不要・AI監修・2026年最新版。
+    </p>
+
+    <!-- 検索バー -->
+    <div class="hero-search" role="search" aria-label="テンプレート検索">
+      <div class="hero-search__wrap">
+        <div class="hero-search__icon" aria-hidden="true">
+          <Icon name="search" size={20} />
+        </div>
+        <input
+          id="hero-search-input"
+          type="search"
+          inputmode="search"
+          class="hero-search__input"
+          placeholder="テンプレート名・キーワードで検索（例: 退職届、請求書…）"
+          autocomplete="off"
+          aria-label="テンプレートを検索"
+        />
+        <button class="hero-search__clear" id="hero-search-clear" aria-label="検索クリア" hidden>
+          <Icon name="x" size={16} />
+        </button>
+      </div>
+      <p class="hero-search__hint" id="hero-search-hint" aria-live="polite"></p>
+    </div>
+
+    <!-- 信頼指標（小型） -->
+    <div class="hero-compact__metrics" aria-label="サービス概要">
+      <span class="hero-compact__metric">
+        <Icon name="document" size={14} />
+        40種類以上
+      </span>
+      <span class="hero-compact__sep" aria-hidden="true"></span>
+      <span class="hero-compact__metric">
+        <Icon name="layers" size={14} />
+        Word / Excel / Google
+      </span>
+      <span class="hero-compact__sep" aria-hidden="true"></span>
+      <span class="hero-compact__metric">
+        <Icon name="lock-open" size={14} />
+        会員登録不要・完全無料
+      </span>
+      <span class="hero-compact__sep" aria-hidden="true"></span>
+      <span class="hero-compact__metric">
+        <Icon name="sparkle" size={14} />
+        AI監修済
+      </span>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+(function () {
+  var input = document.getElementById('hero-search-input');
+  var clearBtn = document.getElementById('hero-search-clear');
+  var hint = document.getElementById('hero-search-hint');
+
+  if (!input) return;
+
+  function getSearchableItems() {
+    // カテゴリカード・テンプレカード・全テンプレ行の text-content と data-search を対象
+    return Array.from(document.querySelectorAll('[data-search]'));
+  }
+
+  function doFilter(q) {
+    var items = getSearchableItems();
+    if (!q) {
+      items.forEach(function (el) { el.closest('[data-search-row]').style.display = ''; });
+      hint.textContent = '';
+      clearBtn.hidden = true;
+      return;
+    }
+    clearBtn.hidden = false;
+    var matched = 0;
+    items.forEach(function (el) {
+      var row = el.closest('[data-search-row]');
+      if (!row) return;
+      var text = (el.dataset.search || el.textContent || '').toLowerCase();
+      var show = text.indexOf(q.toLowerCase()) !== -1;
+      row.style.display = show ? '' : 'none';
+      if (show) matched++;
+    });
+    hint.textContent = matched > 0 ? matched + ' 件見つかりました' : '該当するテンプレートがありませんでした';
+  }
+
+  input.addEventListener('input', function () { doFilter(input.value.trim()); });
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    doFilter('');
+    input.focus();
+  });
+})();
+</script>

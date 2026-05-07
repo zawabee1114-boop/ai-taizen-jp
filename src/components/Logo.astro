@@ -1,0 +1,42 @@
+---
+interface Props {
+  variant?: 'dark' | 'light';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { variant = 'dark', size = 'md' } = Astro.props;
+
+const logoColor = variant === 'light' ? '#FFFFFF' : '#0A1628';
+const accentColor = '#C9A961';
+const textColor = variant === 'light' ? '#FFFFFF' : '#0A1628';
+
+const sizes = {
+  sm: { mark: 28, font: '15px', gap: '8px' },
+  md: { mark: 34, font: '18px', gap: '10px' },
+  lg: { mark: 42, font: '22px', gap: '12px' },
+};
+
+const s = sizes[size];
+---
+
+<span class="logo-wrap" style={`display:inline-flex;align-items:center;gap:${s.gap};text-decoration:none;`}>
+  <!-- Document stack mark -->
+  <svg width={s.mark} height={s.mark} viewBox="0 0 34 34" fill="none" aria-hidden="true">
+    <!-- Back page (offset) -->
+    <rect x="7" y="3" width="20" height="26" rx="2" fill={accentColor} opacity="0.25"/>
+    <!-- Middle page -->
+    <rect x="5" y="5" width="20" height="26" rx="2" fill={accentColor} opacity="0.45"/>
+    <!-- Front page -->
+    <rect x="3" y="7" width="20" height="24" rx="2" fill="none" stroke={accentColor} stroke-width="1.5"/>
+    <!-- Lines on front page -->
+    <line x1="7" y1="13" x2="19" y2="13" stroke={accentColor} stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="7" y1="17" x2="19" y2="17" stroke={accentColor} stroke-width="1.2" stroke-linecap="round"/>
+    <line x1="7" y1="21" x2="15" y2="21" stroke={accentColor} stroke-width="1.2" stroke-linecap="round"/>
+    <!-- "F" mark subtle -->
+    <circle cx="27" cy="10" r="6" fill={accentColor} opacity="0.15"/>
+    <text x="27" y="13.5" text-anchor="middle" font-family="Georgia,serif" font-size="8" font-weight="700" fill={accentColor}>F</text>
+  </svg>
+  <span style={`font-family:'Noto Serif JP','Hiragino Mincho ProN',Georgia,serif;font-size:${s.font};font-weight:700;color:${textColor};letter-spacing:0.02em;line-height:1`}>
+    テンプレートフリー
+  </span>
+</span>

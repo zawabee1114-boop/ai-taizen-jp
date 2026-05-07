@@ -1,0 +1,152 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import EditorialMeta from '../components/EditorialMeta.astro';
+import siteMeta from '../data/site-meta.json';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
+  ogImage?: string;
+  noindex?: boolean;
+  publishDate?: string;
+  lastUpdated?: string;
+  showEditorialMeta?: boolean;
+}
+
+const {
+  title,
+  description = siteMeta.description,
+  canonical,
+  jsonLd,
+  ogImage = siteMeta.ogImage,
+  noindex = false,
+  publishDate = siteMeta.publishDate,
+  lastUpdated = siteMeta.lastUpdated,
+  showEditorialMeta = false,
+} = Astro.props;
+
+const fullCanonical = canonical || `${siteMeta.siteUrl}${Astro.url.pathname}`;
+const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteMeta.siteUrl}${ogImage}`;
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${siteMeta.siteUrl}/#website`,
+  "name": siteMeta.siteName,
+  "url": siteMeta.siteUrl,
+  "description": siteMeta.description,
+  "inLanguage": "ja-JP",
+  "publisher": { "@id": `${siteMeta.siteUrl}/#organization` },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${siteMeta.siteUrl}/?q={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${siteMeta.siteUrl}/#organization`,
+  "name": siteMeta.operator.name,
+  "url": siteMeta.siteUrl,
+  "email": siteMeta.operator.email,
+  "knowsAbout": [
+    "ビジネス文書", "業務テンプレート", "退職届", "労働条件通知書", "業務委託契約書",
+    "請求書", "見積書", "議事録", "会員登録不要のテンプレート配布",
+  ],
+};
+
+const allJsonLd = [websiteJsonLd, orgJsonLd];
+if (jsonLd) {
+  if (Array.isArray(jsonLd)) {
+    allJsonLd.push(...jsonLd);
+  } else {
+    allJsonLd.push(jsonLd);
+  }
+}
+---
+
+<!DOCTYPE html>
+<html lang={siteMeta.lang}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href={fullCanonical} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <!-- Google Fonts: preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Fonts: Cormorant Garamond (display) + Noto Serif JP (serif) + Noto Sans JP (sans) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+  />
+
+  <!-- OGP -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={fullCanonical} />
+  <meta property="og:image" content={fullOgImage} />
+  <meta property="og:site_name" content={siteMeta.siteName} />
+  <meta property="og:locale" content={siteMeta.locale} />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={fullOgImage} />
+
+  <!-- JSON-LD -->
+  {allJsonLd.map(ld => <script type="application/ld+json" set:html={JSON.stringify(ld)} />)}
+
+  <!-- Sitemap -->
+  <link rel="sitemap" href="/sitemap-index.xml" />
+
+  <!-- Google tag (gtag.js) - GA4 -->
+  <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-E8E08VV148"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E8E08VV148');
+  </script>
+
+  <!-- Google AdSense -->
+  <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3827953973757487" crossorigin="anonymous"></script>
+</head>
+<body>
+  <Header />
+  <slot />
+  {showEditorialMeta && <EditorialMeta />}
+  <Footer />
+
+  <!-- スクロールアニメーション -->
+  <script is:inline>
+    (function() {
+      if (!('IntersectionObserver' in window)) return;
+      var els = document.querySelectorAll('.fade-up');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            var delay = el.dataset.delay || 0;
+            setTimeout(function() { el.classList.add('visible'); }, parseInt(delay));
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(function(el) { observer.observe(el); });
+    })();
+  </script>
+</body>
+</html>

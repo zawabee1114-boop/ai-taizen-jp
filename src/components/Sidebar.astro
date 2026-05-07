@@ -1,0 +1,157 @@
+---
+import { categories } from '../data/categories';
+import { getRelatedTemplates, type CategorySlug, type TemplateMeta, type DownloadFile } from '../data/templates';
+import Icon from './Icon.astro';
+
+interface Props {
+  currentSlug?: string;
+  category?: CategorySlug;
+  template?: TemplateMeta;
+}
+
+const { currentSlug, category, template } = Astro.props;
+const related = currentSlug ? getRelatedTemplates(currentSlug, 6) : [];
+
+function getFormatLabel(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return 'Word (.docx)';
+    case 'excel':        return 'Excel (.xlsx)';
+    case 'google-doc':   return 'Google ドキュメント';
+    case 'google-sheet': return 'Google スプレッドシート';
+    case 'pdf':          return 'PDF';
+    default:             return format;
+  }
+}
+
+function getBtnColor(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return '#2B579A';
+    case 'excel':        return '#107C41';
+    case 'google-doc':
+    case 'google-sheet': return '#0F9D58';
+    default:             return '#1A2940';
+  }
+}
+
+function getIconName(format: DownloadFile['format']): string {
+  switch (format) {
+    case 'word':         return 'file-word';
+    case 'excel':        return 'file-excel';
+    case 'google-doc':
+    case 'google-sheet': return 'file-google';
+    case 'pdf':          return 'file-pdf';
+    default:             return 'document';
+  }
+}
+
+const lastUpdatedFormatted = template
+  ? new Date(template.lastUpdated).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+
+const uniqueFormats = template
+  ? [...new Set(template.files.map(f => getFormatLabel(f.format)))]
+  : [];
+---
+
+<aside class="template-sidebar">
+
+  <!-- テンプレ概要ボックス -->
+  {template && (
+    <div class="sidebar-summary-box">
+      <div class="sidebar-summary-box__header">
+        <span class="sidebar-summary-icon" aria-hidden="true">
+          <Icon name="document" size={14} />
+        </span>
+        <span class="sidebar-summary-box__header-label">Template Info</span>
+      </div>
+      <dl>
+        <div class="sidebar-summary-row">
+          <dt>更新日</dt>
+          <dd>{lastUpdatedFormatted}</dd>
+        </div>
+        <div class="sidebar-summary-row">
+          <dt>形式</dt>
+          <dd>{uniqueFormats.join(' / ')}</dd>
+        </div>
+        <div class="sidebar-summary-row">
+          <dt>登録</dt>
+          <dd>不要（完全無料）</dd>
+        </div>
+        <div class="sidebar-summary-row">
+          <dt>著作権</dt>
+          <dd>商用利用可・改変可</dd>
+        </div>
+      </dl>
+      <div style="padding: 14px;">
+        {template.files.map(file => (
+          <a
+            href={file.href}
+            class="sidebar-dl-btn"
+            style={`background: ${getBtnColor(file.format)}`}
+            download={file.format !== 'google-doc' && file.format !== 'google-sheet' ? true : undefined}
+            target={file.format === 'google-doc' || file.format === 'google-sheet' ? '_blank' : undefined}
+            rel={file.format === 'google-doc' || file.format === 'google-sheet' ? 'noopener noreferrer' : undefined}
+            aria-label={`${getFormatLabel(file.format)}でダウンロード`}
+          >
+            <span class="sidebar-dl-btn__icon" aria-hidden="true">
+              <Icon name={getIconName(file.format)} size={16} />
+            </span>
+            {file.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- 関連テンプレート -->
+  {related.length > 0 && (
+    <div class="sidebar-box">
+      <h3 class="sidebar-box__title">
+        <Icon name="file-text" size={14} aria-hidden="true" />
+        関連テンプレート
+      </h3>
+      <div class="sidebar-box__body">
+        <ul class="sidebar-list">
+          {related.map(t => (
+            <li><a href={t.url}>{t.shortTitle}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
+  <!-- 全カテゴリ -->
+  <div class="sidebar-box">
+    <h3 class="sidebar-box__title">
+      <Icon name="grid" size={14} aria-hidden="true" />
+      全カテゴリ
+    </h3>
+    <div class="sidebar-box__body">
+      <ul class="sidebar-list">
+        {categories.map(cat => (
+          <li><a href={`/${cat.slug}/`}>{cat.shortName}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <!-- 運営方針 -->
+  <div class="sidebar-box">
+    <h3 class="sidebar-box__title">
+      <Icon name="shield" size={14} aria-hidden="true" />
+      運営方針
+    </h3>
+    <div class="sidebar-note">
+      会員登録不要・公開情報のみを使う透明な業務テンプレート配布サイト。AI監修と編集部レビューで最新法令に対応しています。
+    </div>
+  </div>
+
+</aside>
+
+<style>
+.sidebar-summary-icon {
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+}
+</style>

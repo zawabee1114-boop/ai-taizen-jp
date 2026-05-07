@@ -1,0 +1,31 @@
+---
+import type { TemplateMeta } from '../data/templates';
+import Icon from './Icon.astro';
+
+interface Props {
+  templates: TemplateMeta[];
+  title?: string;
+}
+
+const { templates, title = '関連テンプレート' } = Astro.props;
+---
+
+{templates.length > 0 && (
+  <section class="related-templates">
+    <h2 class="related-templates__title">{title}</h2>
+    <div class="featured-grid">
+      {templates.map((t, i) => (
+        <a href={t.url} class="featured-card">
+          <span class="featured-card__rank" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="featured-card__cat">{t.category}</span>
+          <h3 class="featured-card__title">{t.shortTitle}</h3>
+          <p class="featured-card__desc">{t.metaDescription.slice(0, 70)}...</p>
+          <span class="featured-card__cta">
+            詳細を見る
+            <Icon name="arrow-right" size={14} />
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

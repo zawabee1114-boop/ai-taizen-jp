@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  src?: string;
+  alt: string;
+  caption?: string;
+}
+
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="preview-figure-v2">
+  <!-- 上部のナビバー（書類風） -->
+  <div class="preview-figure-v2__header" aria-hidden="true">
+    <div class="preview-figure-v2__dots">
+      <span class="preview-figure-v2__dot"></span>
+      <span class="preview-figure-v2__dot"></span>
+      <span class="preview-figure-v2__dot"></span>
+    </div>
+    <span class="preview-figure-v2__header-title">Template Preview</span>
+  </div>
+
+  <!-- 画像 / プレースホルダー -->
+  <div class="preview-figure-v2__body">
+    {src ? (
+      <img src={src} alt={alt} loading="lazy" style="width:100%;display:block;position:relative;z-index:1;" />
+    ) : (
+      <div class="preview-placeholder-v2" role="img" aria-label={alt}>
+        <div class="preview-placeholder-v2__icon" aria-hidden="true">
+          <Icon name="document" size={52} />
+        </div>
+        <p class="preview-placeholder-v2__text">テンプレートプレビュー</p>
+        <p class="preview-placeholder-v2__sub">準備中</p>
+      </div>
+    )}
+  </div>
+
+  <!-- キャプション -->
+  {caption && (
+    <figcaption class="preview-figure-v2__caption">
+      <Icon name="info" size={14} aria-hidden="true" />
+      {caption}
+    </figcaption>
+  )}
+</figure>

@@ -1,0 +1,112 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Icon from '../components/Icon.astro';
+import type { Category } from '../data/categories';
+
+interface Props {
+  category: Category;
+  title: string;
+  description: string;
+  publishedCount?: number;
+  upcomingCount?: number;
+}
+
+const { category, title, description, publishedCount = 0, upcomingCount = 0 } = Astro.props;
+
+// カテゴリの英文ラベル
+const eyebrowMap: Record<string, string> = {
+  rodo:           'BUSINESS DOCUMENTS — LABOR & HR',
+  kaikei:         'BUSINESS DOCUMENTS — ACCOUNTING',
+  business:       'BUSINESS DOCUMENTS — GENERAL',
+  gyoshu:         'BUSINESS DOCUMENTS — BY INDUSTRY',
+  houritsu:       'LEGAL DOCUMENTS',
+  kaikei2:        'ACCOUNTING SUPPLEMENTS',
+  business2:      'BUSINESS DOCUMENTS — EXTENDED',
+  houritsu2:      'LEGAL DOCUMENTS — ADVANCED',
+  business4:      'BUSINESS DOCUMENTS — OPERATIONS',
+  money:          'PERSONAL FINANCE — HOUSEHOLD',
+  kensetsu:       'CONSTRUCTION INDUSTRY DOCUMENTS',
+  business5:      'BUSINESS DOCUMENTS — WORKPLACE',
+  business5extra: 'MANAGEMENT TEMPLATES',
+  fudosan:        'REAL ESTATE DOCUMENTS',
+};
+const eyebrow = eyebrowMap[category.slug] ?? 'BUSINESS DOCUMENTS';
+
+// カテゴリアイコン（Icon コンポーネントで使える name）
+const iconMap: Record<string, string> = {
+  rodo:           'briefcase',
+  kaikei:         'chart-bar',
+  business:       'clipboard',
+  gyoshu:         'grid',
+  houritsu:       'scale',
+  kaikei2:        'chart-bar',
+  business2:      'clipboard',
+  houritsu2:      'scale',
+  business4:      'clipboard',
+  money:          'chart-bar',
+  kensetsu:       'clipboard',
+  business5:      'document',
+  business5extra: 'chart-bar',
+  fudosan:        'document',
+};
+const iconName = iconMap[category.slug] ?? 'document';
+
+// 対応形式（カテゴリ固有）
+const formatsMap: Record<string, string[]> = {
+  rodo:           ['Word', 'Excel', 'Googleドキュメント'],
+  kaikei:         ['Excel', 'Word', 'Googleスプレッドシート'],
+  business:       ['Word', 'Excel'],
+  gyoshu:         ['Word', 'Googleドキュメント'],
+  houritsu:       ['Word', 'PDF', 'Googleドキュメント'],
+  kaikei2:        ['Excel', 'Word', 'PDF'],
+  business2:      ['Word', 'Excel'],
+  houritsu2:      ['Word', 'PDF'],
+  business4:      ['Word', 'Excel', 'PDF'],
+  money:          ['Excel', 'PDF', 'Googleスプレッドシート'],
+  kensetsu:       ['Excel', 'Word', 'PDF'],
+  business5:      ['Excel', 'Word', 'PDF'],
+  business5extra: ['Excel'],
+  fudosan:        ['Word', 'PDF', 'Excel'],
+};
+const formats = formatsMap[category.slug] ?? ['Word'];
+---
+
+<BaseLayout title={title} description={description}>
+  <Breadcrumb items={[{ label: category.shortName }]} />
+
+  <!-- カテゴリヒーロー -->
+  <section class="cat-hero" aria-label={`${category.shortName}カテゴリ`}>
+    <div class="cat-hero__inner">
+      <p class="cat-hero__eyebrow" aria-hidden="true">{eyebrow}</p>
+
+      <h1 class="cat-hero__h1">{category.name}</h1>
+      <p class="cat-hero__lead">{category.longDescription}</p>
+
+      <!-- 統計バッジ -->
+      <div class="cat-hero__stats" role="list" aria-label="カテゴリ統計">
+        {publishedCount > 0 && (
+          <div class="cat-hero__stat" role="listitem">
+            <span class="cat-hero__stat-num">{publishedCount}</span>
+            <span class="cat-hero__stat-label">公開中テンプレ</span>
+          </div>
+        )}
+        {upcomingCount > 0 && (
+          <div class="cat-hero__stat" role="listitem">
+            <span class="cat-hero__stat-num">{upcomingCount}</span>
+            <span class="cat-hero__stat-label">追加予定</span>
+          </div>
+        )}
+        <div class="cat-hero__stat" role="listitem">
+          <span class="cat-hero__stat-num">{formats.length}</span>
+          <span class="cat-hero__stat-label">対応ファイル形式</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- コンテンツエリア -->
+  <div class="cat-content">
+    <slot />
+  </div>
+</BaseLayout>

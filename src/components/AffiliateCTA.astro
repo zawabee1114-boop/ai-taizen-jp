@@ -1,0 +1,79 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  variant: 'taishoku' | 'bengoshi' | 'kaikei' | 'denshi-keiyaku' | 'tenshoku' | 'gijiroku';
+  title: string;
+  lead: string;
+  benefits: string[];
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+const { variant, title, lead, benefits, ctaLabel, ctaHref } = Astro.props;
+
+const btnClass: Record<string, string> = {
+  taishoku:         'aff-cta-v2__btn--burgundy',
+  bengoshi:         'aff-cta-v2__btn--burgundy',
+  kaikei:           'aff-cta-v2__btn--gold',
+  'denshi-keiyaku': 'aff-cta-v2__btn--navy',
+  tenshoku:         'aff-cta-v2__btn--gold',
+  gijiroku:         'aff-cta-v2__btn--gold',
+};
+
+const iconName: Record<string, string> = {
+  taishoku:         'clipboard',
+  bengoshi:         'scale',
+  kaikei:           'chart-bar',
+  'denshi-keiyaku': 'pen',
+  tenshoku:         'briefcase',
+  gijiroku:         'clipboard',
+};
+
+// バリアントに応じた eyebrow ラベル
+const eyebrowLabel: Record<string, string> = {
+  taishoku:         'CONSULTING SERVICE',
+  bengoshi:         'LEGAL SUPPORT',
+  kaikei:           'ACCOUNTING TOOL',
+  'denshi-keiyaku': 'DIGITAL CONTRACT',
+  tenshoku:         'CAREER SUPPORT',
+  gijiroku:         'AI TOOL',
+};
+
+const selectedBtnClass = btnClass[variant] ?? 'aff-cta-v2__btn--navy';
+const selectedIcon = iconName[variant] ?? 'info';
+const selectedEyebrow = eyebrowLabel[variant] ?? 'PR';
+---
+
+<div class="aff-cta-v2">
+  <div class="aff-cta-v2__header">
+    <div class="aff-cta-v2__header-left">
+      <div class="aff-cta-v2__icon" aria-hidden="true">
+        <Icon name={selectedIcon} size={20} />
+      </div>
+      <h3 class="aff-cta-v2__header-title">{title}</h3>
+    </div>
+    <span class="aff-cta-v2__pr-tag">PR</span>
+  </div>
+
+  <div class="aff-cta-v2__body">
+    <p class="aff-cta-v2__lead" set:html={lead} />
+    <ul class="aff-cta-v2__benefits" aria-label="特徴">
+      {benefits.map(b => (
+        <li class="aff-cta-v2__benefit">
+          <Icon name="check" size={16} aria-hidden="true" />
+          <span>{b}</span>
+        </li>
+      ))}
+    </ul>
+    <a
+      href={ctaHref}
+      class={`aff-cta-v2__btn ${selectedBtnClass}`}
+      rel="sponsored noopener noreferrer"
+      target="_blank"
+    >
+      {ctaLabel}
+      <Icon name="arrow-right" size={16} aria-hidden="true" />
+    </a>
+  </div>
+</div>

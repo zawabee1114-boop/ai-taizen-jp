@@ -1,0 +1,491 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Icon from '../components/Icon.astro';
+import { categories, getCategory } from '../data/categories';
+import { getCategoryNavItems, getFeaturedTemplates } from '../data/templates';
+import type { CategorySlug } from '../data/templates';
+import siteMeta from '../data/site-meta.json';
+
+const featured = getFeaturedTemplates();
+
+// カテゴリ別アイコン
+const catIcons: Record<string, string> = {
+  briefcase: 'briefcase',
+  calc:      'chart-bar',
+  doc:       'document',
+  grid:      'grid',
+};
+
+// カテゴリ別アクセントカラー
+const catAccent: Record<string, string> = {
+  rodo:     'var(--color-cat-rodo)',
+  kaikei:   'var(--color-cat-kaikei)',
+  business: 'var(--color-cat-business)',
+  gyoshu:   'var(--color-cat-gyoshu)',
+};
+
+// フォーマットバッジの略称
+const formatLabel: Record<string, string> = {
+  'word':         'Word',
+  'excel':        'Excel',
+  'google-doc':   'Google',
+  'google-sheet': 'Google',
+  'pdf':          'PDF',
+};
+---
+
+<BaseLayout title={`${siteMeta.siteName} | ${siteMeta.tagline}`} description={siteMeta.description}>
+  <Hero />
+
+  <!-- 01 カテゴリ -->
+  <section class="section section--sm" id="categories" aria-labelledby="categories-title">
+    <div class="content-wrap">
+      <div class="section__head section__head--compact fade-up">
+        <h2 class="section__title-sm" id="categories-title">カテゴリから探す</h2>
+      </div>
+
+      <div class="category-grid category-grid--4col">
+        {categories.map((cat, i) => (
+          <a
+            href={`/${cat.slug}/`}
+            class="category-card fade-up"
+            style={`--cat-accent: ${catAccent[cat.slug]}`}
+            data-delay={String(i * 60)}
+            data-search-row
+          >
+            <span data-search={cat.name + ' ' + cat.description}></span>
+            <div class="category-card__head">
+              <div class="category-card__icon" style={`background: ${catAccent[cat.slug]}`} aria-hidden="true">
+                <Icon name={catIcons[cat.icon] || 'document'} size={22} />
+              </div>
+              <div class="category-card__meta">
+                <h3 class="category-card__title">{cat.name}</h3>
+                <span class="category-card__short">{cat.shortName}</span>
+              </div>
+            </div>
+            <p class="category-card__desc">{cat.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 人気テンプレート -->
+  <section class="section section--sm section--soft" id="popular" aria-labelledby="popular-title">
+    <div class="content-wrap">
+      <div class="section__head section__head--compact fade-up">
+        <h2 class="section__title-sm" id="popular-title">人気テンプレート</h2>
+        <p class="section__lead-sm">月間検索数の多いテンプレート。最優先メンテナンス対象。</p>
+      </div>
+
+      <div class="featured-grid">
+        {featured.map((t, i) => (
+          <a
+            href={t.url}
+            class="featured-card fade-up"
+            data-delay={String(i * 80)}
+            data-search-row
+          >
+            <span data-search={t.title + ' ' + t.shortTitle + ' ' + t.category}></span>
+            <span class="featured-card__rank" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="featured-card__cat">{getCategory(t.category)?.shortName ?? t.category}</span>
+            <h3 class="featured-card__title">{t.shortTitle}</h3>
+            <p class="featured-card__desc">{t.metaDescription.slice(0, 65)}...</p>
+            <span class="featured-card__cta">
+              無料でダウンロード
+              <Icon name="arrow-right" size={14} />
+            </span>
+          </a>
+        ))}
+        <!-- 準備中スケルトン（6マス埋め） -->
+        {Array.from({ length: Math.max(0, 6 - featured.length) }).map((_, i) => (
+          <div class="featured-card featured-card--skeleton" aria-hidden="true">
+            <span class="featured-card__rank">{String(featured.length + i + 1).padStart(2, '0')}</span>
+            <span class="featured-card__badge-coming">Coming Soon</span>
+            <div class="featured-card__skeleton-line"></div>
+            <div class="featured-card__skeleton-line featured-card__skeleton-line--short"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 全テンプレート一覧 -->
+  <section class="section section--sm" id="all-templates" aria-labelledby="all-templates-title">
+    <div class="content-wrap">
+      <div class="section__head section__head--compact fade-up">
+        <h2 class="section__title-sm" id="all-templates-title">全テンプレート一覧</h2>
+        <p class="section__lead-sm">公開中のテンプレートはリンクから即ダウンロード。準備中は順次公開予定。</p>
+      </div>
+
+      <div class="template-index">
+        {categories.map((cat) => {
+          const data = getCategoryNavItems(cat.slug as CategorySlug);
+          return (
+            <div class="template-index__group fade-up" style={`--cat-accent: ${catAccent[cat.slug]}`}>
+              <div class="template-index__group-header">
+                <div class="template-index__group-icon" aria-hidden="true" style={`background: ${catAccent[cat.slug]}`}>
+                  <Icon name={catIcons[cat.icon] || 'document'} size={16} />
+                </div>
+                <div>
+                  <h3 class="template-index__group-title">{cat.name}</h3>
+                  <span class="template-index__group-count">
+                    公開中 {data.published.length} 件 / 準備中 {data.upcoming.length} 件
+                  </span>
+                </div>
+                <a href={`/${cat.slug}/`} class="template-index__group-link">
+                  カテゴリを見る
+                  <Icon name="arrow-right" size={13} />
+                </a>
+              </div>
+
+              <ul class="template-index__list" role="list">
+                {data.published.map(t => (
+                  <li class="template-index__item template-index__item--published" data-search-row>
+                    <span data-search={t.shortTitle}></span>
+                    <a href={t.url} class="template-index__link">
+                      <Icon name="document" size={15} />
+                      <span class="template-index__item-title">{t.shortTitle}</span>
+                    </a>
+                    <div class="template-index__formats" aria-label="対応形式">
+                      {[...new Set(t.formats.map(f => formatLabel[f] || f))].map(label => (
+                        <span class="format-badge">{label}</span>
+                      ))}
+                    </div>
+                    <span class="template-index__status template-index__status--open">公開中</span>
+                  </li>
+                ))}
+                {data.upcoming.map(t => (
+                  <li class="template-index__item template-index__item--upcoming" aria-disabled="true" data-search-row>
+                    <span data-search={t.title}></span>
+                    <span class="template-index__link template-index__link--disabled">
+                      <Icon name="document" size={15} />
+                      <span class="template-index__item-title">{t.title}</span>
+                    </span>
+                    <span class="template-index__status template-index__status--coming">準備中</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター直前: 信頼バッジ（コンパクト） -->
+  <div class="trust-footer">
+    <div class="content-wrap">
+      <div class="trust-footer__inner">
+        <ul class="trust-footer__badges" aria-label="サービスの特徴">
+          <li>
+            <Icon name="sparkle" size={15} />
+            AI監修・法令準拠
+          </li>
+          <li>
+            <Icon name="document" size={15} />
+            公的様式準拠
+          </li>
+          <li>
+            <Icon name="lock-open" size={15} />
+            会員登録不要
+          </li>
+          <li>
+            <Icon name="layers" size={15} />
+            完全無料
+          </li>
+        </ul>
+        <a href="/about/" class="trust-footer__link">
+          運営者情報・編集方針
+          <Icon name="arrow-right" size={13} />
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+/* セクションヘッド（コンパクト版） */
+.section__head--compact {
+  text-align: left;
+  margin-bottom: 32px;
+}
+.section__title-sm {
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.section__lead-sm {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+  line-height: 1.7;
+}
+
+/* カテゴリ 4列グリッド */
+.category-grid--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 1024px) {
+  .category-grid--4col { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .category-grid--4col { grid-template-columns: 1fr; }
+}
+
+/* スケルトンカード */
+.featured-card--skeleton {
+  background: var(--color-bg-section);
+  border: 1px dashed var(--color-border);
+  cursor: default;
+  pointer-events: none;
+  box-shadow: none;
+}
+.featured-card--skeleton:hover {
+  transform: none;
+  box-shadow: none;
+}
+.featured-card__badge-coming {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-subtle);
+  background: var(--color-border-light);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  margin-bottom: 16px;
+  letter-spacing: 0.08em;
+}
+.featured-card__skeleton-line {
+  height: 10px;
+  background: var(--color-border-light);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.featured-card__skeleton-line--short { width: 60%; }
+
+/* ============================================================
+   全テンプレート一覧
+   ============================================================ */
+.template-index {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+@media (max-width: 1024px) {
+  .template-index { grid-template-columns: 1fr; }
+}
+
+.template-index__group {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.template-index__group-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg);
+}
+
+.template-index__group-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.template-index__group-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 3px;
+  line-height: 1.3;
+}
+
+.template-index__group-count {
+  font-size: 12px;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.template-index__group-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-navy);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color var(--transition-base);
+}
+.template-index__group-link:hover { color: var(--color-gold); opacity: 1; }
+.template-index__group-link svg { transition: transform var(--transition-base); }
+.template-index__group-link:hover svg { transform: translateX(2px); }
+
+.template-index__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.template-index__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 24px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 13.5px;
+  transition: background var(--transition-base);
+}
+.template-index__item:last-child { border-bottom: none; }
+.template-index__item--published:hover { background: var(--color-gold-pale); }
+
+.template-index__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-heading);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+.template-index__link:hover { color: var(--color-navy); opacity: 1; }
+.template-index__link svg { color: var(--color-gold); flex-shrink: 0; }
+.template-index__link--disabled {
+  color: var(--color-subtle);
+  cursor: default;
+  pointer-events: none;
+  flex: 1;
+}
+.template-index__link--disabled svg { color: var(--color-border); }
+
+.template-index__item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-index__formats {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.format-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-muted);
+  background: var(--color-bg-section);
+  border: 1px solid var(--color-border-light);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.template-index__status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.template-index__status--open {
+  background: rgba(44, 74, 124, 0.08);
+  color: var(--color-cat-rodo);
+}
+.template-index__status--coming {
+  background: var(--color-border-light);
+  color: var(--color-subtle);
+}
+
+@media (max-width: 768px) {
+  .template-index__item {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .template-index__formats { display: none; }
+  .template-index__group-header { padding: 16px; gap: 10px; }
+  .template-index__group-link { display: none; }
+}
+
+/* ============================================================
+   フッター直前 信頼バッジ
+   ============================================================ */
+.trust-footer {
+  background: var(--color-navy);
+  border-top: 3px solid var(--color-gold);
+  padding: 20px 0;
+}
+.trust-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trust-footer__badges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.trust-footer__badges li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.02em;
+}
+.trust-footer__badges li svg { color: var(--color-gold); }
+
+.trust-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gold);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: opacity var(--transition-base);
+}
+.trust-footer__link:hover { opacity: 0.8; color: var(--color-gold); }
+.trust-footer__link svg { transition: transform var(--transition-base); }
+.trust-footer__link:hover svg { transform: translateX(2px); }
+
+@media (max-width: 768px) {
+  .trust-footer__inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .trust-footer__badges { gap: 14px; }
+  .trust-footer__badges li { font-size: 12px; }
+}
+</style>

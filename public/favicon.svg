@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="10" fill="#0A1628"/>
+  <!-- Document stack -->
+  <rect x="20" y="10" width="28" height="36" rx="3" fill="#C9A961" opacity="0.25"/>
+  <rect x="16" y="14" width="28" height="36" rx="3" fill="#C9A961" opacity="0.45"/>
+  <rect x="12" y="18" width="28" height="36" rx="3" fill="none" stroke="#C9A961" stroke-width="2"/>
+  <!-- Lines on document -->
+  <line x1="18" y1="28" x2="34" y2="28" stroke="#C9A961" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+  <line x1="18" y1="34" x2="34" y2="34" stroke="#C9A961" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+  <line x1="18" y1="40" x2="28" y2="40" stroke="#C9A961" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+</svg>

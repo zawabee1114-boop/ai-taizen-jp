@@ -1,0 +1,57 @@
+---
+import type { DownloadFile } from '../data/templates';
+import Icon from './Icon.astro';
+
+interface Props {
+  files: DownloadFile[];
+}
+
+const { files } = Astro.props;
+
+function getIconName(format: DownloadFile['format']) {
+  switch (format) {
+    case 'word':         return 'file-word';
+    case 'excel':        return 'file-excel';
+    case 'google-doc':   return 'file-google';
+    case 'google-sheet': return 'file-google';
+    case 'pdf':          return 'file-pdf';
+    default:             return 'document';
+  }
+}
+
+function getSubLabel(format: DownloadFile['format']) {
+  if (format === 'google-doc' || format === 'google-sheet') return 'ワンクリックでコピー';
+  return '会員登録不要・即DL';
+}
+
+function getFormatLabel(format: DownloadFile['format']) {
+  switch (format) {
+    case 'word':         return 'Word (.docx)';
+    case 'excel':        return 'Excel (.xlsx)';
+    case 'google-doc':   return 'Google ドキュメント';
+    case 'google-sheet': return 'Google スプレッドシート';
+    case 'pdf':          return 'PDF';
+    default:             return format;
+  }
+}
+---
+
+<div class="dl-buttons" role="group" aria-label="ダウンロードボタン">
+  {files.map(file => (
+    <a
+      href={file.href}
+      class="dl-button"
+      style={`background: ${file.bgColor}`}
+      download={file.format !== 'google-doc' && file.format !== 'google-sheet' ? true : undefined}
+      target={file.format === 'google-doc' || file.format === 'google-sheet' ? '_blank' : undefined}
+      rel={file.format === 'google-doc' || file.format === 'google-sheet' ? 'noopener noreferrer' : undefined}
+      aria-label={`${getFormatLabel(file.format)}でダウンロード`}
+    >
+      <div class="dl-button__icon" aria-hidden="true">
+        <Icon name={getIconName(file.format)} size={22} />
+      </div>
+      <span class="dl-button__main">{file.label}</span>
+      <span class="dl-button__sub">{getSubLabel(file.format)}</span>
+    </a>
+  ))}
+</div>

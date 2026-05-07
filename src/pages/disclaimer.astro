@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import siteMeta from '../data/site-meta.json';
+---
+
+<BaseLayout title={`免責事項｜${siteMeta.siteName}`} description="テンプレートフリーの免責事項。">
+  <Breadcrumb items={[{ label: '免責事項' }]} />
+  <div class="legal-wrap">
+    <h1 class="legal-h1">免責事項</h1>
+
+    <h2 class="legal-h2">テンプレートの利用について</h2>
+    <p class="legal-p">本サイトのテンプレートは、一般的な業務文書の参考として AI 監修＋編集部レビューにより制作したものです。法令対応・実用性に最大限配慮していますが、以下の点にご留意ください。</p>
+    <ul class="legal-list">
+      <li>個別事情（業種・契約内容・労働条件等）に応じて、専門家（弁護士・税理士・社労士・行政書士等）への相談をおすすめします</li>
+      <li>テンプレートを利用したことによる損害（契約トラブル・法令違反等）について、当サイトは一切の責任を負いません</li>
+      <li>法令改正等により、テンプレートの内容が最新でない場合があります</li>
+    </ul>
+
+    <h2 class="legal-h2">商用利用・改変・再配布</h2>
+    <p class="legal-p">本サイトのテンプレートは、商用利用・改変・再配布を自由に行えます（クレジット表記不要）。ただし、テンプレートそのものを販売することは禁止します。</p>
+
+    <h2 class="legal-h2">外部リンク</h2>
+    <p class="legal-p">本サイトには外部サイトへのリンク（アフィリエイトリンク含む）が含まれます。リンク先のコンテンツやサービスについて当サイトは一切の責任を負いません。</p>
+
+    <h2 class="legal-h2">サイトの可用性</h2>
+    <p class="legal-p">当サイトは予告なくテンプレートの公開停止・URL の変更・サイト全体の閉鎖を行うことがあります。あらかじめご了承ください。</p>
+
+    <p class="legal-updated">最終更新日: {siteMeta.lastUpdated}</p>
+  </div>
+</BaseLayout>
+
+<style>
+.legal-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+.legal-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 0 0 32px;
+  letter-spacing: -0.01em;
+}
+.legal-h2 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin: 36px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.legal-p {
+  font-size: 14.5px;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin: 0 0 14px;
+}
+.legal-list {
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--color-text);
+  margin: 0 0 14px;
+}
+.legal-list li { margin-bottom: 6px; }
+.legal-updated {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-top: 40px;
+}
+@media (max-width: 768px) {
+  .legal-wrap { padding: 24px 16px 64px; }
+  .legal-h1 { font-size: clamp(1.4rem, 6vw, 1.8rem); margin-bottom: 24px; }
+  .legal-h2 { font-size: 1.05rem; margin-top: 28px; }
+  .legal-p, .legal-list { font-size: 14px; }
+}
+</style>

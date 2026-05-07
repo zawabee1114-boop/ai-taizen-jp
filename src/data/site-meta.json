@@ -1,0 +1,44 @@
+{
+  "siteName": "AI大全",
+  "siteNameEn": "AI Taizen",
+  "siteUrl": "https://ai-taizen.jp",
+  "tagline": "AIツール・サービスのオールインワン大全。実機検証・最新情報・無料で使える方法まで網羅",
+  "description": "AI動画生成・AI画像生成・ChatGPT・Gemini・Claude等の主要AIツールの使い方を実機検証で網羅。料金・機能・無料枠の最新情報を毎月更新。AIで何ができるかを全部わかる総合ガイド。",
+  "lang": "ja",
+  "locale": "ja_JP",
+  "ogImage": "/ogp-default.svg",
+  "lastUpdated": "2026年5月",
+  "publishDate": "2026-05-08",
+  "hero": {
+    "h1_line1": "AIで何ができるか、",
+    "h1_line2": "全部わかる大全。",
+    "sub": "AI動画生成・画像生成・ChatGPT・Gemini・Claudeなど、主要AIツールの使い方を実機検証で網羅。料金・機能・無料枠まで最新情報を毎月更新。",
+    "bg_image": "/images/hero-ai-default.jpg",
+    "bg_credit": "Unsplash",
+    "primary_cta": { "label": "カテゴリから探す", "href": "#categories" },
+    "secondary_cta": { "label": "人気記事 TOP 10", "href": "#popular" }
+  },
+  "trust_badges": [
+    { "icon": "doc", "label": "全記事 実機検証済み" },
+    { "icon": "files", "label": "公式情報・出典URL併記" },
+    { "icon": "ai", "label": "毎月鮮度監査・最新情報" },
+    { "icon": "no-login", "label": "会員登録不要・全コンテンツ無料" }
+  ],
+  "groupSites": [
+    {
+      "name": "計算ナビ",
+      "url": "https://keisan-navi.jp",
+      "description": "暮らしとお金の計算ツール集。年収の壁・税金・住宅ローン・NISA等を即時計算"
+    },
+    {
+      "name": "テンプレートフリー",
+      "url": "https://template-free.jp",
+      "description": "業務テンプレート146種類を会員登録不要で即ダウンロード"
+    }
+  ],
+  "operator": {
+    "name": "AI大全 編集部",
+    "email": "zawalab.info@gmail.com",
+    "supervised_by": "Claude / GPT（AI監修）+ 編集部レビュー（実機検証）"
+  }
+}

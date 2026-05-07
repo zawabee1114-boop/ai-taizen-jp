@@ -1,0 +1,72 @@
+# テンプレートフリー（template-free.jp）
+# AI/LLMクローラーを含む全ボットに公開
+
+User-agent: *
+Allow: /
+
+# AI/LLM クローラー明示許可
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: DiffBot
+Allow: /
+
+User-agent: ImagesiftBot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: AwarioRssBot
+Allow: /
+
+# Sitemap
+Sitemap: https://template-free.jp/sitemap-index.xml

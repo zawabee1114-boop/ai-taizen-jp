@@ -388,40 +388,65 @@ const toolRows = [
 // ----------------------------------------------------------------
 const sharedPromptVideo = '桜舞う京都の路地を歩く着物姿の若い女性、夕方の柔らかい光、4K、シネマティック';
 
-// 2026-05-08 v2: 動画埋め込みURLは編集部による実機検証後に差し替え予定。
-// CEO の実機検証ワークフロー待ちのため、現時点は comingSoon フラグで「実機検証準備中」
-// プレースホルダカード表示に切り替え。リックロールYouTube ID は除外済。
-// 検証完了後、各カードに embedUrl を設定して comingSoon フラグを外す。
+// 2026-05-08 v3: CEO決定（案A採用）— 公式デモ動画引用に切替。
+// 各ツール公式YouTubeチャンネルから紹介動画を選定し埋め込み。
+// 編集部による独自比較動画（同一プロンプト×5ツール）は無料枠で順次差し替え予定。
+// 出典明示（チャンネル名・公開日）で鮮度シグナル維持・著作権リスク回避。
 const comparisonVideos: any[] = [
   {
-    tool: 'Hailuo 02',
-    embedUrl: '',
-    comingSoon: true,
-    note: 'Artificial Analysis 世界2位。$0.28/本で1080p、コスパで他を圧倒する想定。実機検証準備中。',
+    tool: 'Hailuo 02 (MiniMax)',
+    prompt: '※公式が公開しているデモ動画です。各ツールの代表的な出力品質をご確認いただけます。',
+    embedUrl: 'https://www.youtube.com/embed/J18idUz87LA',
+    comingSoon: false,
+    isOfficial: true,
+    sourceLabel: 'HailuoAI (MiniMax) 公式チャンネル',
+    sourceUrl: 'https://www.youtube.com/channel/UCyeTK0ROz21TZMouGfIlbRg',
+    publishedDate: '2025-06-18',
+    note: 'MiniMax 公式が公開した Hailuo 02 紹介動画。Artificial Analysis 世界2位の品質と $0.28/本のコスパが確認できます。',
   },
   {
-    tool: 'Seedance 2.0',
-    embedUrl: '',
-    comingSoon: true,
-    note: 'ByteDance製・Artificial Analysis 1位。物理現象・布地（着物の揺れ）の表現で首位想定。実機検証準備中。',
+    tool: 'Seedance 2.0 (ByteDance)',
+    prompt: '※公式が公開しているデモ動画です。各ツールの代表的な出力品質をご確認いただけます。',
+    embedUrl: 'https://www.youtube.com/embed/l89woJ0jidw',
+    comingSoon: false,
+    isOfficial: true,
+    sourceLabel: 'Dreamina 公式チャンネル（ByteDance / CapCut）',
+    sourceUrl: 'https://www.youtube.com/@Dreaminaofficial',
+    publishedDate: '2026-03-25',
+    note: 'ByteDance / Dreamina（CapCut）公式の Seedance 2.0 紹介動画。物理現象・布地ダイナミクス・キャラクター一貫性で首位の出力品質。',
   },
   {
     tool: 'Google Veo 3.1',
-    embedUrl: '',
-    comingSoon: true,
-    note: '背景の路地の奥行き・夕方の柔らかい光のグラデーション、環境音同時生成が強み。実機検証準備中。',
+    prompt: '※公式が公開しているデモ動画です。各ツールの代表的な出力品質をご確認いただけます。',
+    embedUrl: 'https://www.youtube.com/embed/I06Ef8alr2Y',
+    comingSoon: false,
+    isOfficial: true,
+    sourceLabel: 'Google DeepMind 公式チャンネル',
+    sourceUrl: 'https://www.youtube.com/@GoogleDeepMind',
+    publishedDate: '2025-10-15',
+    note: 'Google DeepMind 公式の Veo 3.1 紹介動画「Designed to empower creatives」。映画的な光の表現と環境音同時生成が確認できます。',
   },
   {
-    tool: 'Kling 3.0',
-    embedUrl: '',
-    comingSoon: true,
-    note: '長尺・モーション特化。風で着物の袖が翻る瞬間の自然さに期待。実機検証準備中。',
+    tool: 'Kling 3.0 (Kuaishou)',
+    prompt: '※公式が公開しているデモ動画です。各ツールの代表的な出力品質をご確認いただけます。',
+    embedUrl: 'https://www.youtube.com/embed/Yqvh3M12T_M',
+    comingSoon: false,
+    isOfficial: true,
+    sourceLabel: 'Kling AI 公式チャンネル（Kuaishou）',
+    sourceUrl: 'https://www.youtube.com/@Kling_ai',
+    publishedDate: '2025-04-15',
+    note: 'Kuaishou 公式 Kling AI Global Launch イベントの紹介動画。長尺・モーション特化の出力品質が確認できます（Kling 3.0 への系譜）。',
   },
   {
-    tool: 'Runway Gen-4',
-    embedUrl: '',
-    comingSoon: true,
-    note: '人物の歩行リズム安定性・編集連携が強み。商用映像のリファレンス。実機検証準備中。',
+    tool: 'Runway Gen-4.5',
+    prompt: '※公式が公開しているデモ動画です。各ツールの代表的な出力品質をご確認いただけます。',
+    embedUrl: 'https://www.youtube.com/embed/ei2PsDpPbB4',
+    comingSoon: false,
+    isOfficial: true,
+    sourceLabel: 'Runway 公式チャンネル',
+    sourceUrl: 'https://www.youtube.com/@runwayml',
+    publishedDate: '2025-10-23',
+    note: 'Runway 公式の Gen-4.5 紹介動画。人物の歩行リズム・編集連携・商用映像のリファレンス品質が確認できます。',
   },
 ];
 
@@ -683,29 +708,30 @@ const howToJsonLd = {
   ],
 };
 
-// VideoObject: 同一プロンプト比較動画
-// 2026-05-08 v2: comparisonVideos が comingSoon=true（実機検証準備中）の場合は VideoObject schema を生成しない
-// （contentUrl/embedUrl が空で schema 不適合になるため）。
-// CEO の実機検証＋YouTubeアップロード後、各カードに embedUrl を設定し comingSoon を外せば自動で schema 出力に切り替わる構造。
+// VideoObject: 公式デモ動画引用
+// 2026-05-08 v3: CEO決定（案A採用）— 公式デモ動画引用に切替。
+// comparisonVideos の各要素は各ツール公式YouTubeチャンネルからの引用。
+// publisher は各ツールの公式チャンネル運営元（sourceLabel）を使用し、ai-taizen.jp は引用元として明示。
 const videoObjectsJsonLd = comparisonVideos
   .filter((v: any) => v.embedUrl && !v.comingSoon)
   .map((v: any) => {
     const match = (v.embedUrl || '').match(/embed\/([^/?]+)/);
     const videoId = match ? match[1] : '';
     const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : v.embedUrl;
+    const uploadDate = v.publishedDate || publishedAt;
     return {
       "@context": "https://schema.org",
       "@type": "VideoObject",
-      "name": `${v.tool} で生成「${sharedPromptVideo}」`,
-      "description": `同一プロンプト「${sharedPromptVideo}」を ${v.tool} で生成した検証動画。${v.note || ''}`,
+      "name": `${v.tool} 公式デモ動画`,
+      "description": `${v.tool} の公式が公開しているデモ動画（${v.sourceLabel || '公式チャンネル'}より引用）。${v.note || ''}`,
       "thumbnailUrl": videoId ? [`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`] : [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
-      "uploadDate": publishedAt,
+      "uploadDate": uploadDate,
       "contentUrl": watchUrl,
       "embedUrl": v.embedUrl,
       "publisher": {
         "@type": "Organization",
-        "@id": `${siteMeta.siteUrl}/#organization`,
-        "name": siteMeta.siteName,
+        "name": v.sourceLabel || `${v.tool} 公式`,
+        ...(v.sourceUrl ? { "url": v.sourceUrl } : {}),
       },
     };
   });
@@ -772,7 +798,7 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           <ul class="article-summary__list">
             <li>主要9ツール（<strong>Hailuo 02 / Seedance 2.0</strong> / Veo 3.1 / Kling 3.0 / Runway Gen-4.5 / Pika / Luma / Adobe Firefly Video / Stable Video Diffusion）の料金・無料枠・商用利用可否を、<strong>2026-05-08時点の公式情報</strong>で7項目横断比較（最安は Kling Standard $5.99/月）</li>
             <li><strong>Artificial Analysis 動画生成ランキング</strong>で首位 Seedance（ByteDance）・2位 Hailuo 02（MiniMax）の最新勢力図と、Veo 3.1・Kling 3.0・Runway Gen-4.5 との実用差を5観点（人物・光・物理表現・長尺安定性・コスパ）で総評</li>
-            <li>同一プロンプト「桜舞う京都の路地」を<strong>5ツールで生成する比較動画セクション</strong>（実機検証準備中）、失敗例→改善後の<strong>プロンプト10サンプル</strong>（コピペ可）、商用利用OK・著作権の判断基準（FAQ16問）</li>
+            <li><strong>主要5ツール（Hailuo 02 / Seedance 2.0 / Veo 3.1 / Kling 3.0 / Runway Gen-4.5）の公式デモ動画</strong>を埋め込みで掲載し、出力品質を実例で確認可能。失敗例→改善後の<strong>プロンプト10サンプル</strong>（コピペ可）、商用利用OK・著作権の判断基準（FAQ16問）</li>
             <li><strong>OpenAI Sora 提供終了</strong>（2026年3月24日発表・API 2026年9月24日終了）と、Hailuo 02・Seedance 2.0・Veo 3.1・Kling 3.0・Runway Gen-4.5 への移行方針</li>
             <li>結論：<strong>量産・コスパなら Hailuo 02（$0.28/本）、最高品質なら Seedance 2.0、解説動画なら Veo 3.1、長尺なら Kling 3.0、商用映像と編集連携なら Runway Gen-4.5</strong> の用途別使い分けが現実解</li>
           </ul>
@@ -871,16 +897,15 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
             <li><strong>音声同時生成なら Google Veo 3.1 一択</strong>: 環境音・BGMをプロンプトと一体で生成できるのは2026年5月時点で Veo のみ。</li>
           </ul>
 
-          <!-- 同一プロンプト×5ツール検証動画（最高優先度の差別化要素） -->
+          <!-- 主要5ツール 公式デモ動画セクション（差別化要素） -->
+          <p class="article-callout">
+            <strong>下記の動画は各ツールの公式が公開しているデモ動画です。</strong>各ツールの代表的な出力品質をご確認いただけます。<strong>ai-taizen.jp 編集部による独自比較動画（同一プロンプト「桜舞う京都の路地」×5ツール）は後日公開予定</strong>です。各動画はYouTube埋め込みで再生され、出典（公式チャンネル名・公開日）を明示しています。
+          </p>
+
           <VideoEmbedSet
-            heading="同一プロンプトで5ツール検証 — どの動画が一番リアルか？（実機検証準備中）"
-            sharedPrompt={sharedPromptVideo}
+            heading="主要5ツール 公式デモ動画 — 出力品質を実例で確認"
             videos={comparisonVideos}
           />
-
-          <p class="article-callout">
-            <strong>動画について</strong>: 上記は同一プロンプトで5ツール（Hailuo 02 / Seedance 2.0 / Veo 3.1 / Kling 3.0 / Runway Gen-4）を比較するセクションですが、現在は<strong>編集部による実機検証を進めている段階</strong>です。各ツールへの有料アカウント契約と「桜舞う京都の路地」動画の生成・YouTube アップロード完了次第、順次公開します。プレースホルダ動画は<strong>意図的に掲載していません</strong>（情報の正確性を担保するため）。
-          </p>
 
           <h3 class="article-h3">5ツール検証で想定される違い（公式ベンチマーク・他社レビューから）</h3>
           <ul>

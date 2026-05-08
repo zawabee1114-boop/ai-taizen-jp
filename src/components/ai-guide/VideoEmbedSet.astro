@@ -18,6 +18,14 @@ interface VideoItem {
   note?: string;
   /** 実機検証準備中フラグ（trueの場合は動画埋め込み代わりにプレースホルダ表示） */
   comingSoon?: boolean;
+  /** 公式デモ動画フラグ（trueの場合は出典バッジを表示） */
+  isOfficial?: boolean;
+  /** 出典ラベル（公式チャンネル名等） */
+  sourceLabel?: string;
+  /** 出典URL（公式チャンネルURL） */
+  sourceUrl?: string;
+  /** 公開日（YYYY-MM-DD） */
+  publishedDate?: string;
 }
 
 interface Props {
@@ -92,11 +100,31 @@ const { sharedPrompt, videos, heading } = Astro.props;
           )}
         </div>
 
-        {(video.prompt || video.note) && (
+        {(video.prompt || video.note || video.isOfficial) && (
           <footer class="video-card__foot">
+            {video.isOfficial && video.sourceLabel && (
+              <p class="video-card__source">
+                <span class="video-card__source-badge" aria-label="公式デモ動画">公式</span>
+                {video.sourceUrl ? (
+                  <a
+                    href={video.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="video-card__source-link"
+                  >
+                    {video.sourceLabel}提供
+                  </a>
+                ) : (
+                  <span class="video-card__source-text">{video.sourceLabel}提供</span>
+                )}
+                {video.publishedDate && (
+                  <span class="video-card__source-date">公開日: {video.publishedDate}</span>
+                )}
+              </p>
+            )}
             {video.prompt && (
               <p class="video-card__prompt">
-                <span class="video-card__prompt-label">プロンプト:</span>
+                <span class="video-card__prompt-label">{video.isOfficial ? '注釈:' : 'プロンプト:'}</span>
                 {video.prompt}
               </p>
             )}
@@ -263,6 +291,49 @@ const { sharedPrompt, videos, heading } = Astro.props;
     font-size: 11.5px;
     color: var(--color-muted);
     line-height: 1.6;
+  }
+  .video-card__source {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    background: var(--color-bg-section);
+    border-left: 2px solid var(--color-gold);
+    border-radius: var(--radius-sm, 4px);
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--color-text);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .video-card__source-badge {
+    display: inline-block;
+    background: var(--color-gold);
+    color: var(--color-navy);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .video-card__source-link {
+    color: var(--color-navy);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .video-card__source-link:hover {
+    color: var(--color-gold);
+  }
+  .video-card__source-text {
+    color: var(--color-navy);
+    font-weight: 600;
+  }
+  .video-card__source-date {
+    color: var(--color-muted);
+    font-size: 11px;
+    margin-left: auto;
   }
   @media (max-width: 768px) {
     .video-embed-set__grid {

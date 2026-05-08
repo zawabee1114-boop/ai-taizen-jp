@@ -16,6 +16,8 @@ interface VideoItem {
   poster?: string;
   /** メモ・特記事項 */
   note?: string;
+  /** 実機検証準備中フラグ（trueの場合は動画埋め込み代わりにプレースホルダ表示） */
+  comingSoon?: boolean;
 }
 
 interface Props {
@@ -54,7 +56,19 @@ const { sharedPrompt, videos, heading } = Astro.props;
         </header>
 
         <div class="video-card__media">
-          {video.embedType === 'video' ? (
+          {video.comingSoon ? (
+            <div class="video-card__coming-soon" role="status" aria-label="実機検証準備中">
+              <span class="video-card__coming-soon-icon" aria-hidden="true">
+                <Icon name="sparkle" size={20} />
+              </span>
+              <span class="video-card__coming-soon-text">
+                実機検証準備中
+              </span>
+              <span class="video-card__coming-soon-sub">
+                Coming Soon
+              </span>
+            </div>
+          ) : video.embedType === 'video' ? (
             <video
               controls
               preload="none"
@@ -190,6 +204,40 @@ const { sharedPrompt, videos, heading } = Astro.props;
     height: 100%;
     border: 0;
     display: block;
+  }
+  .video-card__coming-soon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1a2e4d 100%);
+    color: var(--color-gold);
+    font-family: var(--font-sans);
+    text-align: center;
+    padding: 12px;
+  }
+  .video-card__coming-soon-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gold);
+    margin-bottom: 2px;
+  }
+  .video-card__coming-soon-text {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .video-card__coming-soon-sub {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--color-gold);
+    text-transform: uppercase;
   }
   .video-card__foot {
     padding: 12px 14px;

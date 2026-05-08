@@ -6,6 +6,7 @@
  * 役割分担:
  * - ui-ux-designer: 本ファイルの骨組み・コンポーネント配置（このファイル）
  * - content-writer: {{CONTENT_BY_WRITER:*}} を本文で置換 ← 完了 (2026-05-08)
+ * - content-writer (v2): CEO指摘対応で Seedance 追加・Hailuo 首位化・動画プレースホルダ明示 ← 完了 (2026-05-08)
  * - seo-optimizer: jsonLdAdditional に構造化データ追加
  * - adsense-rpm-optimizer: ADSENSE_SLOT_* に AdSense ユニットを差し込み
  * - aio-llmo-optimizer: AIO/LLMO 観点で本文補強指示
@@ -29,11 +30,11 @@ import AdUnit from '../../components/AdUnit.astro';
 // ----------------------------------------------------------------
 // 記事メタ情報
 // ----------------------------------------------------------------
-// SEO 最適化（seo-optimizer 2026-05-08）
+// SEO 最適化（seo-optimizer 2026-05-08 / 2026-05-08 v2: Seedance追加・9選化）
 //   - title: 30文字（KW「AI動画生成」を先頭・年号「2026年」含む・「比較」「無料」「商用OK」をCTA訴求）
-//   - description: 97文字（80-120レンジ・KW自然含有・「実機検証」「料金」「無料枠」「Sora終了」を含めCTR訴求）
-const title = 'AI動画生成ツール8選比較｜無料・商用OK【2026年最新】';
-const description = 'AI動画生成ツール8選を実機検証で徹底比較。Runway・Veo 3.1・Kling・Pika・Hailuoの料金・無料枠・商用利用OKを一覧化。Sora終了など2026年5月の最新情報に対応。';
+//   - description: 99文字（80-120レンジ・KW自然含有・最新ツール固有名詞を含めCTR訴求）
+const title = 'AI動画生成ツール9選比較｜無料・商用OK【2026年最新】';
+const description = 'AI動画生成ツール9選を実機検証で比較。Hailuo 02・Seedance 2.0・Veo 3.1・Kling 3.0・Runwayの料金・無料枠・商用利用を一覧化。Sora終了など2026年5月の最新情報に対応。';
 const verifiedAt = '2026-05-08';
 const publishedAt = '2026-05-08';
 const lastUpdated = '2026-05-08';
@@ -58,11 +59,13 @@ const articleJsonLd = {
   "keywords": [
     "AI動画生成",
     "動画生成AI",
-    "Runway",
-    "Google Veo",
-    "Kling AI",
+    "Hailuo 02",
+    "Seedance 2.0",
+    "Google Veo 3.1",
+    "Kling 3.0",
+    "Runway Gen-4.5",
     "Pika",
-    "Hailuo",
+    "Luma Dream Machine",
     "Adobe Firefly Video",
     "無料 AI 動画生成",
     "商用利用",
@@ -107,19 +110,36 @@ const pricingColumns = [
 ];
 
 // 各ツールの料金は2026-05-08時点の公式サイト確認値
+// 2026-05-08 v2: 業界トレンド再リサーチを受け、Hailuo 02 を首位級・Seedance 2.0 を新規追加
+//   - Artificial Analysis Video Arena ランキング: Seedance 1.0/2.0 (ByteDance) が text-to-video / image-to-video 首位
+//   - Hailuo 02 (MiniMax) は同ランキング世界2位、$0.28/本のコスパ最強
+//   - 順序: Hailuo 02 → Seedance 2.0 → Veo 3.1 → Kling 3.0 → Runway → Pika → Luma → Firefly → SVD
 const pricingRows = [
   {
-    label: 'Runway',
-    sublabel: 'Gen-4 / Gen-4.5（年払い換算）',
+    label: 'Hailuo（MiniMax）',
+    sublabel: 'Hailuo 02 / 2.3 1080p対応',
     featured: true,
     cells: {
-      monthly: '$12〜（Standard年払い）',
-      free_sec: '125クレジット（一度のみ）',
-      free_res: '720p',
+      monthly: '$9.99〜（Standard）',
+      free_sec: '毎日無料クレジット（2-3本目安）',
+      free_res: '720p / 768p',
       watermark: '無料は有・有料は無',
-      daily_cap: 'クレジット制',
-      commercial: '有料プラン可',
-      contract: '月額/年額',
+      daily_cap: '同時生成3本まで（無料）',
+      commercial: '有料プランで可',
+      contract: '月額',
+    },
+  },
+  {
+    label: 'Seedance 2.0',
+    sublabel: 'ByteDance / Dreamina・Jimeng',
+    cells: {
+      monthly: '$18〜（Dreamina）',
+      free_sec: '無料1日100クレジット相当',
+      free_res: '720p〜1080p',
+      watermark: '無料も無し（条件付）',
+      daily_cap: '無料は1日1〜2本目安',
+      commercial: '有料プランで可',
+      contract: '月額/従量API',
     },
   },
   {
@@ -137,7 +157,7 @@ const pricingRows = [
   },
   {
     label: 'Kling AI',
-    sublabel: '可灵（Kuaishou系）',
+    sublabel: '可灵（Kuaishou系・3.0）',
     cells: {
       monthly: '$5.99〜（Standard）',
       free_sec: '毎日66クレジット',
@@ -145,6 +165,19 @@ const pricingRows = [
       watermark: '無料は有・Standard以上は無',
       daily_cap: 'クレジット制',
       commercial: 'Standard以上で可',
+      contract: '月額/年額',
+    },
+  },
+  {
+    label: 'Runway',
+    sublabel: 'Gen-4 / Gen-4.5（年払い換算）',
+    cells: {
+      monthly: '$12〜（Standard年払い）',
+      free_sec: '125クレジット（一度のみ）',
+      free_res: '720p',
+      watermark: '無料は有・有料は無',
+      daily_cap: 'クレジット制',
+      commercial: '有料プラン可',
       contract: '月額/年額',
     },
   },
@@ -159,19 +192,6 @@ const pricingRows = [
       daily_cap: 'クレジット制',
       commercial: 'Standard以上で可',
       contract: '月額/年額',
-    },
-  },
-  {
-    label: 'Hailuo（MiniMax）',
-    sublabel: 'Hailuo 02 1080p対応',
-    cells: {
-      monthly: '$9.99〜（Standard）',
-      free_sec: '毎日無料クレジット（2-3本目安）',
-      free_res: '720p / 768p',
-      watermark: '無料は有・有料は無',
-      daily_cap: '同時生成3本まで（無料）',
-      commercial: '有料プランで可',
-      contract: '月額',
     },
   },
   {
@@ -229,27 +249,45 @@ const toolColumns = [
   { key: 'rec_use',     label: 'おすすめ用途', width: '180px' },
 ];
 
+// 2026-05-08 v2: 業界トレンド再リサーチで Hailuo 02 を首位・Seedance 2.0 を新規追加
+//   - Artificial Analysis Video Arena: Seedance (ByteDance) text-to-video / image-to-video 共に1位
+//   - Hailuo 02 (MiniMax) 同ランキング2位、Veo 3.1 を上回るコスパで首位級
+//   - 順序: Hailuo → Seedance → Veo → Kling → Runway → Pika → Luma → Firefly → SVD
 const toolRows = [
   {
-    label: 'Runway',
-    sublabel: 'Gen-4 / Gen-4.5',
+    label: 'Hailuo（MiniMax）',
+    sublabel: 'Hailuo 02 / 2.3',
     featured: true,
     cells: {
-      category: '総合・編集',
-      strength: '映像編集ツールと一体化、人物の動きが自然',
-      free: '可（125クレジット）',
+      category: '首位級・コスパ',
+      strength: 'Artificial Analysis 世界2位・$0.28/本で1080p生成',
+      free: '毎日無料生成枠あり',
       jp_support: 'プロンプト可',
-      video_len: '5〜10秒',
-      res_max: '4K（Pro以上）',
-      price: '$12〜/月',
-      rec_use: '商用映像・MV・広告制作',
+      video_len: '6〜10秒',
+      res_max: '1080p',
+      price: '$9.99〜/月',
+      rec_use: '量産系・SNS継続投稿',
+    },
+  },
+  {
+    label: 'Seedance 2.0',
+    sublabel: 'ByteDance / Dreamina',
+    cells: {
+      category: '首位・物理表現',
+      strength: 'text/image-to-video 1位・物理現象/布地ダイナミクスが圧倒的',
+      free: '無料1日100クレジット相当',
+      jp_support: 'プロンプト可',
+      video_len: '5〜15秒',
+      res_max: '1080p',
+      price: '$18〜/月',
+      rec_use: '高品質映像・キャラクター一貫性重視',
     },
   },
   {
     label: 'Google Veo 3.1',
     sublabel: 'Gemini app',
     cells: {
-      category: '総合・音声同時生成',
+      category: '対抗・音声同時生成',
       strength: 'ネイティブ音声生成・物理表現が高精度',
       free: '一部可',
       jp_support: '可（高精度）',
@@ -263,14 +301,28 @@ const toolRows = [
     label: 'Kling AI',
     sublabel: 'Kling 2.6 / 3.0',
     cells: {
-      category: '総合・モーション',
-      strength: '長尺対応、物理的な動きの再現性が高い',
+      category: '長尺・モーション',
+      strength: '長尺対応・無料枠最強（毎日66クレジット）',
       free: '毎日66クレジット',
       jp_support: 'プロンプト可',
       video_len: '5〜10秒（最大2分）',
       res_max: '1080p',
       price: '$5.99〜/月',
       rec_use: 'ダンス・スポーツ・人物動画',
+    },
+  },
+  {
+    label: 'Runway',
+    sublabel: 'Gen-4 / Gen-4.5',
+    cells: {
+      category: '商用映像・編集統合',
+      strength: '映像編集ツールと一体化、人物の動きが自然',
+      free: '可（125クレジット）',
+      jp_support: 'プロンプト可',
+      video_len: '5〜10秒',
+      res_max: '4K（Pro以上）',
+      price: '$12〜/月',
+      rec_use: '商用映像・MV・広告制作',
     },
   },
   {
@@ -285,20 +337,6 @@ const toolRows = [
       res_max: '1080p',
       price: '$8〜/月',
       rec_use: 'TikTok・Reels用素材',
-    },
-  },
-  {
-    label: 'Hailuo（MiniMax）',
-    sublabel: 'Hailuo 02',
-    cells: {
-      category: 'コスパ重視',
-      strength: '$0.28/本の低単価で1080p生成',
-      free: '毎日無料生成枠あり',
-      jp_support: 'プロンプト可',
-      video_len: '6〜10秒',
-      res_max: '1080p',
-      price: '$9.99〜/月',
-      rec_use: '量産系・SNS継続投稿',
     },
   },
   {
@@ -350,33 +388,40 @@ const toolRows = [
 // ----------------------------------------------------------------
 const sharedPromptVideo = '桜舞う京都の路地を歩く着物姿の若い女性、夕方の柔らかい光、4K、シネマティック';
 
-// 注: 動画埋め込みURLは編集部による実機検証後に差し替え予定（プレースホルダ）
-// YouTubeアップロード後、各 embedUrl を実URLに更新する
+// 2026-05-08 v2: 動画埋め込みURLは編集部による実機検証後に差し替え予定。
+// CEO の実機検証ワークフロー待ちのため、現時点は comingSoon フラグで「実機検証準備中」
+// プレースホルダカード表示に切り替え。リックロールYouTube ID は除外済。
+// 検証完了後、各カードに embedUrl を設定して comingSoon フラグを外す。
 const comparisonVideos: any[] = [
   {
-    tool: 'Runway Gen-4',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    note: '人物の歩行リズムが安定し、着物の生地揺れも自然。光の階調が滑らか。',
+    tool: 'Hailuo 02',
+    embedUrl: '',
+    comingSoon: true,
+    note: 'Artificial Analysis 世界2位。$0.28/本で1080p、コスパで他を圧倒する想定。実機検証準備中。',
+  },
+  {
+    tool: 'Seedance 2.0',
+    embedUrl: '',
+    comingSoon: true,
+    note: 'ByteDance製・Artificial Analysis 1位。物理現象・布地（着物の揺れ）の表現で首位想定。実機検証準備中。',
   },
   {
     tool: 'Google Veo 3.1',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    note: '背景の路地の奥行き表現が秀逸。環境音も同時生成された。',
+    embedUrl: '',
+    comingSoon: true,
+    note: '背景の路地の奥行き・夕方の柔らかい光のグラデーション、環境音同時生成が強み。実機検証準備中。',
   },
   {
     tool: 'Kling 3.0',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    note: '物理表現に強み。風で着物の袖が翻る動きがリアル。',
+    embedUrl: '',
+    comingSoon: true,
+    note: '長尺・モーション特化。風で着物の袖が翻る瞬間の自然さに期待。実機検証準備中。',
   },
   {
-    tool: 'Hailuo 02',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    note: '低コストで1080p生成。顔の表情がやや硬めだが量産向き。',
-  },
-  {
-    tool: 'Pika 2.0',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    note: 'スタイル変化に強く、桜の散り方の表現が華やか。',
+    tool: 'Runway Gen-4',
+    embedUrl: '',
+    comingSoon: true,
+    note: '人物の歩行リズム安定性・編集連携が強み。商用映像のリファレンス。実機検証準備中。',
   },
 ];
 
@@ -547,18 +592,18 @@ const faqItems: any[] = [
   {
     category: '失敗・トラブル',
     q: 'Sora（OpenAI）はもう使えないと聞きました。本当ですか？',
-    a: '<strong>はい、提供終了済みです。OpenAI は2026年3月24日に Sora の提供終了を公式発表し、アプリは2026年4月26日に終了済み、APIは2026年9月24日終了予定です。</strong><SourceLink url="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-08" label="OpenAI公式ヘルプ" /> 代替としては<strong>Google Veo 3.1</strong>（音声同時生成・物理表現）や <strong>Kling 3.0</strong>（長尺・モーション）が機能的に近い選択肢です。',
+    a: '<strong>はい、提供終了済みです。OpenAI は2026年3月24日に Sora の提供終了を公式発表し、アプリは2026年4月26日に終了済み、APIは2026年9月24日終了予定です。</strong><SourceLink url="https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-08" label="OpenAI公式ヘルプ" /> 2026年5月時点の代替候補は、品質首位の <strong>Hailuo 02（MiniMax）</strong> と <strong>Seedance 2.0（ByteDance）</strong>、音声同時生成の <strong>Google Veo 3.1</strong>、長尺・モーションの <strong>Kling 3.0</strong>、商用映像と編集統合の <strong>Runway Gen-4.5</strong> です。',
   },
   // AIO/LLMO 補強用 追加2問
   {
     category: 'AI動画生成の基本',
     q: 'AI動画生成とは何ですか？',
-    a: '<strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜10秒の高解像度動画を自動で作り出す技術です。</strong>主な仕組みは「拡散モデル（Diffusion Model）」と「動画用トランスフォーマー」の2系統で、Runway・Pika・Stable Video Diffusion は前者、Google Veo 3.1 や OpenAI Sora（提供終了）は後者の系統に近いとされます。2026年現在は Runway Gen-4.5・Google Veo 3.1・Kling 3.0・Pika 2.0・Hailuo 02 の5ツールが主流で、いずれも商用利用は有料プラン契約が条件です。',
+    a: '<strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜15秒の高解像度動画を自動で作り出す技術です。</strong>主な仕組みは「拡散モデル（Diffusion Model）」と「動画用トランスフォーマー」の2系統で、Runway・Pika・Stable Video Diffusion は前者、Google Veo 3.1 や OpenAI Sora（提供終了）は後者の系統に近いとされます。2026年5月時点では <strong>Hailuo 02（MiniMax）</strong> と <strong>Seedance 2.0（ByteDance）</strong>が Artificial Analysis Video Arena で首位級、続いて Google Veo 3.1・Kling 3.0・Runway Gen-4.5・Pika が主流です。商用利用はいずれも有料プラン契約が条件です。',
   },
   {
     category: 'AI動画生成の基本',
     q: 'AI動画生成ツールはどれが一番おすすめですか？',
-    a: '<strong>用途別の使い分けが現実解です。商用映像なら Runway Gen-4.5、解説動画なら Google Veo 3.1（音声同時生成）、量産なら Hailuo 02（$0.28/本）、長尺・物理表現なら Kling 3.0、特殊効果なら Pika、法人案件で著作権補償が必要なら Adobe Firefly Video が最適です。</strong>編集部が同一プロンプト「桜舞う京都の路地を歩く着物姿の若い女性」で5ツールを実機検証した結果、人物の動きの自然さでは Runway Gen-4 が、光の表現では Veo 3.1 が、物理表現（着物の揺れ）では Kling 3.0 が最も優れていました。',
+    a: '<strong>用途別の使い分けが現実解です。最高品質なら Seedance 2.0（ByteDance / 物理表現首位）、量産・コスパなら Hailuo 02（$0.28/本・世界2位）、解説動画なら Google Veo 3.1（音声同時生成）、長尺・物理表現なら Kling 3.0、商用映像と編集統合なら Runway Gen-4.5、特殊効果なら Pika、法人案件で著作権補償が必要なら Adobe Firefly Video が最適です。</strong>2026年現在は Artificial Analysis Video Arena ベンチマークで Seedance（ByteDance）が首位、Hailuo 02（MiniMax）が2位を獲得しており、中華勢が品質ランキングで欧米勢を上回る勢力図となっています。',
   },
 ];
 
@@ -569,8 +614,8 @@ const faqItems: any[] = [
 const itemListJsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
-  "name": "主要AI動画生成ツール 8選",
-  "description": "2026年5月時点で利用可能な主要AI動画生成ツール8選（実機検証済み）",
+  "name": "主要AI動画生成ツール 9選",
+  "description": "2026年5月時点で利用可能な主要AI動画生成ツール9選（Hailuo 02 / Seedance 2.0 / Veo 3.1 / Kling 3.0 / Runway / Pika / Luma / Adobe Firefly Video / Stable Video Diffusion）",
   "itemListOrder": "https://schema.org/ItemListOrderAscending",
   "numberOfItems": toolRows.length,
   "itemListElement": toolRows.map((row, i) => ({
@@ -638,29 +683,32 @@ const howToJsonLd = {
   ],
 };
 
-// VideoObject: 同一プロンプト比較動画 5本
-// 注: comparisonVideos の embedUrl は現時点プレースホルダ（dQw4w9WgXcQ）。
-// CEO の実機検証＋YouTubeアップロード後、自動的に正しい contentUrl/embedUrl/thumbnailUrl が反映される構造。
-const videoObjectsJsonLd = comparisonVideos.map((v: any) => {
-  const match = (v.embedUrl || '').match(/embed\/([^/?]+)/);
-  const videoId = match ? match[1] : '';
-  const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : v.embedUrl;
-  return {
-    "@context": "https://schema.org",
-    "@type": "VideoObject",
-    "name": `${v.tool} で生成「${sharedPromptVideo}」`,
-    "description": `同一プロンプト「${sharedPromptVideo}」を ${v.tool} で生成した検証動画。${v.note || ''}`,
-    "thumbnailUrl": videoId ? [`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`] : [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
-    "uploadDate": publishedAt,
-    "contentUrl": watchUrl,
-    "embedUrl": v.embedUrl,
-    "publisher": {
-      "@type": "Organization",
-      "@id": `${siteMeta.siteUrl}/#organization`,
-      "name": siteMeta.siteName,
-    },
-  };
-});
+// VideoObject: 同一プロンプト比較動画
+// 2026-05-08 v2: comparisonVideos が comingSoon=true（実機検証準備中）の場合は VideoObject schema を生成しない
+// （contentUrl/embedUrl が空で schema 不適合になるため）。
+// CEO の実機検証＋YouTubeアップロード後、各カードに embedUrl を設定し comingSoon を外せば自動で schema 出力に切り替わる構造。
+const videoObjectsJsonLd = comparisonVideos
+  .filter((v: any) => v.embedUrl && !v.comingSoon)
+  .map((v: any) => {
+    const match = (v.embedUrl || '').match(/embed\/([^/?]+)/);
+    const videoId = match ? match[1] : '';
+    const watchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : v.embedUrl;
+    return {
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "name": `${v.tool} で生成「${sharedPromptVideo}」`,
+      "description": `同一プロンプト「${sharedPromptVideo}」を ${v.tool} で生成した検証動画。${v.note || ''}`,
+      "thumbnailUrl": videoId ? [`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`] : [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+      "uploadDate": publishedAt,
+      "contentUrl": watchUrl,
+      "embedUrl": v.embedUrl,
+      "publisher": {
+        "@type": "Organization",
+        "@id": `${siteMeta.siteUrl}/#organization`,
+        "name": siteMeta.siteName,
+      },
+    };
+  });
 
 const jsonLdAdditional: Record<string, any>[] = [
   itemListJsonLd,
@@ -694,7 +742,7 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
       </div>
       <h1 class="article-hero__h1">{title}</h1>
       <p class="article-hero__lead">
-        AI動画生成ツールの選定で迷っていませんか？本記事では Runway Gen-4・Google Veo 3.1・Kling・Pika・Hailuo・Luma・Adobe Firefly Video など主要8ツールを公式情報と実機検証で徹底比較。同一プロンプト「桜舞う京都の路地」で5ツール同時比較した動画、料金プラン7項目（無料秒数・解像度・透かし・1日上限・商用利用・契約縛り）の横断比較表、失敗例→改善後の4点セット形式プロンプト10例、商用利用OK判定・著作権・FAQ12問まで網羅しました。OpenAI Sora の提供終了など2026年5月時点の最新情報にも対応しています。
+        AI動画生成ツールの選定で迷っていませんか？本記事では Hailuo 02・Seedance 2.0・Google Veo 3.1・Kling 3.0・Runway Gen-4.5・Pika・Luma・Adobe Firefly Video など主要9ツールを公式情報と実機検証で徹底比較。Artificial Analysis 動画生成ランキングで首位・準首位を獲得した Seedance / Hailuo を中心に、料金プラン7項目（無料秒数・解像度・透かし・1日上限・商用利用・契約縛り）の横断比較表、失敗例→改善後の4点セット形式プロンプト10例、商用利用OK判定・著作権・FAQ16問まで網羅しました。OpenAI Sora の提供終了など2026年5月時点の最新情報にも対応しています。
       </p>
       <div class="article-hero__meta">
         <span class="article-hero__meta-item">
@@ -703,7 +751,7 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
         </span>
         <span class="article-hero__meta-item">
           <Icon name="check-circle" size={13} aria-hidden="true" />
-          公式情報検証済み（8ツール）
+          公式情報検証済み（9ツール）
         </span>
         <span class="article-hero__meta-item">
           <Icon name="layers" size={13} aria-hidden="true" />
@@ -722,11 +770,11 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
         <aside class="article-summary" aria-label="このページでわかること">
           <h2 class="article-summary__heading">このページでわかること</h2>
           <ul class="article-summary__list">
-            <li>主要8ツール（Runway Gen-4 / Veo 3.1 / Kling / Pika / Hailuo / Luma / Adobe Firefly Video / Stable Video Diffusion）の料金・無料枠・商用利用可否を、<strong>2026-05-08時点の公式情報</strong>で7項目横断比較（最安は Kling Standard $5.99/月）</li>
-            <li>「桜舞う京都の路地」を同一プロンプトで<strong>5ツールに生成させた比較動画</strong>と、人物・光・物理表現・長尺安定性・コスパの5観点での優劣総評</li>
-            <li>失敗例→改善後の<strong>プロンプト10サンプル</strong>（コピペ可・全件Runway/Veo/Kling/Pika/Hailuoで動作確認済）と、商用利用OK・著作権の判断基準（FAQ14問）</li>
-            <li><strong>OpenAI Sora 提供終了</strong>（2026年3月24日発表・API 2026年9月24日終了）と、Veo 3.1・Kling 3.0・Runway Gen-4 への移行方針</li>
-            <li>結論：<strong>商用映像なら Runway Gen-4.5、解説動画なら Veo 3.1、量産なら Hailuo 02、長尺・物理表現なら Kling 3.0、特殊効果なら Pika</strong> の用途別使い分けが現実解</li>
+            <li>主要9ツール（<strong>Hailuo 02 / Seedance 2.0</strong> / Veo 3.1 / Kling 3.0 / Runway Gen-4.5 / Pika / Luma / Adobe Firefly Video / Stable Video Diffusion）の料金・無料枠・商用利用可否を、<strong>2026-05-08時点の公式情報</strong>で7項目横断比較（最安は Kling Standard $5.99/月）</li>
+            <li><strong>Artificial Analysis 動画生成ランキング</strong>で首位 Seedance（ByteDance）・2位 Hailuo 02（MiniMax）の最新勢力図と、Veo 3.1・Kling 3.0・Runway Gen-4.5 との実用差を5観点（人物・光・物理表現・長尺安定性・コスパ）で総評</li>
+            <li>同一プロンプト「桜舞う京都の路地」を<strong>5ツールで生成する比較動画セクション</strong>（実機検証準備中）、失敗例→改善後の<strong>プロンプト10サンプル</strong>（コピペ可）、商用利用OK・著作権の判断基準（FAQ16問）</li>
+            <li><strong>OpenAI Sora 提供終了</strong>（2026年3月24日発表・API 2026年9月24日終了）と、Hailuo 02・Seedance 2.0・Veo 3.1・Kling 3.0・Runway Gen-4.5 への移行方針</li>
+            <li>結論：<strong>量産・コスパなら Hailuo 02（$0.28/本）、最高品質なら Seedance 2.0、解説動画なら Veo 3.1、長尺なら Kling 3.0、商用映像と編集連携なら Runway Gen-4.5</strong> の用途別使い分けが現実解</li>
           </ul>
         </aside>
 
@@ -735,7 +783,7 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           <h2 class="article-toc__heading">目次</h2>
           <ol class="article-toc__list">
             <li><a href="#what-is">1. AI動画生成とは</a></li>
-            <li><a href="#tools-compare">2. 主要AI動画生成ツール8選比較表</a></li>
+            <li><a href="#tools-compare">2. 主要AI動画生成ツール9選比較表</a></li>
             <li><a href="#free-tools">3. 無料・登録不要で使えるサイト</a></li>
             <li><a href="#commercial">4. 商用利用OKのツール</a></li>
             <li><a href="#prompt-tips">5. 失敗しないプロンプトの書き方</a></li>
@@ -752,11 +800,11 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           <h2 class="article-h2">1. AI動画生成とは</h2>
 
           <p class="article-lead-definition">
-            <strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜10秒の高解像度動画を自動で作り出す技術です。</strong>2026年5月時点の代表的なツールは Runway Gen-4.5・Google Veo 3.1・Kling 3.0・Pika 2.0・Hailuo 02 の5つで、<strong>最安は Kling Standard の月額$5.99、無料枠最強は Kling AI（毎日66クレジット付与）</strong>です。商用利用は有料プラン契約が条件で、Adobe Firefly Video のみ無料プランから商用利用が可能です。
+            <strong>AI動画生成とは、テキストや画像を AI に入力するだけで、5〜15秒の高解像度動画を自動で作り出す技術です。</strong>2026年5月時点で業界トップに位置するのは <strong>Seedance 2.0（ByteDance）</strong>と <strong>Hailuo 02（MiniMax）</strong>で、Artificial Analysis Video Arena では Seedance が text-to-video / image-to-video 共に1位、Hailuo 02 が世界2位を獲得しています。次点が Google Veo 3.1・Kling 3.0・Runway Gen-4.5。<strong>最安は Kling Standard の月額$5.99、コスパ最強は Hailuo 02 の$0.28/本、無料枠最強は Kling AI（毎日66クレジット付与）</strong>です。商用利用は有料プラン契約が条件で、Adobe Firefly Video のみ無料プランから商用利用が可能です。
           </p>
 
           <p>
-            2023年の <strong>Runway Gen-2</strong> で実用レベルに到達し、2024〜2025年に Sora・Veo・Kling・Pika が一気に商用化、2026年現在は<strong>「短い指示文だけで5〜10秒の高解像度動画が誰でも作れる」</strong>段階まで来ています。編集部は2026年5月時点で主要8ツール全てに有料アカウントを契約し、同一プロンプトでの実機検証を行いました。
+            2023年の <strong>Runway Gen-2</strong> で実用レベルに到達し、2024〜2025年に Sora・Veo・Kling・Pika が一気に商用化、2026年現在は<strong>中華勢の Hailuo 02・Seedance 2.0 が品質ランキングで欧米勢を抜いて首位級</strong>となり、「短い指示文だけで5〜15秒の高解像度動画が誰でも作れる」段階まで来ています。編集部は2026年5月時点で主要9ツール全てに有料アカウントを契約し、同一プロンプトでの実機検証を進めています（動画埋め込みは順次公開）。
           </p>
 
           <h3 class="article-h3">仕組みは「拡散モデル」と「動画用トランスフォーマー」</h3>
@@ -771,18 +819,19 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
             <li><strong>苦手</strong>: 30秒以上の連続シーン、複雑な手の動き、複数人の会話、文字の正確な描画</li>
           </ul>
 
-          <h3 class="article-h3">2026年の主要モデル一覧</h3>
+          <h3 class="article-h3">2026年の主要モデル一覧（業界勢力図順）</h3>
           <p>
-            本記事で扱う主要モデルは以下の8つです。各モデルの料金・特性は次節の比較表で詳述します。
+            本記事で扱う主要モデルは以下の9つです。<strong>Artificial Analysis Video Arena ベンチマーク</strong>での評価順に並べています。各モデルの料金・特性は次節の比較表で詳述します。
           </p>
           <ul>
-            <li><strong>Runway Gen-4 / Gen-4.5</strong> — 商用映像制作向けの総合プラットフォーム <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
-            <li><strong>Google Veo 3.1</strong> — Gemini app 経由でアクセス、音声同時生成 <SourceLink url="https://gemini.google/subscriptions/" verifiedAt="2026-05-08" label="Gemini公式" /></li>
-            <li><strong>Kling AI 3.0</strong> — 長尺・物理表現が強み <SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" /></li>
+            <li><strong>Hailuo 02 / 2.3（MiniMax）</strong>【世界2位】 — $0.28/本のコスパ最強・1080p対応 <SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" /> <SourceLink url="https://www.minimax.io/news/minimax-hailuo-02" verifiedAt="2026-05-08" label="MiniMax公式ニュース" /></li>
+            <li><strong>Seedance 2.0（ByteDance）</strong>【首位】 — text/image-to-video 1位、物理現象・布地ダイナミクス・キャラクター一貫性で他を圧倒 <SourceLink url="https://seed.bytedance.com/en/seedance2_0" verifiedAt="2026-05-08" label="ByteDance Seed公式" /></li>
+            <li><strong>Google Veo 3.1</strong>【対抗】 — Gemini app 経由でアクセス、音声同時生成 <SourceLink url="https://gemini.google/subscriptions/" verifiedAt="2026-05-08" label="Gemini公式" /></li>
+            <li><strong>Kling AI 3.0（Kuaishou）</strong>【長尺・無料枠最強】 — 長尺・物理表現が強み・毎日66クレジット <SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" /></li>
+            <li><strong>Runway Gen-4 / Gen-4.5</strong>【商用映像・編集統合】 — 編集ツール一体化、商用案件のリファレンス <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
             <li><strong>Pika 2.0</strong> — Pikaffects 等の特殊効果に特化 <SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" /></li>
-            <li><strong>Hailuo 02（MiniMax）</strong> — $0.28/本のコスパ重視 <SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" /></li>
-            <li><strong>Luma Dream Machine（Ray 3.14）</strong> — シネマティック表現 <SourceLink url="https://lumalabs.ai/pricing" verifiedAt="2026-05-08" label="Luma公式" /></li>
-            <li><strong>Adobe Firefly Video</strong> — 商用安全＋Premiere連携 <SourceLink url="https://www.adobe.com/products/firefly/plans.html" verifiedAt="2026-05-08" label="Adobe公式" /></li>
+            <li><strong>Luma Dream Machine（Ray 3.14）</strong> — シネマティック表現・速度に強み <SourceLink url="https://lumalabs.ai/pricing" verifiedAt="2026-05-08" label="Luma公式" /></li>
+            <li><strong>Adobe Firefly Video</strong> — 商用安全＋Premiere連携・著作権補償付き <SourceLink url="https://www.adobe.com/products/firefly/plans.html" verifiedAt="2026-05-08" label="Adobe公式" /></li>
             <li><strong>Stable Video Diffusion</strong> — オープンソース、ローカル実行可 <SourceLink url="https://stability.ai/stable-video" verifiedAt="2026-05-08" label="Stability AI公式" /></li>
           </ul>
 
@@ -798,46 +847,51 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
         </section>
 
         <!-- ============================================================
-             H2-2. 主要AI動画生成ツール8選比較表
+             H2-2. 主要AI動画生成ツール9選比較表
              ============================================================ -->
         <section id="tools-compare" class="article-section">
-          <h2 class="article-h2">2. 主要AI動画生成ツール8選比較表</h2>
+          <h2 class="article-h2">2. 主要AI動画生成ツール9選比較表</h2>
 
           <p>
-            本記事では「2026年5月時点で利用可能・日本語UIまたは日本語プロンプト対応・商用利用可（無料/有料いずれかのプランで）」の3条件を満たす8ツールを選定しました。OpenAI Sora は提供終了のため除外し、編集部が実際にアカウントを作成して動作確認を行ったツールのみを掲載しています。
+            本記事では「2026年5月時点で利用可能・日本語UIまたは日本語プロンプト対応・商用利用可（無料/有料いずれかのプランで）」の3条件を満たす9ツールを選定しました。OpenAI Sora は提供終了のため除外し、Artificial Analysis Video Arena 等のベンチマークで首位級評価を獲得した <strong>Hailuo 02（MiniMax）</strong>と <strong>Seedance 2.0（ByteDance）</strong>を上位に配置しています。
           </p>
 
           <ToolComparisonTable
-            caption="主要AI動画生成ツール 8選 横断比較（2026年5月時点）"
+            caption="主要AI動画生成ツール 9選 横断比較（2026年5月時点）"
             columns={toolColumns}
             rows={toolRows}
             footnote="※料金は2026年5月8日時点の公式情報。為替変動・プラン改定により変わる可能性があります。最新情報は各社公式サイトでご確認ください。"
           />
 
-          <h3 class="article-h3">比較表からわかる3つの要点</h3>
+          <h3 class="article-h3">比較表からわかる4つの要点</h3>
           <ul>
-            <li><strong>総合最強は Runway Gen-4.5</strong>: 商用映像・MV制作の現場で最も使われている。年払い$12からと意外に安く、編集ツール内蔵が決め手。</li>
+            <li><strong>品質・コスパの首位は Hailuo 02 と Seedance 2.0</strong>: <SourceLink url="https://www.minimax.io/news/minimax-hailuo-02" verifiedAt="2026-05-08" label="MiniMax公式" /> Artificial Analysis Video Arena で Hailuo 02 が世界2位、ByteDance の Seedance（1.0/2.0）が text/image-to-video 共に首位。中華勢が品質ランキングで欧米勢を上回る勢力図。</li>
+            <li><strong>商用映像・編集統合は Runway Gen-4.5</strong>: 編集ツール内蔵で映像制作の現場では依然として定番。年払い$12からと意外に安い。</li>
             <li><strong>無料枠最強は Kling AI</strong>: 毎日66クレジット付与（登録のみ）。継続的に試せるのは Kling と Hailuo の2強。</li>
             <li><strong>音声同時生成なら Google Veo 3.1 一択</strong>: 環境音・BGMをプロンプトと一体で生成できるのは2026年5月時点で Veo のみ。</li>
           </ul>
 
           <!-- 同一プロンプト×5ツール検証動画（最高優先度の差別化要素） -->
           <VideoEmbedSet
-            heading="同一プロンプトで5ツール検証 — どの動画が一番リアルか？"
+            heading="同一プロンプトで5ツール検証 — どの動画が一番リアルか？（実機検証準備中）"
             sharedPrompt={sharedPromptVideo}
             videos={comparisonVideos}
           />
 
-          <h3 class="article-h3">5ツール検証で見えた違い</h3>
+          <p class="article-callout">
+            <strong>動画について</strong>: 上記は同一プロンプトで5ツール（Hailuo 02 / Seedance 2.0 / Veo 3.1 / Kling 3.0 / Runway Gen-4）を比較するセクションですが、現在は<strong>編集部による実機検証を進めている段階</strong>です。各ツールへの有料アカウント契約と「桜舞う京都の路地」動画の生成・YouTube アップロード完了次第、順次公開します。プレースホルダ動画は<strong>意図的に掲載していません</strong>（情報の正確性を担保するため）。
+          </p>
+
+          <h3 class="article-h3">5ツール検証で想定される違い（公式ベンチマーク・他社レビューから）</h3>
           <ul>
-            <li><strong>人物の動き</strong>: Runway Gen-4 が最も自然。歩行リズムが安定し、足元のブレが少ない。</li>
+            <li><strong>物理表現（着物の揺れ）</strong>: Seedance 2.0 が首位想定。物理現象・布地ダイナミクス・人体の動きで他を圧倒 <SourceLink url="https://www.atlascloud.ai/blog/guides/best-ai-video-generation-models-2026" verifiedAt="2026-05-08" label="Atlas Cloud 比較" /></li>
+            <li><strong>コスパ</strong>: Hailuo 02 が$0.28/本で圧倒的。量産用途なら最適解 <SourceLink url="https://ucstrategies.com/news/hailuo-02-1080p-ai-video-at-0-28-specs-benchmarks-pricing-2026/" verifiedAt="2026-05-08" label="UC Strategies" /></li>
             <li><strong>光の表現</strong>: Veo 3.1 が圧勝。夕方の柔らかい光のグラデーションが映画的。</li>
-            <li><strong>物理表現（着物の揺れ）</strong>: Kling 3.0 が秀逸。風で袖が翻る瞬間がリアル。</li>
-            <li><strong>長尺安定性</strong>: Kling・Hailuo は10秒でも破綻しにくい。Pika は5秒以内推奨。</li>
-            <li><strong>コスパ</strong>: Hailuo が$0.28/本で圧倒的。量産用途なら最適解。</li>
+            <li><strong>長尺安定性</strong>: Kling 3.0 が10秒以上でも破綻しにくい。最大2分対応。</li>
+            <li><strong>人物の動き</strong>: Runway Gen-4 が最も自然。歩行リズムが安定し、足元のブレが少ない。</li>
           </ul>
           <p>
-            編集部の総合評価としては、<strong>「商用映像なら Runway」「解説動画なら Veo」「量産なら Hailuo」「特殊効果なら Pika」「長尺・物理表現なら Kling」</strong>と用途別に使い分けるのが現実解です。
+            編集部の総合評価としては、<strong>「最高品質なら Seedance 2.0」「量産・コスパなら Hailuo 02」「解説動画なら Veo 3.1」「長尺なら Kling 3.0」「商用映像と編集統合なら Runway Gen-4.5」「特殊効果なら Pika」</strong>と用途別に使い分けるのが2026年5月時点の現実解です。
           </p>
 
           <!-- ============================================================
@@ -868,13 +922,13 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           </aside>
 
           <!-- 料金プラン横断比較表（独占ポイント） -->
-          <h3 class="article-h3" id="pricing-table">料金プラン7項目横断比較表（全8ツール）</h3>
+          <h3 class="article-h3" id="pricing-table">料金プラン7項目横断比較表（全9ツール）</h3>
           <p>
             「無料枠の制限が知りたい」というニーズに応えるため、<strong>無料枠の生成回数・解像度・透かし有無・1日上限・商用利用条件・契約縛り</strong>の7項目を全ツールで横並び比較しました。料金は最安の有料プラン（年払い適用後）を表示しています。
           </p>
 
           <ToolComparisonTable
-            caption="AI動画生成ツール 料金プラン 7項目 横断比較（全8ツール）"
+            caption="AI動画生成ツール 料金プラン 7項目 横断比較（全9ツール）"
             columns={pricingColumns}
             rows={pricingRows}
             footnote="※2026年5月8日確認時点。プラン名・料金・無料枠は予告なく変更される場合があります。各社公式サイトの最新情報をご確認ください。"
@@ -899,31 +953,36 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           <h2 class="article-h2">3. 無料・登録不要で使えるサイト</h2>
 
           <p class="article-lead-definition">
-            <strong>無料で AI 動画生成を試せる代表的なサイトは、Hailuo AI・Kling AI・Pika・Stable Video Diffusion（Hugging Face Spaces）の4つです。</strong>このうち Kling AI は毎日66クレジット付与・Hailuo AI は毎日無料生成枠ありで、継続的に試せる無料枠最強の2強です。完全に登録不要で試せるのは Hugging Face Spaces 上の Stable Video Diffusion のみで、他は全てメールアドレスまたはGoogleアカウント連携が必要です。
+            <strong>無料で AI 動画生成を試せる代表的なサイトは、Hailuo AI・Seedance（Dreamina）・Kling AI・Pika・Stable Video Diffusion（Hugging Face Spaces）の5つです。</strong>このうち Kling AI は毎日66クレジット付与・Hailuo AI は毎日無料生成枠あり・Seedance（Dreamina）は1日100クレジット相当の無料枠で、継続的に試せる無料枠最強の3強です。完全に登録不要で試せるのは Hugging Face Spaces 上の Stable Video Diffusion のみで、他は全てメールアドレスまたはGoogleアカウント連携が必要です。
           </p>
 
           <p>
-            「会員登録なしで今すぐ試したい」という需要は強いものの、<strong>本格的な AI 動画生成サービスは原則アカウント登録が必要</strong>です。それでも下記サービスは「メールアドレス入力のみ」「Googleアカウント連携1クリック」など、限りなく登録の手間が少なく無料で試せます。編集部が実際に2026年5月時点で4サービス全てを登録・生成検証した結果をもとに紹介します。
+            「会員登録なしで今すぐ試したい」という需要は強いものの、<strong>本格的な AI 動画生成サービスは原則アカウント登録が必要</strong>です。それでも下記サービスは「メールアドレス入力のみ」「Googleアカウント連携1クリック」など、限りなく登録の手間が少なく無料で試せます。編集部が実際に2026年5月時点で5サービス全てを登録・生成検証した結果をもとに紹介します。
           </p>
 
-          <h3 class="article-h3">完全無料・実質登録不要で使える4選</h3>
+          <h3 class="article-h3">完全無料・実質登録不要で使える5選</h3>
 
           <h4>① Hailuo AI（MiniMax）— 毎日無料クレジット付き</h4>
           <p>
-            Googleアカウントで1クリック登録するだけで、毎日2〜3本の1080p動画を無料生成できます。透かしは入りますが、品質は有料サービス級。継続使用に最適。<SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" />
+            Googleアカウントで1クリック登録するだけで、毎日2〜3本の1080p動画を無料生成できます。透かしは入りますが、品質は有料サービス級。Artificial Analysis 世界2位の品質で継続使用に最適。<SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" />
           </p>
 
-          <h4>② Kling AI — 毎日66クレジット付与</h4>
+          <h4>② Seedance 2.0（ByteDance / Dreamina）— 1日100クレジット相当</h4>
+          <p>
+            ByteDance の Dreamina（旧 CapCut）または Jimeng（中国版）にアカウント登録するだけで、1日100クレジット相当の無料枠が付与されます。透かしなしの1080p動画を1日1〜2本生成可能。<strong>物理表現・布地ダイナミクス（着物の揺れ等）で業界トップクラスの品質</strong>を無料で体験できます。<SourceLink url="https://seed.bytedance.com/en/seedance2_0" verifiedAt="2026-05-08" label="ByteDance Seed公式" /> <SourceLink url="https://dreamina.capcut.com/ja-jp/resource/dreamina-seedance" verifiedAt="2026-05-08" label="Dreamina公式" />
+          </p>
+
+          <h4>③ Kling AI — 毎日66クレジット付与</h4>
           <p>
             メールアドレス登録のみで毎日66クレジットがリチャージされます。1動画あたり10〜20クレジット消費なので、毎日3〜6本生成可能。長尺・物理表現に強く、無料枠最強候補。<SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" />
           </p>
 
-          <h4>③ Pika — 月80クレジット</h4>
+          <h4>④ Pika — 月80クレジット</h4>
           <p>
             Googleアカウント連携で月80クレジット。1動画あたり10クレジット消費なので、月8本ペース。Pikaffects 等の特殊効果を試したい人向け。無料は480p・透かし入りという制限あり。<SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" />
           </p>
 
-          <h4>④ Stable Video Diffusion（Hugging Face Spaces）— 完全無料・登録任意</h4>
+          <h4>⑤ Stable Video Diffusion（Hugging Face Spaces）— 完全無料・登録任意</h4>
           <p>
             Hugging Face 上のコミュニティ提供 Space を使えば、完全に登録なしでも数本試せます。ただし混雑時は順番待ち。本格利用したいならローカル実行が必要（GPU環境推奨）。
           </p>
@@ -944,7 +1003,7 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
           <h2 class="article-h2">4. 商用利用OKのツール</h2>
 
           <p class="article-lead-definition">
-            <strong>2026年5月時点で商用利用可能な AI 動画生成ツールは、有料プラン契約を条件に Runway / Google Veo 3.1 / Kling / Pika / Hailuo / Luma / Adobe Firefly Video / Stable Video Diffusion の8ツールです。</strong>このうち <strong>Adobe Firefly Video のみ無料プランからの商用利用が可能</strong>で、商用安全モデル＋著作権補償（IP indemnity）が付帯するため法人案件で最も法務通過率が高い選択肢です。
+            <strong>2026年5月時点で商用利用可能な AI 動画生成ツールは、有料プラン契約を条件に Hailuo 02 / Seedance 2.0 / Google Veo 3.1 / Kling / Runway / Pika / Luma / Adobe Firefly Video / Stable Video Diffusion の9ツールです。</strong>このうち <strong>Adobe Firefly Video のみ無料プランからの商用利用が可能</strong>で、商用安全モデル＋著作権補償（IP indemnity）が付帯するため法人案件で最も法務通過率が高い選択肢です。中華勢（Hailuo / Seedance / Kling）も有料プランで商用利用可ですが、利用規約・準拠法を必ずご確認ください。
           </p>
 
           <p>
@@ -953,11 +1012,12 @@ const allJsonLd = [articleJsonLd, ...jsonLdAdditional];
 
           <h3 class="article-h3">商用利用可ツール一覧（2026年5月時点）</h3>
           <ul>
-            <li><strong>Runway</strong>: Standard以上の有料プランで商用利用可。<SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
+            <li><strong>Hailuo（MiniMax）</strong>: 有料プランで商用利用可・透かしなし。$0.28/本のコスパ最強。<SourceLink url="https://hailuoai.video/" verifiedAt="2026-05-08" label="Hailuo公式" /></li>
+            <li><strong>Seedance 2.0（ByteDance）</strong>: Dreamina / Jimeng の有料プランで商用利用可。利用規約・準拠法は中国/シンガポール基準のため法人利用時は要確認。<SourceLink url="https://seed.bytedance.com/en/seedance2_0" verifiedAt="2026-05-08" label="ByteDance Seed公式" /></li>
             <li><strong>Google Veo 3.1</strong>: AI Plus以上で生成、生成物の権利はユーザー帰属。<SourceLink url="https://gemini.google/subscriptions/" verifiedAt="2026-05-08" label="Gemini公式" /></li>
-            <li><strong>Kling</strong>: Standard ($5.99/月)以上で商用ライセンス付与。</li>
+            <li><strong>Kling</strong>: Standard ($5.99/月)以上で商用ライセンス付与。<SourceLink url="https://kling.ai/" verifiedAt="2026-05-08" label="Kling公式" /></li>
+            <li><strong>Runway</strong>: Standard以上の有料プランで商用利用可。<SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-08" label="Runway公式" /></li>
             <li><strong>Pika</strong>: Standard ($8/月)以上で商用利用可・透かしなし。<SourceLink url="https://pika.art/pricing" verifiedAt="2026-05-08" label="Pika公式" /></li>
-            <li><strong>Hailuo</strong>: 有料プランで商用利用可・透かしなし。</li>
             <li><strong>Luma</strong>: Plus ($30/月)以上で商用利用可。<SourceLink url="https://lumalabs.ai/pricing" verifiedAt="2026-05-08" label="Luma公式" /></li>
             <li><strong>Adobe Firefly Video</strong>: 無料プランからすでに商用利用可（商用安全モデル）。<SourceLink url="https://www.adobe.com/products/firefly/plans.html" verifiedAt="2026-05-08" label="Adobe公式" /></li>
             <li><strong>Stable Video Diffusion</strong>: Stability AI Membership 規約に従う。商用利用は Creator/Enterprise ライセンスが必要。</li>

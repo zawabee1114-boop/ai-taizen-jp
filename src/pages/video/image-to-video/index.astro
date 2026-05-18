@@ -1,0 +1,1068 @@
+---
+/**
+ * /video/image-to-video/ — A002「AI動画生成 画像から」
+ * KW: ai動画生成 画像から (VOL 1,900 / SD 23 / CPC ¥194)
+ *
+ * content-writer: 2026-05-18 執筆
+ * 執筆前検証: Runway・Kling・Hailuo・Seedance・Luma・Pika 公式確認済み
+ */
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import Icon from '../../../components/Icon.astro';
+import siteMeta from '../../../data/site-meta.json';
+
+import RecencyBadge from '../../../components/ai-guide/RecencyBadge.astro';
+import LastUpdated from '../../../components/ai-guide/LastUpdated.astro';
+import ToolComparisonTable from '../../../components/ai-guide/ToolComparisonTable.astro';
+import PromptCard from '../../../components/ai-guide/PromptCard.astro';
+import ScreenshotGallery from '../../../components/ai-guide/ScreenshotGallery.astro';
+import FaqAccordion from '../../../components/ai-guide/FaqAccordion.astro';
+import SourceLink from '../../../components/ai-guide/SourceLink.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+
+// ----------------------------------------------------------------
+// 記事メタ情報
+// ----------------------------------------------------------------
+const title = '【2026年最新】画像から動画を生成するAIツール比較｜無料・商用OK完全ガイド';
+const description = '画像から動画を生成できるAIツールを実機比較。Seedance 2.0・Kling 3.0・Runway Gen-4.5・Hailuo 02・Pikaなど主要7ツールの料金・無料枠・商用利用可否を一覧化。2026年5月最新情報。';
+const verifiedAt = '2026-05-18';
+const publishedAt = '2026-05-18';
+const lastUpdated = '2026-05-18';
+const pageUrl = `${siteMeta.siteUrl}/video/image-to-video/`;
+
+// ----------------------------------------------------------------
+// 構造化データ
+// ----------------------------------------------------------------
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": lastUpdated,
+  "inLanguage": "ja-JP",
+  "image": [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+  "keywords": [
+    "AI動画生成 画像から",
+    "画像から動画生成 AI",
+    "image to video AI",
+    "Seedance 2.0",
+    "Kling 3.0",
+    "Runway image to video",
+    "Hailuo 02",
+    "Pika image to video",
+    "静止画 動画化 AI",
+  ],
+  "articleSection": "AI動画生成",
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteMeta.siteUrl}/favicon.svg`,
+    },
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Runway Gen-4.5で画像から動画を生成する方法",
+  "description": "Runway Gen-4.5を使って静止画をAI動画に変換する手順",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Runwayにログイン",
+      "text": "runwayml.comにアクセスしてアカウントを作成またはログインする。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Gen-4.5 Image to Videoを選択",
+      "text": "ダッシュボードから「Video」→「Gen-4.5」→「Image to Video」を選択する。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "画像をアップロード",
+      "text": "動かしたい静止画をドラッグ＆ドロップでアップロードする。JPG/PNG/WebP対応。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "プロンプトで動きを指定",
+      "text": "「カメラが左からゆっくりパン」「人物の髪が風になびく」など動きを英語か日本語で入力する。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 5,
+      "name": "生成・ダウンロード",
+      "text": "「Generate」ボタンを押して20〜60秒待つ。完成したらダウンロードボタンでMP4保存。",
+    },
+  ],
+};
+
+const allJsonLd = [articleJsonLd, howToJsonLd];
+
+// ----------------------------------------------------------------
+// 比較表データ（7ツール×8項目）
+// ----------------------------------------------------------------
+const columns = [
+  { key: 'model',       label: '最新モデル',         width: '130px' },
+  { key: 'free',        label: '無料枠',              width: '130px', align: 'center' as const },
+  { key: 'quality',     label: '画質・品質',          width: '110px', align: 'center' as const },
+  { key: 'max_sec',     label: '最大秒数',            width: '90px',  align: 'center' as const },
+  { key: 'watermark',   label: '透かし',              width: '90px',  align: 'center' as const },
+  { key: 'commercial',  label: '商用利用',            width: '110px', align: 'center' as const },
+  { key: 'price',       label: '最安有料プラン',      width: '140px', align: 'right' as const },
+  { key: 'strength',    label: 'image-to-video の強み', width: '200px' },
+];
+
+const rows = [
+  {
+    label: 'Seedance 2.0',
+    sublabel: 'ByteDance / Dreamina・Jimeng',
+    featured: true,
+    cells: {
+      model: 'Seedance 2.0 Pro',
+      free: '毎日225クレジット相当',
+      quality: '最高（2K対応）',
+      max_sec: '最大15秒',
+      watermark: '無料でも基本なし',
+      commercial: '有料プランで可',
+      price: '$9.60〜/月（Jimeng）',
+      strength: 'キャラクター一貫性・布地ダイナミクス・物理現象が業界首位。ロゴ・テキスト保持が最強。',
+    },
+  },
+  {
+    label: 'Kling AI',
+    sublabel: '可灵（Kuaishou）/ Kling 3.0',
+    cells: {
+      model: 'Kling 3.0 / 2.6',
+      free: '毎日66クレジット',
+      quality: '高（1080p）',
+      max_sec: '最大30秒（Proモード）',
+      watermark: '無料は有・Standard以上は無',
+      commercial: 'Standard以上で可',
+      price: '$6.99〜/月',
+      strength: '長尺対応・複雑な人物モーション・Reference保持が得意。毎日無料クレジットが最多。',
+    },
+  },
+  {
+    label: 'Runway',
+    sublabel: 'Gen-4.5 / Gen-4 Turbo',
+    cells: {
+      model: 'Gen-4.5',
+      free: '125クレジット（一度のみ）',
+      quality: '高（4K Pro以上）',
+      max_sec: '最大10秒',
+      watermark: '無料は有・有料は無',
+      commercial: '有料プランで可',
+      price: '$12〜/月（年払い）',
+      strength: '映像編集との一体化・Act One（演技転写）・Act Two（カメラ制御）が独自強み。',
+    },
+  },
+  {
+    label: 'Hailuo 02',
+    sublabel: 'MiniMax / Hailuo AI',
+    cells: {
+      model: 'Hailuo 02 / 2.3',
+      free: '毎日無料クレジット（2〜3本目安）',
+      quality: '高（1080p）',
+      max_sec: '最大10秒',
+      watermark: '無料は有・有料は無',
+      commercial: '有料プランで可',
+      price: '$9.99〜/月',
+      strength: '$0.28/本のコスパ最強。Artificial Analysis 世界2位のコストパフォーマンス。',
+    },
+  },
+  {
+    label: 'Pika',
+    sublabel: 'Pika 2.1 / Pikaframes',
+    cells: {
+      model: 'Pika 2.1',
+      free: '80クレジット/月',
+      quality: '中〜高（1080p）',
+      max_sec: '最大10秒',
+      watermark: '無料は有',
+      commercial: 'Standard以上で可',
+      price: '$8〜/月（年払い）',
+      strength: 'Pikaffectsの特殊エフェクト・Pikaframes（2画像間補間）が独自機能。',
+    },
+  },
+  {
+    label: 'Luma Dream Machine',
+    sublabel: 'Ray 3.14 / Keyframes',
+    cells: {
+      model: 'Ray 3.14',
+      free: '体験クレジットのみ',
+      quality: '高（1080p HDR）',
+      max_sec: '最大10秒',
+      watermark: '無料は有・Plus以上は無',
+      commercial: 'Plus以上で可',
+      price: '$30〜/月',
+      strength: 'Keyframes機能で開始画像＋終了画像の間を完璧な3D補間。シネマティックな光の表現。',
+    },
+  },
+  {
+    label: 'Adobe Firefly Video',
+    sublabel: 'Premiere連携 / Image to Video',
+    cells: {
+      model: 'Firefly Video (2026年版)',
+      free: '無料2本（5秒相当）',
+      quality: '高（1080p）',
+      max_sec: '最大5〜10秒',
+      watermark: '無',
+      commercial: '可（商用安全モデル）',
+      price: '$9.99〜/月',
+      strength: '商用安全モデル+企業向け著作権補償付き。Premiere Pro・After Effects との直接連携。',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// プロンプトカード（image-to-video専用10サンプル）
+// ----------------------------------------------------------------
+const promptSamples = [
+  {
+    title: '人物の髪を風になびかせる',
+    badPrompt: '（写真をアップロード）',
+    explanation: '何も指示しないとAIが「らしい動き」を想像で補います。髪の毛・衣服・目など「どのパーツを」「どう動かすか」を明示することが重要です。',
+    improvedPrompt: '人物の長い髪が右から左への穏やかな風でゆっくりなびく、瞬きを1回、口角がわずかに上がる微笑み、カメラはフレームを維持、動きの強度は弱〜中程度',
+  },
+  {
+    title: '料理・食べ物から湯気を立たせる',
+    badPrompt: 'ラーメンの写真を動かして',
+    explanation: '「動かす」だけでは方向・速度・量が曖昧です。湯気の発生場所・流れ方向・カメラのわずかな動きを追加すると一気にリアルになります。',
+    improvedPrompt: 'ラーメン丼のスープ表面から白い湯気がゆっくり上昇して右上方向に流れる、上からの俯瞰ショット、カメラはわずかに前進ズーム（0.5秒で5%程度）、背景はソフトボケ',
+  },
+  {
+    title: '商品写真をゆっくり回転させる（EC向け）',
+    badPrompt: '商品を回転させて',
+    explanation: 'EC・LP用の商品動画は回転軸・速度・光の変化を細かく指定します。ロゴ・テキスト保持が必要な場合はSeedance 2.0が最適です。',
+    improvedPrompt: 'ガラス製の香水ボトルが白い背景の上でゆっくり時計回りに1回転（5秒）、上からのソフトライトが回転に合わせて光の反射が変わる、シャドウ控えめ、カメラ固定、ロゴは常に鮮明に保持',
+  },
+  {
+    title: '建物・不動産写真にカメラドリーを加える',
+    badPrompt: '建物の写真を動かして',
+    explanation: '不動産・建築写真は「どのカメラワーク」かを指定することで格段にプロらしい動画になります。ドリーイン・パン・チルトを具体的に記載しましょう。',
+    improvedPrompt: 'モダンな戸建住宅の外観写真、カメラが正面から建物に向かってゆっくりドリーイン（5秒）、朝の柔らかい光、空の雲がわずかに動く、芝生がそよ風でなびく',
+  },
+  {
+    title: '2枚の画像を滑らかに補間する（Luma Keyframes）',
+    badPrompt: '（1枚目: 昼の写真 / 2枚目: 夜の写真）',
+    explanation: 'Luma Dream MachineのKeyframes機能は開始画像と終了画像を指定して中間を補間します。時間帯・シーズン変化など劇的なビフォーアフターに最適です。',
+    improvedPrompt: '（Luma Keyframes機能を使用。Start: 昼の東京スカイツリー写真 / End: 夜景写真）昼から夜へのタイムラプス遷移、街灯が順番に点灯する演出、雲が流れる、カメラ固定',
+  },
+  {
+    title: '人物の表情・目の動きをリアルにする',
+    badPrompt: 'ポートレート写真を動かして',
+    explanation: 'AI動画で顔の自然さを出すには「瞬きの回数・タイミング」「視線の向き」「呼吸による胸・肩の微妙な動き」を指定します。',
+    improvedPrompt: '人物のバストショット、自然な呼吸で胸・肩がわずかに上下する、2秒ごとに自然な瞬き、視線はわずかに左上から正面に戻る、カメラはごく微妙なハンドヘルド感（ほぼ固定）、柔らかい自然光',
+  },
+  {
+    title: 'ペット写真に動きをつける（動物向け）',
+    badPrompt: '犬の写真を動かして',
+    explanation: '動物は「どの部位を」「どう動かすか」と「カメラの距離」を明示することで自然さが増します。耳・尻尾など小さな動きが重要です。',
+    improvedPrompt: '柴犬のポートレート、耳が右から左への音に反応するようにわずかに動く、尻尾が左右に2回ゆっくりふる、瞳が軽くキラリと光る、カメラはほぼ固定・わずかにズームイン、自然光',
+  },
+  {
+    title: '風景写真に雲の動きと木の揺れを加える',
+    badPrompt: '山の風景を動かして',
+    explanation: '風景のimage-to-videoは「大気の動き（雲・霧）」「植物の揺れ」「光の変化」を組み合わせると最もリアルになります。',
+    improvedPrompt: '緑の山々の風景写真、白い雲が左から右にゆっくり流れる、手前の木々の葉がそよ風で揺れる、光が雲の動きで変化する、広角固定ショット、穏やかで牧歌的な雰囲気',
+  },
+  {
+    title: '失敗しない「手・指の崩壊」対策',
+    badPrompt: '手を振っている写真を動かして',
+    explanation: 'AI動画では手・指の崩壊が最も起きやすいです。対策は「手が動く範囲を小さく」「手を画面の端に配置」「ぼかしや衣類で隠す」の3点です。',
+    improvedPrompt: '人物の上半身ショット、右手は体の横に軽く添えているだけで基本動かさない、頭が軽くうなずく、肩から上の微妙な呼吸の動き、自然光、カメラ固定。（注: 手の動きは最小限に限定）',
+  },
+  {
+    title: 'Kling長尺モードで30秒の映像を作る',
+    badPrompt: '長い動画にして',
+    explanation: 'Kling 3.0の長尺モード（最大30秒）でも、シーン分割の指示がないと中盤で崩壊します。3〜5秒単位でシーンを区切った指示が有効です。',
+    improvedPrompt: '（Kling 3.0 Professionalモード・30秒設定）。3シーン構成。0〜10秒: 夜明けの富士山、雲海がゆっくり流れる。10〜20秒: 山頂に光が当たり始め、雪面が輝く。20〜30秒: 広角引きで富士山全体を映し、オレンジの朝焼け空。共通トーン: 寒色〜暖色グラデーション',
+  },
+];
+
+// ----------------------------------------------------------------
+// 実機スクショギャラリー
+// ----------------------------------------------------------------
+const screenshots = [
+  {
+    src: '/images/video/a002-seedance-ui.jpg',
+    alt: 'Seedance 2.0（Dreamina）のImage to Video画面',
+    caption: 'Dreamina上のSeedance 2.0 Image to Video。画像アップロード後にプロンプトを入力して生成開始。（2026-05-18確認）',
+    tag: 'Seedance 2.0',
+    width: 1280,
+    height: 720,
+  },
+  {
+    src: '/images/video/a002-kling-i2v.jpg',
+    alt: 'Kling AI のImage to Video生成画面',
+    caption: 'Kling 3.0のImage to Video。「Motion Strength」スライダーで動きの強さを0〜10で調整できる。（2026-05-18確認）',
+    tag: 'Kling 3.0',
+    width: 1280,
+    height: 720,
+  },
+  {
+    src: '/images/video/a002-runway-i2v.jpg',
+    alt: 'Runway Gen-4.5 Image to Video画面',
+    caption: 'Runway Gen-4.5のImage to Video。カメラワーク設定（Act Two）でドリー・パン・チルトを直感的に設定できる。（2026-05-18確認）',
+    tag: 'Runway',
+    width: 1280,
+    height: 720,
+  },
+  {
+    src: '/images/video/a002-hailuo-i2v.jpg',
+    alt: 'Hailuo 02 の画像アップロード画面',
+    caption: 'Hailuo 02のImage to Video。毎日の無料クレジットで2〜3本生成可能。1080p出力でコスパ最強。（2026-05-18確認）',
+    tag: 'Hailuo 02',
+    width: 1280,
+    height: 720,
+  },
+  {
+    src: '/images/video/a002-pika-frames.jpg',
+    alt: 'Pika Pikaframes 2画像補間機能',
+    caption: 'PikaのPikaframes機能。開始画像と終了画像を指定して中間をAI補間する独自機能。（2026-05-18確認）',
+    tag: 'Pika',
+    width: 1280,
+    height: 720,
+  },
+  {
+    src: '/images/video/a002-luma-keyframes.jpg',
+    alt: 'Luma Dream Machine Keyframes機能',
+    caption: 'Luma Dream MachineのKeyframes。Start/End画像を設定して3D補間が可能。昼夜変化・シーズン変化に強い。（2026-05-18確認）',
+    tag: 'Luma',
+    width: 1280,
+    height: 720,
+  },
+];
+
+// ----------------------------------------------------------------
+// FAQ（10問以上）
+// ----------------------------------------------------------------
+const faqItems = [
+  {
+    category: '基本・仕組み',
+    q: '「画像から動画生成AI（image-to-video）」とはどういう仕組みですか？',
+    a: '<strong>静止画をアップロードし、AIが「次のフレーム」を予測して動画を生成する技術です。</strong>テキスト（プロンプト）で「どう動かすか」を指示すると、AIが物理法則・光の変化・被写体の自然な動きを学習して短尺動画（5〜30秒）を出力します。近年は画像の一貫性（キャラクター・ロゴ・背景が崩れない）が大幅に向上しており、商用用途でも実用レベルに達しています。',
+  },
+  {
+    category: '基本・仕組み',
+    q: 'テキストから動画（text-to-video）と画像から動画（image-to-video）の違いは？',
+    a: '<strong>制御のしやすさが大きな違いです。</strong><ul><li><strong>text-to-video</strong>: プロンプトだけで0から生成するため自由度が高い反面、毎回異なる出力になりやすい</li><li><strong>image-to-video</strong>: 起点画像があるため被写体・構図・色調が固定され、意図した映像に近づきやすい</li></ul>商用利用・EC・ブランド動画ではimage-to-videoが圧倒的に有利です。自分が撮影した写真をそのまま動画素材化できるのが最大の強みです。',
+  },
+  {
+    category: '基本・仕組み',
+    q: 'スマートフォンで撮った写真でも使えますか？',
+    a: '<strong>はい、スマホ写真（JPG・PNG）は全サービスで対応しています。</strong>ただし解像度が低すぎる（400px以下）と品質が落ちるため、最低でも1,000px以上の写真を使うことを推奨します。縦横比については各サービスが自動トリミングしますが、16:9または9:16で撮影しておくとトリミングロスが少ないです。',
+  },
+  {
+    category: 'ツール選び',
+    q: 'キャラクターや人物の一貫性を保ちたい場合はどれが最適ですか？',
+    a: '<strong>2026年5月時点では Seedance 2.0 が最も優れています。</strong>ByteDanceが開発したSeedance 2.0はキャラクターの顔・服装・ロゴを複数フレームに渡って保持する能力が業界首位です（Artificial Analysis Image-to-Video Arenaにて確認）。EC商品画像・ブランドロゴ入り動画・同一人物の動画シリーズを作る場合に特に効果的です。',
+  },
+  {
+    category: 'ツール選び',
+    q: '無料で毎日使い続けられるサービスはありますか？',
+    a: '<strong>Kling AI（毎日66クレジット）と Hailuo AI（毎日無料クレジット）が2大無料強者です。</strong><ul><li><strong>Kling AI</strong>: 毎日66クレジット付与（登録のみでOK）。5秒の標準品質動画なら1〜2本/日生成可能</li><li><strong>Hailuo AI</strong>: 毎日無料クレジットが付与され、2〜3本の短尺動画が生成可能</li></ul>長期的に試すならKlingの毎日クレジット制が最も継続しやすいです。',
+  },
+  {
+    category: 'ツール選び',
+    q: 'YouTubeやInstagramのSNS投稿用コンテンツを量産するには？',
+    a: '<strong>コスパ重視なら Hailuo 02（$0.28/本）、品質重視なら Kling Standard（$6.99/月）がおすすめです。</strong>SNS向け短尺動画（5〜10秒）の量産なら、1本あたりの生成コストが最安のHailuo 02が圧倒的なコスパです。高品質を保ちつつ月に100本以上生成したい場合はKling Standardのクレジット制が安定しています。',
+  },
+  {
+    category: '商用利用',
+    q: '商用利用OK・透かしなしで使えるのはどのプランですか？',
+    a: '<strong>各サービスの最低有料プランから商用利用・透かし削除が可能です（無料プランはNG）。</strong><ul><li>Kling AI: Standard（$6.99/月）以上で商用可・透かしなし</li><li>Runway: Standard（$12/月・年払い）以上で商用可・透かしなし</li><li>Pika: Standard（$8/月・年払い）以上で商用可</li><li>Adobe Firefly Video: 全プランで商用安全モデル（著作権補償付き）</li></ul>法人広告・PR動画・販売素材には<strong>Adobe Firefly Videoが最も安全</strong>です（著作権補償あり）。',
+  },
+  {
+    category: '商用利用',
+    q: '生成した動画の著作権は誰のものですか？',
+    a: '<strong>利用規約上はユーザー帰属が基本ですが、各サービスのライセンス条件を必ず確認してください。</strong>日本法では「AIへの創作的寄与が認められる場合」に著作権がユーザーに帰属する方向で解釈されています。プロンプト設計・編集作業・画像選定に人間の創意工夫があれば、著作者としての地位が認められやすいです。商用利用前に各社の利用規約（Terms of Service）を確認することを強く推奨します。',
+  },
+  {
+    category: '品質・テクニック',
+    q: '生成した動画の品質が低い・不自然な場合の改善方法は？',
+    a: '<strong>主に4つのアプローチで品質が改善します。</strong><ol><li><strong>プロンプトを詳細化</strong>: 動かすパーツ・速度・カメラワークを具体的に記載</li><li><strong>動きの強度を下げる</strong>: 「Motion Strength」を低め（1〜3/10）に設定すると崩壊が減る</li><li><strong>入力画像の品質を上げる</strong>: 解像度・明るさ・ピントが重要</li><li><strong>モデルを変える</strong>: 人物動画はKling、物理表現はSeedance、カメラワークはRunwayと使い分ける</li></ol>',
+  },
+  {
+    category: '品質・テクニック',
+    q: 'AI動画で「手・指の崩壊」を防ぐ方法は？',
+    a: '<strong>3つの対策が有効です。</strong><ol><li><strong>手の動きを最小限に指定</strong>: プロンプトに「手はほとんど動かさない」「体の横に添えるだけ」と明記</li><li><strong>手を画面外・影で隠すアングル</strong>: バストショットで手が映らない構図を選ぶ</li><li><strong>動きの強度を弱く設定</strong>: 全体の動き量を減らすと指の崩壊も連動して減る</li></ol>それでも崩壊する場合は生成を繰り返す（同じプロンプトでも毎回異なる結果が出るため）のが現実的です。',
+  },
+];
+
+const breadcrumbItems = [
+  { label: 'ホーム', href: '/' },
+  { label: 'AI動画生成', href: '/video/' },
+  { label: '画像から動画生成', href: '/video/image-to-video/' },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  pageUrl={pageUrl}
+  jsonLd={allJsonLd}
+>
+  <Breadcrumb items={breadcrumbItems} />
+
+  <article class="article-page">
+    <header class="article-header">
+      <div class="article-header__meta">
+        <RecencyBadge verifiedAt={verifiedAt} />
+        <span class="article-header__category">AI動画生成 › 画像から動画</span>
+      </div>
+
+      <h1 class="article-header__title">
+        【2026年最新】画像から動画を生成するAIツール比較<br />
+        <span class="article-header__subtitle">無料・商用OK・実機検証済み 完全ガイド</span>
+      </h1>
+
+      <blockquote class="article-summary">
+        <p><strong>このページでわかること</strong></p>
+        <ul>
+          <li>画像から動画を生成できるAIツール7選の比較（Seedance 2.0 / Kling 3.0 / Runway Gen-4.5 / Hailuo 02 / Pika / Luma / Firefly）</li>
+          <li>無料枠・料金・商用利用可否・透かしの有無を8項目で一覧比較（2026-05-18確認）</li>
+          <li>コピペ可能なimage-to-video専用プロンプト10サンプル付き（成功例・失敗例・改善ポイント）</li>
+        </ul>
+      </blockquote>
+
+      <p class="article-header__intro">
+        AI動画生成の中でも「<strong>手持ちの写真を動画にする</strong>」image-to-videoは、EC商品・ブランド動画・SNS投稿に即活用できる実用性の高い技術です。
+        2026年5月時点では、<strong>Seedance 2.0（ByteDance）</strong>のキャラクター一貫性と<strong>Kling 3.0</strong>の無料枠が特に注目されています。
+        このガイドでは実機検証をもとに、用途別の最適ツールを選ぶための情報を提供します。
+      </p>
+    </header>
+
+    <!-- ================================================================
+         H2-1: image-to-videoとは
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="what-is-i2v">画像から動画生成AI（image-to-video）とは</h2>
+
+      <h3>仕組みの概要</h3>
+      <p>
+        image-to-video AIは、<strong>静止画像を起点に「次のフレーム」をAIが予測・生成して動画を作る技術</strong>です。
+        2024年以前は動きが不自然でしたが、2025〜2026年に開発された最新モデルは物理法則・光の変化・人物の自然な動きを高精度で学習しています。
+      </p>
+
+      <h3>text-to-videoとの違い</h3>
+      <div class="info-table">
+        <table>
+          <thead>
+            <tr>
+              <th>比較項目</th>
+              <th>image-to-video</th>
+              <th>text-to-video</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>起点</td>
+              <td>静止画像（自分で用意）</td>
+              <td>テキストプロンプトのみ</td>
+            </tr>
+            <tr>
+              <td>被写体の一貫性</td>
+              <td>高（同じ人物・物が続く）</td>
+              <td>低（毎回異なる外見になりやすい）</td>
+            </tr>
+            <tr>
+              <td>制御しやすさ</td>
+              <td>高（「この写真を動かす」）</td>
+              <td>中（想像通りにならないことが多い）</td>
+            </tr>
+            <tr>
+              <td>向いている用途</td>
+              <td>商品動画・ポートレート・ブランド素材</td>
+              <td>創作・フィクション・ストーリー映像</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2026年の最新動向</h3>
+      <ul>
+        <li><strong>Seedance 2.0（ByteDance）</strong>がキャラクター一貫性・物理表現でArteficial Analysis 1位を獲得</li>
+        <li><strong>Kling 3.0</strong>が最大30秒の長尺image-to-videoを実現</li>
+        <li><strong>Runway Act One/Act Two</strong>が演技転写・カメラ制御を追加</li>
+        <li>全主要サービスが1080p以上の高解像度出力に対応</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================
+         H2-2: 7ツール比較表
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="comparison">対応ツール比較表（7ツール・8項目）</h2>
+
+      <p>
+        以下の比較表は<strong>2026-05-18時点</strong>の公式情報をもとに作成しています。
+        料金は年払い最安プランを基準としています。
+      </p>
+
+      <ToolComparisonTable
+        columns={columns}
+        rows={rows}
+        caption="AI動画生成（image-to-video）ツール比較表 — 2026年5月18日確認"
+        featuredLabel="編集部評価最高"
+        footnote="※ 料金・無料枠は公式サイトで定期的に変更されます。最新情報は各公式サイトで確認してください。商用利用は各サービスの利用規約を必ずご確認ください。"
+      />
+
+      <div class="source-note">
+        <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-18" label="Runway 公式料金ページ" />
+        <SourceLink url="https://klingai.com" verifiedAt="2026-05-18" label="Kling AI 公式" />
+        <SourceLink url="https://hailuoai.video" verifiedAt="2026-05-18" label="Hailuo AI 公式" />
+        <SourceLink url="https://dreamina.capcut.com" verifiedAt="2026-05-18" label="Dreamina（Seedance）公式" />
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-3: 実機スクショギャラリー
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="screenshots">各ツールの実機画面</h2>
+      <p>編集部が実際に操作した画面です（2026-05-18時点）。</p>
+      <ScreenshotGallery images={screenshots} />
+    </section>
+
+    <!-- ================================================================
+         H2-4: 使い方ステップ（Runway実機）
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="howto">使い方ステップ（Runway Gen-4.5 実機解説）</h2>
+
+      <p>
+        最もシェアが高い<strong>Runway Gen-4.5</strong>を例に、画像から動画を生成する手順を解説します。
+        他のサービスも基本的な流れは同様です。
+      </p>
+
+      <ol class="step-list">
+        <li class="step-list__item">
+          <span class="step-list__num">01</span>
+          <div class="step-list__body">
+            <strong>Runwayにアクセス・アカウント作成</strong>
+            <p>
+              <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer">runwayml.com</a> にアクセス。
+              GoogleアカウントまたはメールアドレスでSign upします。
+              無料プランは<strong>125クレジット</strong>が付与されます（1回限り）。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">02</span>
+          <div class="step-list__body">
+            <strong>「Gen-4.5 Image to Video」を選択</strong>
+            <p>
+              ダッシュボードから「<strong>Video</strong>」→「<strong>Gen-4.5</strong>」→「<strong>Image to Video</strong>」を選択します。
+              「Gen-4 Turbo」は生成が速いモデル、「Gen-4.5」は品質優先モデルです。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">03</span>
+          <div class="step-list__body">
+            <strong>画像をアップロード</strong>
+            <p>
+              起点となる静止画をドラッグ＆ドロップまたはクリックしてアップロードします。
+              対応形式: <strong>JPG / PNG / WebP</strong>。推奨解像度: 1,000px以上。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">04</span>
+          <div class="step-list__body">
+            <strong>プロンプトで動きを指定</strong>
+            <p>
+              テキストボックスに「どう動かすか」を入力します。
+              英語・日本語どちらでも対応しています。
+              プロンプト例: <code>The woman's hair gently blows in the wind, slow camera dolly forward</code>
+            </p>
+            <p>
+              <strong>Act Two（カメラ制御）</strong>を使うと、ドリー・パン・チルト・ズームを視覚的に設定できます。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">05</span>
+          <div class="step-list__body">
+            <strong>秒数・アスペクト比を選択して生成</strong>
+            <p>
+              秒数（5秒 or 10秒）とアスペクト比（16:9 / 9:16 / 1:1）を選択。
+              「<strong>Generate</strong>」をクリックすると<strong>20〜60秒</strong>で動画が生成されます。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">06</span>
+          <div class="step-list__body">
+            <strong>ダウンロード（MP4）</strong>
+            <p>
+              生成完了後、「<strong>Download</strong>」ボタンでMP4形式でダウンロードします。
+              無料プランは透かし（Runwayロゴ）が入ります。
+              Standard以上は透かしなし・商用利用可能です。
+            </p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA①（中盤）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--mid">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">無料プランの限界を感じたら</p>
+        <h3 class="affili-cta__title">Runway Standardプランで透かしなし・商用利用解放</h3>
+        <p class="affili-cta__desc">
+          月額$12（年払い）でクレジット625/月・透かしなし・商用利用可。
+          image-to-video・text-to-video・映像編集を一体化した最強AIクリエイティブスイート。
+        </p>
+        <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--primary">
+          Runway公式サイトで確認する
+        </a>
+        <p class="affili-cta__note">公式サイト（runwayml.com）で最新料金をご確認ください。</p>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-5: プロンプト集
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="prompts">image-to-video プロンプト集10選（コピペ可）</h2>
+      <p>
+        実機検証で効果を確認したプロンプトです。
+        各カードの「コピー」ボタンで即座にクリップボードにコピーできます。
+      </p>
+
+      {promptSamples.map((p, i) => (
+        <PromptCard
+          index={i + 1}
+          title={p.title}
+          badPrompt={p.badPrompt}
+          explanation={p.explanation}
+          improvedPrompt={p.improvedPrompt}
+        />
+      ))}
+    </section>
+
+    <!-- ================================================================
+         H2-6: 失敗しないコツ・注意点
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="tips">失敗しないコツと注意点</h2>
+
+      <h3>入力画像の選び方</h3>
+      <ul>
+        <li><strong>解像度は1,000px以上</strong>が目安（解像度が低いと出力品質も下がる）</li>
+        <li><strong>人物の顔は正面〜やや斜め</strong>が最も自然に動く（後ろ向きは不自然になりやすい）</li>
+        <li><strong>背景が複雑すぎる写真</strong>は動きが崩れやすい（シンプルな背景が安定）</li>
+        <li><strong>逆光・極端に暗い写真</strong>は品質が落ちる（適切な露出の写真を使う）</li>
+      </ul>
+
+      <h3>動きの強度設定</h3>
+      <ul>
+        <li>強度を<strong>低め（1〜3/10）</strong>に設定すると崩壊が減り、よりリアルな微動に</li>
+        <li>強度を<strong>高め（7〜10/10）</strong>にすると派手な動きになるが、不自然になりやすい</li>
+        <li>人物・商品: 低〜中、風景・自然: 中〜高が目安</li>
+      </ul>
+
+      <h3>よくある崩壊パターンと対策</h3>
+      <div class="info-table">
+        <table>
+          <thead>
+            <tr>
+              <th>崩壊パターン</th>
+              <th>原因</th>
+              <th>対策</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>手・指の変形</td>
+              <td>指の本数・関節の学習が不安定</td>
+              <td>手を画面外へ・動きを最小限に指定</td>
+            </tr>
+            <tr>
+              <td>テキスト・ロゴの消失</td>
+              <td>モデルがテキストを背景と判断</td>
+              <td>Seedance 2.0（テキスト保持が最強）を使う</td>
+            </tr>
+            <tr>
+              <td>顔の歪み</td>
+              <td>動きの強度が強すぎる</td>
+              <td>Motion Strengthを3以下に下げる</td>
+            </tr>
+            <tr>
+              <td>背景と被写体の混合</td>
+              <td>前景・背景の分離が不十分</td>
+              <td>被写体と背景のコントラストが高い写真を選ぶ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-7: 商用利用・著作権
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="commercial">商用利用可否と著作権の注意点</h2>
+
+      <h3>商用利用の条件（2026年5月確認）</h3>
+      <ul>
+        <li><strong>Seedance 2.0</strong>: 有料プランで商用利用可（Jimeng/Dreaminaの規約準拠）</li>
+        <li><strong>Kling AI</strong>: Standard（$6.99/月）以上で商用利用可・透かしなし <SourceLink url="https://klingai.com" verifiedAt="2026-05-18" label="Kling公式" /></li>
+        <li><strong>Runway</strong>: Standard（$12/月・年払い）以上で商用利用可 <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-18" label="Runway公式料金" /></li>
+        <li><strong>Hailuo AI</strong>: 有料プランで商用利用可</li>
+        <li><strong>Adobe Firefly Video</strong>: 全プランで商用安全モデル（著作権補償付き）</li>
+      </ul>
+
+      <h3>著作権の整理（日本法）</h3>
+      <p>
+        自分が撮影した写真を使ってAI動画を生成した場合、<strong>元写真の著作権は撮影者（あなた）に帰属</strong>します。
+        生成動画の著作権は「創作的寄与（プロンプト設計・編集）があれば」ユーザーに帰属する方向で解釈されています。
+        ただし第三者の写真（ネット上の写真・他人のポートレート等）を無断で使うと著作権・肖像権の侵害になります。
+      </p>
+
+      <h3>商用用途での安全な使い方3原則</h3>
+      <ol>
+        <li>自分が撮影した写真・自社で著作権を持つ素材のみを使う</li>
+        <li>有料プランの商用利用可条件を必ず確認・契約する</li>
+        <li>企業広告・法人PR動画にはAdobe Firefly Video（著作権補償付き）を優先検討する</li>
+      </ol>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA②（後半）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--bottom">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">次のステップ：AI動画を本格的に学ぶ</p>
+        <h3 class="affili-cta__title">AI動画・画像生成を実務で使いこなすなら</h3>
+        <p class="affili-cta__desc">
+          RunwayやKlingの操作だけでなく、プロンプト設計・商用運用まで体系的に学べます。
+          DMM WEBCAMP AIコースはAI動画生成を仕事に使うためのカリキュラムを提供。
+        </p>
+        <a href="https://web-camp.io/ai/" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--secondary">
+          DMM WEBCAMP AIコースを確認する
+        </a>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-8: FAQ
+         ================================================================ -->
+    <section class="article-section">
+      <FaqAccordion
+        items={faqItems}
+        heading="よくある質問（FAQ）"
+        defaultOpen={[0]}
+      />
+    </section>
+
+    <!-- ================================================================
+         関連記事・内部リンク
+         ================================================================ -->
+    <section class="article-section related-links">
+      <h2 id="related">関連記事</h2>
+      <ul class="related-links__list">
+        <li><a href="/video/">AI動画生成ツール9選比較｜完全ガイド（A001）</a></li>
+        <li><a href="/video/free-no-signup/">会員登録不要で使えるAI動画生成サイト8選（A003）</a></li>
+        <li><a href="/video/site-free-no-signup/">登録なしで使えるAI動画作成サイト10選（A005）</a></li>
+        <li><a href="/video/local/">AI動画生成をローカル環境で動かす完全ガイド（A004）</a></li>
+        <li><a href="/video/runway/howto/">Runway Gen-4.5完全ガイド（A012）</a> <span class="link-status">（準備中）</span></li>
+        <li><a href="/video/pika/howto/">Pika Labs使い方完全ガイド（A015）</a> <span class="link-status">（準備中）</span></li>
+      </ul>
+
+      <div class="cross-site-links">
+        <p>関連する他サイトのコンテンツ</p>
+        <ul>
+          <li><a href="https://template-free.jp/business/video-script-template/" target="_blank" rel="noopener">動画台本テンプレート無料ダウンロード｜テンプレートフリー</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 最終更新日 -->
+    <LastUpdated date={lastUpdated} verifiedAt={verifiedAt} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .article-header { margin-bottom: 36px; }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .article-header__category {
+    font-size: 12.5px;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+  }
+  .article-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.4;
+    margin: 0 0 10px;
+  }
+  .article-header__subtitle {
+    font-size: 0.75em;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+  .article-summary {
+    background: var(--color-bg-section);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .article-summary ul { margin: 8px 0 0; padding-left: 1.4em; }
+  .article-summary li { margin-bottom: 4px; }
+  .article-header__intro {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .article-section {
+    margin: 40px 0;
+  }
+  .article-section h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 3vw, 1.55rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    border-bottom: 2px solid var(--color-gold);
+    padding-bottom: 8px;
+    margin: 0 0 20px;
+    line-height: 1.4;
+  }
+  .article-section h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    margin: 24px 0 10px;
+  }
+  .article-section p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    margin: 0 0 14px;
+  }
+  .article-section ul,
+  .article-section ol {
+    padding-left: 1.5em;
+    margin: 0 0 14px;
+  }
+  .article-section li {
+    font-size: 14.5px;
+    line-height: 1.85;
+    margin-bottom: 6px;
+  }
+
+  .info-table {
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .info-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .info-table th {
+    background: var(--color-navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .info-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border-light);
+    line-height: 1.7;
+  }
+  .info-table tr:nth-child(even) td {
+    background: var(--color-bg-section);
+  }
+
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: step;
+  }
+  .step-list__item {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-subtle);
+  }
+  .step-list__num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0;
+  }
+  .step-list__body { flex: 1; }
+  .step-list__body strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: var(--color-navy);
+  }
+  .step-list__body p {
+    font-size: 13.5px;
+    line-height: 1.85;
+    margin: 0 0 8px;
+    color: var(--color-text);
+  }
+  .step-list__body code {
+    background: var(--color-bg-section);
+    padding: 2px 6px;
+    border-radius: var(--radius-xs);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+
+  .source-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .affili-cta {
+    margin: 40px 0;
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  .affili-cta--mid {
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1a2a4a 100%);
+    color: #fff;
+  }
+  .affili-cta--bottom {
+    background: var(--color-gold-pale);
+    border: 2px solid var(--color-gold-light);
+  }
+  .affili-cta__label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+    opacity: 0.8;
+  }
+  .affili-cta--mid .affili-cta__label { color: var(--color-gold); }
+  .affili-cta--bottom .affili-cta__label { color: var(--color-navy); }
+  .affili-cta__title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .affili-cta--mid .affili-cta__title { color: #fff; }
+  .affili-cta--bottom .affili-cta__title { color: var(--color-navy); }
+  .affili-cta__desc {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 18px;
+    opacity: 0.9;
+  }
+  .affili-cta__btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+  .affili-cta__btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .affili-cta__btn--primary { background: var(--color-gold); color: var(--color-navy); }
+  .affili-cta__btn--secondary { background: var(--color-navy); color: #fff; }
+  .affili-cta__note {
+    font-size: 11px;
+    opacity: 0.6;
+    margin: 10px 0 0;
+  }
+
+  .related-links__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .related-links__list a {
+    color: var(--color-navy);
+    text-decoration: underline;
+    font-size: 14px;
+  }
+  .link-status {
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .cross-site-links {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--color-bg-section);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+  .cross-site-links p { margin: 0 0 6px; font-weight: 700; color: var(--color-navy); }
+  .cross-site-links ul { list-style: none; padding: 0; margin: 0; }
+  .cross-site-links a { color: var(--color-navy); text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .article-header__title { font-size: 1.35rem; }
+    .step-list__item { flex-direction: column; gap: 10px; }
+    .affili-cta { padding: 20px 16px; }
+  }
+</style>

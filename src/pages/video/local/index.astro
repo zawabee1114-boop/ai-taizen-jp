@@ -1,0 +1,1146 @@
+---
+/**
+ * /video/local/ — A004「AI動画生成 ローカル」
+ * KW: ai動画生成 ローカル (VOL 320 / SD 20 / CPC ¥146)
+ *
+ * content-writer: 2026-05-18 執筆
+ * 執筆前検証: Wan2.1/Wan2.2・ComfyUI・AnimateDiff・CogVideoX・RunPod 各公式確認済み
+ */
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import Icon from '../../../components/Icon.astro';
+import siteMeta from '../../../data/site-meta.json';
+
+import RecencyBadge from '../../../components/ai-guide/RecencyBadge.astro';
+import LastUpdated from '../../../components/ai-guide/LastUpdated.astro';
+import ToolComparisonTable from '../../../components/ai-guide/ToolComparisonTable.astro';
+import PromptCard from '../../../components/ai-guide/PromptCard.astro';
+import FaqAccordion from '../../../components/ai-guide/FaqAccordion.astro';
+import SourceLink from '../../../components/ai-guide/SourceLink.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+
+// ----------------------------------------------------------------
+// 記事メタ情報
+// ----------------------------------------------------------------
+const title = '【2026年最新】AI動画生成をローカル環境で動かす完全ガイド｜Wan2.1・ComfyUI実装';
+const description = 'AI動画生成のローカル環境構築を完全解説。Wan2.1・Wan2.2・AnimateDiff・CogVideoX・ComfyUIのインストール手順から必要GPUスペック・クラウドGPU代替案まで。クラウドAPIなしで無制限生成。2026年5月最新情報。';
+const verifiedAt = '2026-05-18';
+const publishedAt = '2026-05-18';
+const lastUpdated = '2026-05-18';
+const pageUrl = `${siteMeta.siteUrl}/video/local/`;
+
+// ----------------------------------------------------------------
+// 構造化データ
+// ----------------------------------------------------------------
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": lastUpdated,
+  "inLanguage": "ja-JP",
+  "image": [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+  "keywords": [
+    "AI動画生成 ローカル",
+    "Wan2.1 ComfyUI",
+    "Wan2.2 ローカル",
+    "AnimateDiff ローカル",
+    "CogVideoX",
+    "stable video diffusion ローカル",
+    "AI動画生成 GPU",
+    "ComfyUI 動画生成",
+  ],
+  "articleSection": "AI動画生成",
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteMeta.siteUrl}/favicon.svg`,
+    },
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "ComfyUI + Wan2.1 でローカルAI動画生成環境を構築する手順",
+  "description": "Wan2.1モデルをComfyUIで動かすためのローカル環境構築ステップ",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Python・CUDA環境の準備",
+      "text": "Python 3.10〜3.11 をインストールし、NVIDIA GPU ドライバと CUDA Toolkit 12.x をセットアップする。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "ComfyUI のインストール",
+      "text": "GitHubからComfyUIをクローンし、requirements.txt に従って依存パッケージをインストールする。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Wan2.1 モデルのダウンロード",
+      "text": "Hugging Face から Wan2.1-T2V-1.3B（VRAM 8GB想定）または Wan2.1-T2V-14B（VRAM 16GB以上）をダウンロードし、ComfyUI の models フォルダに配置する。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 4,
+      "name": "ComfyUI Manager で拡張インストール",
+      "text": "ComfyUI Managerを起動し、ComfyUI-WanVideoWrapper などWan2.1対応のカスタムノードをインストールする。",
+    },
+    {
+      "@type": "HowToStep",
+      "position": 5,
+      "name": "ワークフローを読み込んで初回生成",
+      "text": "ComfyUI Wikiで公開されているWan2.1ワークフローJSONを読み込み、プロンプトを入力して「Queue Prompt」で動画生成を実行する。",
+    },
+  ],
+};
+
+const allJsonLd = [articleJsonLd, howToJsonLd];
+
+// ----------------------------------------------------------------
+// 主要ローカルモデル比較表
+// ----------------------------------------------------------------
+const columns = [
+  { key: 'type',      label: 'モデルタイプ',     width: '120px', align: 'center' as const },
+  { key: 'vram_min',  label: '最低VRAM',         width: '100px', align: 'center' as const },
+  { key: 'vram_rec',  label: '推奨VRAM',         width: '100px', align: 'center' as const },
+  { key: 'quality',   label: '品質',             width: '90px',  align: 'center' as const },
+  { key: 'speed',     label: '生成速度（RTX 4090）', width: '140px', align: 'center' as const },
+  { key: 'license',   label: 'ライセンス',       width: '120px', align: 'center' as const },
+  { key: 'strength',  label: '特徴・用途',       width: '220px' },
+];
+
+const rows = [
+  {
+    label: 'Wan2.1 / Wan2.2',
+    sublabel: 'Alibaba / オープンソース',
+    featured: true,
+    cells: {
+      type: 'T2V / I2V',
+      vram_min: '8GB（1.3Bモデル）',
+      vram_rec: '16〜24GB（14Bモデル）',
+      quality: '最高（2026年OSS首位）',
+      speed: '14Bモデル: 約60〜120秒/5秒動画',
+      license: 'Apache 2.0（商用可）',
+      strength: '2026年ローカルOSS最強。テキスト・画像からの動画生成両対応。物理表現・人物動きが高精度。',
+    },
+  },
+  {
+    label: 'AnimateDiff',
+    sublabel: 'SD + テンポラルモジュール',
+    cells: {
+      type: 'I2V（SDベース）',
+      vram_min: '6GB（SDベース）',
+      vram_rec: '12GB',
+      quality: '高（SDモデルの画風を維持）',
+      speed: '約30〜60秒/2〜4秒動画',
+      license: 'モデル依存',
+      strength: '既存SDモデルの画風そのままでアニメーション化。LoRA・ControlNet対応。カスタム性最高。',
+    },
+  },
+  {
+    label: 'CogVideoX-5B',
+    sublabel: 'ZhipuAI / オープンソース',
+    cells: {
+      type: 'T2V / I2V',
+      vram_min: '16GB',
+      vram_rec: '24GB',
+      quality: '高（高解像度）',
+      speed: '約90〜180秒/5秒動画',
+      license: 'Apache 2.0',
+      strength: '高解像度・プロンプト理解精度が高い。ComfyUIワークフロー対応。研究・高品質用途向け。',
+    },
+  },
+  {
+    label: 'HunyuanVideo',
+    sublabel: 'Tencent / オープンソース',
+    cells: {
+      type: 'T2V',
+      vram_min: '24GB',
+      vram_rec: '48GB以上',
+      quality: '最高クラス（5B相当）',
+      speed: '約5〜15分/5秒動画（RTX 4090）',
+      license: '非商用制限あり',
+      strength: '最高品質のOSS動画モデル。ただしVRAM要件が高く、RTX 4090でも遅い。GGUF量子化で緩和可能。',
+    },
+  },
+  {
+    label: 'LTX-Video (LTX-2)',
+    sublabel: 'Lightricks / オープンソース',
+    cells: {
+      type: 'T2V / I2V',
+      vram_min: '8GB',
+      vram_rec: '16GB',
+      quality: '高（速度と品質のバランス）',
+      speed: '最速クラス（約10〜30秒/5秒動画）',
+      license: 'LTX-Video License',
+      strength: '2026年NVIDIAが推奨するリアルタイム生成モデル。RTXでの4K AI動画を実現。速度が最強。',
+    },
+  },
+  {
+    label: 'Stable Video Diffusion（SVD）',
+    sublabel: 'Stability AI',
+    cells: {
+      type: 'I2V',
+      vram_min: '8GB',
+      vram_rec: '16GB',
+      quality: '中〜高（2〜4秒の短尺）',
+      speed: '約30〜60秒/2〜4秒動画',
+      license: 'RAIL-M（商用要確認）',
+      strength: '画像→動画変換に特化。安定性が高く崩壊が少ない。短尺・ループアニメに最適。',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// プロンプトカード（ローカル生成向け5サンプル）
+// ----------------------------------------------------------------
+const promptSamples = [
+  {
+    title: 'Wan2.1 T2V — 風景動画の基本形',
+    badPrompt: 'beautiful landscape',
+    explanation: '英語のみ・短いプロンプトは動きの指定がなく、ランダムな出力になります。Wan2.1は詳細な英語プロンプトで品質が大幅に向上します。',
+    improvedPrompt: 'A serene Japanese garden in autumn, red and golden maple leaves gently falling, a small stone bridge over a koi pond, soft afternoon light filtering through bamboo, camera slowly panning left, 4K cinematic, warm color grade, no text',
+  },
+  {
+    title: 'AnimateDiff — キャラクターアニメーション',
+    badPrompt: '（SD画像をAnimateDiffで動かすだけ）',
+    explanation: 'AnimateDiffはモーションモジュールの選択とSeed固定が重要です。適切なモーションLoRAを組み合わせると動きが安定します。',
+    improvedPrompt: '（ComfyUIワークフローで設定）Motion Strength: 0.8, Motion Module: mm_sd15_v3, LoRA: motion_lora_panLeft weight 0.6, AnimateDiff Steps: 25, CFG: 7.5, Sampler: dpm_2m_karras, Duration: 16 frames / 8fps',
+  },
+  {
+    title: 'CogVideoX — 複雑な動きのある映像',
+    badPrompt: 'a person walking',
+    explanation: 'CogVideoXは複雑な動作・人物の細かい動きに強みがあります。被写体の外見・動作・カメラワーク・環境を段階的に記述することで品質が上がります。',
+    improvedPrompt: 'Close-up shot of a professional chef carefully plating a dish: hands moving precisely to place a garnish, steam rising from the hot plate, shallow depth of field with blurred kitchen background, warm kitchen lighting, 4K, slow motion 50% speed, hyper-realistic texture',
+  },
+  {
+    title: 'LTX-2 — 高速生成向け（RTX最適化）',
+    badPrompt: 'cityscape at night',
+    explanation: 'LTX-2はリアルタイム生成を目指した速度最適化モデルです。短くシンプルなシーン記述でも高品質が出やすい設計です。',
+    improvedPrompt: 'Tokyo cityscape at night, neon lights reflecting on wet streets after rain, a lone figure walking with an umbrella, cinematic wide shot, 4K, 24fps, long exposure light trail effect, atmospheric fog',
+  },
+  {
+    title: 'RunPodでのクラウドGPU活用（ローカルGPU不足時）',
+    badPrompt: '（自前GPUなし・または VRAM不足）',
+    explanation: 'VRAM 16GB未満のPCでは14B以上の大型モデルが動きません。RunPodやPaperspace等のクラウドGPUでA100/H100を借りれば、ローカル環境と同じワークフローが高速で実行できます。',
+    improvedPrompt: '（RunPod設定）GPU: RTX 4090 or A100 40GB / 80GB。テンプレート: ComfyUI公式テンプレート。ボリューム: 50GB（モデルファイル保存用）。時間課金: RTX 4090は約$0.74/時間、A100は約$1.44/時間（2026-05-18確認）',
+  },
+];
+
+// ----------------------------------------------------------------
+// FAQ（10問）
+// ----------------------------------------------------------------
+const faqItems = [
+  {
+    category: '基本・仕組み',
+    q: 'AI動画生成をローカルで動かすメリットは何ですか？',
+    a: '<strong>主に4つのメリットがあります。</strong><ol><li><strong>生成回数が無制限</strong>: APIコスト・月額課金なしで何度でも生成できる</li><li><strong>プライバシー保護</strong>: 画像・動画データがサーバーに送られない</li><li><strong>カスタマイズ自由</strong>: LoRA・ControlNet・カスタムモデルを自由に組み合わせられる</li><li><strong>長期コスト削減</strong>: 初期GPU投資後はランニングコストが電気代のみ</li></ol>デメリットは初期費用（GPU代）と環境構築の手間です。',
+  },
+  {
+    category: '基本・仕組み',
+    q: '2026年現在、ローカルで最も高品質な動画生成モデルはどれですか？',
+    a: '<strong>2026年5月時点では Wan2.1/Wan2.2（Alibaba）が品質・使いやすさのバランスで最強です。</strong>アリババが開発したオープンソースモデルで、テキスト→動画・画像→動画の両方に対応。Apache 2.0ライセンスで商用利用も可能です。高品質最優先なら HunyuanVideo（Tencent）も優れていますが、VRAM要件が高くRTX 4090でも遅い点が課題です。速度重視なら LTX-2 が最速クラスです。',
+  },
+  {
+    category: 'スペック',
+    q: 'AI動画生成をローカルで動かすのに最低限必要なPCスペックは？',
+    a: '<strong>最低限の動作には NVIDIA GPU（VRAM 8GB）+ RAM 16GB が必要です。</strong>ただし8GBでは小型モデル（Wan2.1-1.3B・LTX-2など）のみ動作し、画質・速度に制限があります。快適に使うには<strong>VRAM 12〜24GB</strong>を推奨します。AMDのGPU（Radeon）は動作しますが最適化が不十分な場合があります。Macは Metal対応で動きますが速度が遅いです。',
+  },
+  {
+    category: 'スペック',
+    q: 'RTX 4090とRTX 3060では生成速度にどれくらい差がありますか？',
+    a: '<strong>モデルによりますが、RTX 4090はRTX 3060の約3〜5倍の速度です。</strong>Wan2.1-14Bで5秒動画を生成する目安: RTX 4090: 約60〜120秒 / RTX 3060（12GB）: 約5〜10分。RTX 3060でも使えますが、14Bモデルはメモリ不足でOOM（アウトオブメモリ）になる場合があります。GGUF量子化版を使うと低VRAM環境でも動作可能です。',
+  },
+  {
+    category: 'インストール',
+    q: 'ComfyUIとは何ですか？初心者でも使えますか？',
+    a: '<strong>ComfyUIはAI画像・動画生成のワークフローをノードベースのGUIで構築できるオープンソースツールです。</strong>プログラミングの知識がなくても視覚的に操作できます。初心者向けの導入手順: <ol><li>NVIDIA ドライバ・Python 3.10 をインストール</li><li>GitHub から ComfyUI をクローン</li><li>ComfyUI Manager で必要なモデル・拡張をインストール</li><li>既存のワークフロー（JSON）を読み込んで実行</li></ol>公式WikiやYouTubeチュートリアルが豊富なので、プログラミング初心者でも1〜2時間で環境構築できます。',
+  },
+  {
+    category: 'インストール',
+    q: 'AnimateDiffとWan2.1はどちらを選ぶべきですか？',
+    a: '<strong>用途によって選び分けます。</strong><ul><li><strong>AnimateDiff</strong>: 既存のSD（Stable Diffusion）モデルの画風をそのままアニメーション化したい場合。LoRA・ControlNetとの組み合わせが得意。カスタム性最高。</li><li><strong>Wan2.1</strong>: テキストプロンプトや新しい画像から最高品質の動画を生成したい場合。2026年現在のOSS最強モデル。初心者にも扱いやすい。</li></ul>初心者には<strong>Wan2.1</strong>、SD使いのベテランには<strong>AnimateDiff</strong>をおすすめします。',
+  },
+  {
+    category: 'クラウドGPU',
+    q: 'GPUを持っていない場合の代替手段はありますか？',
+    a: '<strong>クラウドGPUサービス（RunPod・Paperspace・Vast.ai）を利用する方法があります。</strong>月額固定ではなく<strong>時間課金</strong>で高性能GPUを借りられます。費用目安（2026年5月確認）: RTX 4090: 約$0.74/時間、A100 40GB: 約$1.44/時間。週数時間程度の使用なら月$10〜30程度でWan2.1等の最高品質モデルを動かせます。初回セットアップはテンプレートを使えば30分程度です。',
+  },
+  {
+    category: 'クラウドGPU',
+    q: 'RunPodでComfyUIを使うにはどうすればよいですか？',
+    a: '<strong>RunPodの公式ComfyUIテンプレートを使えば、5〜10分でクラウド環境が立ち上がります。</strong>手順: <ol><li>runpod.io でアカウント作成・クレジット追加</li><li>「Secure Cloud」から GPU を選択（RTX 4090 or A100 推奨）</li><li>テンプレートで「ComfyUI」を選択してデプロイ</li><li>JupyterLabまたはブラウザUIからWan2.1モデルをダウンロードして使用</li></ol>停止を忘れると課金が続くため、使用後は必ずポッドを停止・削除してください。',
+  },
+  {
+    category: '法的・ライセンス',
+    q: 'ローカルで生成した動画を商用利用できますか？',
+    a: '<strong>モデルのライセンスによって異なります。</strong><ul><li><strong>Wan2.1</strong>: Apache 2.0 → 商用利用可（制限なし）</li><li><strong>CogVideoX</strong>: Apache 2.0 → 商用利用可</li><li><strong>LTX-2</strong>: LTX-Video License → 商用利用可（一部制限）</li><li><strong>HunyuanVideo</strong>: 非商用制限あり → 商業目的には確認が必要</li><li><strong>AnimateDiff</strong>: 使用するSDモデルのライセンスに依存</li></ul>使用前に必ず各モデルの公式ライセンスを確認してください。',
+  },
+  {
+    category: 'トラブル',
+    q: 'OOM（アウトオブメモリ）エラーが出た場合の対処法は？',
+    a: '<strong>VRAMが不足している状態です。以下の順番で試してください。</strong><ol><li><strong>GGUF量子化版モデルを使う</strong>: 14Bモデルの4-bit量子化版ならVRAM 12GBでも動作可能</li><li><strong>モデルのサイズを下げる</strong>: 14B → 1.3Bモデルに変更</li><li><strong>解像度を下げる</strong>: 720p → 480p</li><li><strong>ステップ数を減らす</strong>: 30ステップ → 20ステップ</li><li><strong>他のアプリを閉じる</strong>: ブラウザ・Discord等のVRAM使用アプリを終了</li><li><strong>クラウドGPUを使う</strong>: RunPodでA100を一時的に借りる</li></ol>',
+  },
+];
+
+const breadcrumbItems = [
+  { label: 'ホーム', href: '/' },
+  { label: 'AI動画生成', href: '/video/' },
+  { label: 'ローカル環境', href: '/video/local/' },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  pageUrl={pageUrl}
+  jsonLd={allJsonLd}
+>
+  <Breadcrumb items={breadcrumbItems} />
+
+  <article class="article-page">
+    <header class="article-header">
+      <div class="article-header__meta">
+        <RecencyBadge verifiedAt={verifiedAt} />
+        <span class="article-header__category">AI動画生成 › ローカル環境</span>
+      </div>
+
+      <h1 class="article-header__title">
+        【2026年最新】AI動画生成をローカル環境で動かす完全ガイド<br />
+        <span class="article-header__subtitle">Wan2.1・AnimateDiff・ComfyUI 実装・GPU要件・クラウドGPU代替案</span>
+      </h1>
+
+      <blockquote class="article-summary">
+        <p><strong>このページでわかること</strong></p>
+        <ul>
+          <li>2026年ローカル動画生成の最強モデル: Wan2.1/Wan2.2（Alibaba）の特徴と必要スペック</li>
+          <li>ComfyUI + Wan2.1 のインストール手順（初心者向け・5ステップ）</li>
+          <li>GPUなしの代替案: RunPod・Paperspace クラウドGPUのコストと使い方</li>
+        </ul>
+      </blockquote>
+
+      <p class="article-header__intro">
+        クラウドのAI動画生成サービスは月額課金・生成回数制限があります。
+        一方、<strong>ローカル環境（自分のPC）で動かせば生成回数は無制限</strong>で、プライバシーも守られます。
+        2026年現在、Alibaba の Wan2.1/Wan2.2 という強力なオープンソースモデルが登場し、
+        RTX 3060以上のGPUさえあれば高品質な動画を自宅PCで生成できる時代になりました。
+      </p>
+    </header>
+
+    <!-- ================================================================
+         H2-1: クラウド vs ローカルの違い
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="cloud-vs-local">クラウドAPIとローカル実行の違い</h2>
+
+      <div class="compare-table">
+        <table>
+          <thead>
+            <tr>
+              <th>比較項目</th>
+              <th>クラウドAPI（Runway・Kling等）</th>
+              <th>ローカル実行（Wan2.1等）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>初期費用</td>
+              <td>不要（月額のみ）</td>
+              <td>GPU代（4〜40万円）</td>
+            </tr>
+            <tr>
+              <td>ランニングコスト</td>
+              <td>月額$8〜100以上</td>
+              <td>電気代のみ（月数百円〜）</td>
+            </tr>
+            <tr>
+              <td>生成回数</td>
+              <td>プランに応じて制限あり</td>
+              <td>無制限</td>
+            </tr>
+            <tr>
+              <td>品質</td>
+              <td>最新モデル（常に最新）</td>
+              <td>公開されたOSSモデル（自分で更新）</td>
+            </tr>
+            <tr>
+              <td>カスタマイズ</td>
+              <td>制限あり</td>
+              <td>LoRA・ControlNet・プラグイン自由</td>
+            </tr>
+            <tr>
+              <td>プライバシー</td>
+              <td>データがサーバーに送信される</td>
+              <td>完全ローカル（データ送信なし）</td>
+            </tr>
+            <tr>
+              <td>技術難易度</td>
+              <td>簡単（ブラウザから操作）</td>
+              <td>中〜高（環境構築が必要）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        <strong>週に50本以上生成する場合</strong>はローカル環境が長期的にコスト効率が高く、
+        <strong>週5本以下ならクラウドAPIの方がコスパが良い</strong>というのが実践的な判断基準です。
+      </p>
+    </section>
+
+    <!-- ================================================================
+         H2-2: 必要スペック
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="specs">必要PCスペック（GPU・VRAM・メモリ）</h2>
+
+      <h3>GPU（グラフィックボード）要件</h3>
+      <p>
+        AI動画生成において<strong>VRAM容量が最も重要な要素</strong>です。
+        Wan2.1の場合、モデルサイズによって要件が異なります。
+      </p>
+
+      <div class="spec-grid">
+        <div class="spec-card spec-card--entry">
+          <div class="spec-card__head">
+            <span class="spec-card__tier">エントリー</span>
+            <strong>VRAM 8〜12GB</strong>
+          </div>
+          <ul>
+            <li>RTX 3060（12GB）/ RTX 4060（8GB）</li>
+            <li>対応: Wan2.1-1.3B・LTX-2・SVD</li>
+            <li>生成時間: 5秒動画で3〜8分（Wan2.1-1.3B）</li>
+            <li>価格目安: ¥40,000〜80,000</li>
+          </ul>
+          <p class="spec-card__note">最低限動くが、14Bモデルは動作しない</p>
+        </div>
+        <div class="spec-card spec-card--mid">
+          <div class="spec-card__head">
+            <span class="spec-card__tier">スタンダード</span>
+            <strong>VRAM 16〜24GB</strong>
+          </div>
+          <ul>
+            <li>RTX 4070 Ti（16GB）/ RTX 4090（24GB）</li>
+            <li>対応: Wan2.1-14B・CogVideoX・HunyuanVideo（量子化）</li>
+            <li>生成時間: 5秒動画で1〜3分（Wan2.1-14B・RTX 4090）</li>
+            <li>価格目安: RTX 4070 Ti ¥90,000〜 / RTX 4090 ¥200,000〜</li>
+          </ul>
+          <p class="spec-card__note">快適な動作環境。現実的な選択肢</p>
+        </div>
+        <div class="spec-card spec-card--high">
+          <div class="spec-card__head">
+            <span class="spec-card__tier">ハイエンド</span>
+            <strong>VRAM 48GB以上</strong>
+          </div>
+          <ul>
+            <li>RTX 6000 Ada / A100 / H100</li>
+            <li>対応: HunyuanVideo-5B・大型モデル全般</li>
+            <li>生成時間: 5秒動画で30〜90秒</li>
+            <li>価格目安: ¥500,000以上（業務用）</li>
+          </ul>
+          <p class="spec-card__note">プロ・法人向け。個人はクラウドGPUで代替推奨</p>
+        </div>
+      </div>
+
+      <h3>その他の必要スペック</h3>
+      <div class="compare-table">
+        <table>
+          <thead>
+            <tr><th>コンポーネント</th><th>最低要件</th><th>推奨スペック</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>メインメモリ（RAM）</td><td>16GB</td><td>32〜64GB（14Bモデルは32GB以上推奨）</td></tr>
+            <tr><td>ストレージ</td><td>SSD 50GB空き</td><td>SSD 200GB以上（モデルファイルが大きい）</td></tr>
+            <tr><td>OS</td><td>Windows 10 / Ubuntu 20.04</td><td>Windows 11 / Ubuntu 22.04</td></tr>
+            <tr><td>Python</td><td>3.10</td><td>3.10〜3.11（3.12は一部非対応）</td></tr>
+            <tr><td>CUDA</td><td>12.0</td><td>12.3〜12.6（最新NVIDIA推奨）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-3: 主要モデル比較表
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="models">主要ローカルAI動画生成モデル比較（2026年版）</h2>
+
+      <ToolComparisonTable
+        columns={columns}
+        rows={rows}
+        caption="ローカルAI動画生成モデル比較表 — 2026年5月18日確認"
+        featuredLabel="2026年OSS最強"
+        footnote="※ 生成速度はハードウェア・設定・解像度によって大きく変わります。表記は参考値です。GGUF量子化版を使うことで低VRAM環境での動作が可能になる場合があります。"
+      />
+
+      <div class="source-note">
+        <SourceLink url="https://github.com/Wan-Video/Wan2.1" verifiedAt="2026-05-18" label="Wan2.1 GitHub" />
+        <SourceLink url="https://comfyui-wiki.com/en/tutorial/advanced/video/wan2.1/" verifiedAt="2026-05-18" label="ComfyUI Wiki Wan2.1ガイド" />
+        <SourceLink url="https://blogs.nvidia.co.jp/blog/rtx-ai-garage-ces-2026-open-models-video-generation/" verifiedAt="2026-05-18" label="NVIDIA LTX-2発表（公式）" />
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-4: ComfyUI + Wan2.1 インストール手順
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="howto">ComfyUI + Wan2.1 インストール手順</h2>
+
+      <p>
+        以下は<strong>Windows環境（NVIDIA GPU搭載）</strong>でのセットアップ手順です。
+        事前にNVIDIAドライバを最新版に更新してください。
+      </p>
+
+      <div class="warning-box">
+        <strong>注意</strong>: この手順はある程度のPCリテラシーが必要です。
+        「Python」「コマンドプロンプト」の操作に不慣れな方は、後述の<a href="#cloud-gpu">クラウドGPU</a>を先に検討してください。
+      </div>
+
+      <ol class="step-list">
+        <li class="step-list__item">
+          <span class="step-list__num">01</span>
+          <div class="step-list__body">
+            <strong>Python 3.10〜3.11 をインストール</strong>
+            <p>
+              <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer">python.org</a> から
+              Python 3.10.x または 3.11.x をダウンロード・インストール。
+              インストール時に「<strong>Add Python to PATH</strong>」にチェックを入れること。
+            </p>
+            <code>python --version  # 3.10.x と表示されればOK</code>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">02</span>
+          <div class="step-list__body">
+            <strong>CUDA Toolkit のインストール</strong>
+            <p>
+              <a href="https://developer.nvidia.com/cuda-downloads" target="_blank" rel="noopener noreferrer">NVIDIA CUDA Downloads</a> から
+              CUDA 12.3〜12.6をインストール。
+              インストール後にコマンドプロンプトで確認:
+            </p>
+            <code>nvcc --version  # CUDA 12.x と表示されればOK</code>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">03</span>
+          <div class="step-list__body">
+            <strong>ComfyUI のダウンロード・起動</strong>
+            <p>
+              <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer">ComfyUI GitHub</a> から
+              最新リリースのZIPをダウンロードし、任意のフォルダに展開。
+              Windowsの場合は <code>run_nvidia_gpu.bat</code> をダブルクリックで起動。
+              ブラウザで <code>http://127.0.0.1:8188</code> が開けばOK。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">04</span>
+          <div class="step-list__body">
+            <strong>Wan2.1 モデルのダウンロード</strong>
+            <p>
+              <a href="https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B" target="_blank" rel="noopener noreferrer">Hugging Face（Wan2.1）</a> から
+              モデルファイルをダウンロード。
+            </p>
+            <ul>
+              <li><strong>VRAM 8GB向け</strong>: Wan2.1-T2V-1.3B（約3GB）</li>
+              <li><strong>VRAM 16GB以上</strong>: Wan2.1-T2V-14B（約28GB）/ GGUF量子化版（約12GB）</li>
+            </ul>
+            <p>ダウンロードしたファイルを <code>ComfyUI/models/diffusion_models/</code> に配置。</p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">05</span>
+          <div class="step-list__body">
+            <strong>ComfyUI Manager でカスタムノードをインストール</strong>
+            <p>
+              ComfyUI の Manager（右上メニュー）から「Install Custom Nodes」を開き、
+              <strong>ComfyUI-WanVideoWrapper</strong> を検索してインストール。
+              <a href="https://comfyui-wiki.com/en/tutorial/advanced/video/wan2.1/" target="_blank" rel="noopener noreferrer">ComfyUI Wiki</a> で公開されているワークフロー（JSON）をダウンロードして読み込む。
+            </p>
+          </div>
+        </li>
+        <li class="step-list__item">
+          <span class="step-list__num">06</span>
+          <div class="step-list__body">
+            <strong>プロンプトを入力して「Queue Prompt」で生成</strong>
+            <p>
+              ワークフロー内の「CLIP Text Encode」ノードにプロンプトを入力し、
+              「<strong>Queue Prompt</strong>」ボタンをクリック。
+              VRAM・モデルサイズにより<strong>1〜10分</strong>で5秒の動画が生成されます。
+            </p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ================================================================
+         H2-5: プロンプト集（ローカル専用）
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="prompts">ローカルAI動画生成プロンプト集（5サンプル）</h2>
+
+      {promptSamples.map((p, i) => (
+        <PromptCard
+          index={i + 1}
+          title={p.title}
+          badPrompt={p.badPrompt}
+          explanation={p.explanation}
+          improvedPrompt={p.improvedPrompt}
+        />
+      ))}
+    </section>
+
+    <!-- ================================================================
+         アフィCTA①（中盤・GPUクラウド）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--mid" id="cloud-gpu">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">GPUが手元にない方へ</p>
+        <h3 class="affili-cta__title">RunPodでA100・RTX 4090を時間課金でレンタル</h3>
+        <p class="affili-cta__desc">
+          自前GPUなしでも、クラウドGPUサービス「RunPod」ならRTX 4090を時間$0.74〜でレンタル可能。
+          ComfyUI + Wan2.1 テンプレートで10分で環境が立ち上がります。
+        </p>
+        <a href="https://www.runpod.io" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--primary">
+          RunPod公式サイトで確認する
+        </a>
+        <p class="affili-cta__note">
+          ※ 料金は2026-05-18確認。使用後は必ずポッド停止・削除を忘れずに。
+        </p>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-6: クラウドGPU代替案
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="cloud-gpu-alt">クラウドGPU代替案（GPU購入なし）</h2>
+
+      <p>
+        GPUを購入せずに、クラウド上でローカルと同じワークフローを動かす方法です。
+        初期費用ゼロ・時間課金なので、試したいときだけ使えます。
+      </p>
+
+      <div class="cloud-cards">
+        <div class="cloud-card cloud-card--featured">
+          <h3>RunPod（最もおすすめ）</h3>
+          <ul>
+            <li>GPU: RTX 3090・RTX 4090・A100・H100</li>
+            <li>料金: RTX 4090 約$0.74/時間（Secure Cloud）</li>
+            <li>ComfyUI公式テンプレートあり（即起動）</li>
+            <li>ボリューム（永続ストレージ）でモデル保存可能</li>
+          </ul>
+          <SourceLink url="https://www.runpod.io" verifiedAt="2026-05-18" label="RunPod 公式" />
+        </div>
+        <div class="cloud-card">
+          <h3>Paperspace / Gradient</h3>
+          <ul>
+            <li>GPU: A100・RTX 4000 Ada等</li>
+            <li>料金: A100 約$1.44〜/時間</li>
+            <li>JupyterLabベースで使いやすい</li>
+            <li>無料プラン（GPU時間制限あり）も存在</li>
+          </ul>
+        </div>
+        <div class="cloud-card">
+          <h3>Google Colab Pro</h3>
+          <ul>
+            <li>月額$9.99でA100を利用可能（利用時間制限あり）</li>
+            <li>Python・Notebookに慣れた人向け</li>
+            <li>セッション切れがある（長時間生成には不向き）</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>コスト比較シミュレーション</h3>
+      <div class="compare-table">
+        <table>
+          <thead>
+            <tr><th>使用パターン</th><th>クラウドAPI（Kling Standard）</th><th>RunPod（RTX 4090）</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>週2回・5本/回（月40本）</td><td>$6.99/月（制限内）</td><td>約$3〜5/月（10時間以下）</td></tr>
+            <tr><td>毎日・10本/日（月300本）</td><td>Kling Pro $25.99/月</td><td>約$20〜30/月（30時間）</td></tr>
+            <tr><td>大量生成・500本/月以上</td><td>$100以上/月</td><td>約$50〜80/月（70時間）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>月100本以上生成するならクラウドGPUの方がコスト効率が高くなります。</p>
+    </section>
+
+    <!-- ================================================================
+         H2-7: トラブルシューティング
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="troubleshoot">トラブルシューティング集</h2>
+
+      <div class="trouble-list">
+        <div class="trouble-item">
+          <div class="trouble-item__q"><strong>問題: OOM（Out of Memory）エラーが出る</strong></div>
+          <div class="trouble-item__a">
+            <p>VRAMが不足しています。以下を試してください:</p>
+            <ol>
+              <li>GGUF量子化版モデル（4-bit）に切り替える</li>
+              <li>解像度を下げる（512×512 → 384×384）</li>
+              <li>1.3Bモデルを使う（14Bから1.3Bに変更）</li>
+              <li>ブラウザ・他アプリを全て閉じてVRAMを解放する</li>
+            </ol>
+          </div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-item__q"><strong>問題: 動画が真っ黒/ノイズだらけになる</strong></div>
+          <div class="trouble-item__a">
+            <p>プロンプトかサンプリング設定の問題が多いです:</p>
+            <ol>
+              <li>プロンプトを英語に変更</li>
+              <li>CFG値を7〜9の範囲に調整（低すぎ・高すぎ両方NG）</li>
+              <li>ステップ数を増やす（15 → 25〜30）</li>
+              <li>ネガティブプロンプトに「black screen, static, noise」を追加</li>
+            </ol>
+          </div>
+        </div>
+        <div class="trouble-item">
+          <div class="trouble-item__q"><strong>問題: ComfyUIのノードが見つからないエラー</strong></div>
+          <div class="trouble-item__a">
+            <p>カスタムノードが未インストールです:</p>
+            <ol>
+              <li>ComfyUI Manager → Missing Custom Nodes を確認</li>
+              <li>「Install Missing Custom Nodes」でまとめてインストール</li>
+              <li>ComfyUIを再起動してから再試行</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA②（後半・スクール）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--bottom">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">ローカル環境構築を体系的に学ぶ</p>
+        <h3 class="affili-cta__title">ComfyUI・Stable Diffusion・AI動画生成を基礎から習得</h3>
+        <p class="affili-cta__desc">
+          環境構築・プロンプト設計・LoRA訓練まで実践的に学べるAIスクール。
+          独学でつまずきやすい箇所を講師サポートで解決できます。
+        </p>
+        <a href="https://web-camp.io/ai/" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--secondary">
+          DMM WEBCAMP AIコースを確認する
+        </a>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-8: FAQ
+         ================================================================ -->
+    <section class="article-section">
+      <FaqAccordion
+        items={faqItems}
+        heading="よくある質問（FAQ）"
+        defaultOpen={[0]}
+      />
+    </section>
+
+    <!-- ================================================================
+         関連記事・内部リンク
+         ================================================================ -->
+    <section class="article-section related-links">
+      <h2 id="related">関連記事</h2>
+      <ul class="related-links__list">
+        <li><a href="/video/">AI動画生成ツール9選比較｜完全ガイド（A001）</a></li>
+        <li><a href="/video/image-to-video/">画像から動画を生成するAIツール比較（A002）</a></li>
+        <li><a href="/video/free-no-signup/">会員登録不要で使えるAI動画生成サイト8選（A003）</a></li>
+        <li><a href="/video/local-environment/">ComfyUI + AnimateDiff 詳細実装ガイド（A008）</a> <span class="link-status">（準備中）</span></li>
+      </ul>
+    </section>
+
+    <!-- 最終更新日 -->
+    <LastUpdated date={lastUpdated} verifiedAt={verifiedAt} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .article-header { margin-bottom: 36px; }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .article-header__category {
+    font-size: 12.5px;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+  }
+  .article-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.4;
+    margin: 0 0 10px;
+  }
+  .article-header__subtitle {
+    font-size: 0.7em;
+    color: var(--color-muted);
+    font-weight: 500;
+    display: block;
+    margin-top: 4px;
+  }
+  .article-summary {
+    background: var(--color-bg-section);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .article-summary ul { margin: 8px 0 0; padding-left: 1.4em; }
+  .article-summary li { margin-bottom: 4px; }
+  .article-header__intro {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+  .article-section { margin: 40px 0; }
+  .article-section h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    border-bottom: 2px solid var(--color-gold);
+    padding-bottom: 8px;
+    margin: 0 0 20px;
+    line-height: 1.4;
+  }
+  .article-section h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    margin: 24px 0 10px;
+  }
+  .article-section p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    margin: 0 0 14px;
+  }
+  .article-section ul, .article-section ol {
+    padding-left: 1.5em;
+    margin: 0 0 14px;
+  }
+  .article-section li {
+    font-size: 14.5px;
+    line-height: 1.85;
+    margin-bottom: 6px;
+  }
+
+  .compare-table {
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .compare-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .compare-table th {
+    background: var(--color-navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border-light);
+    line-height: 1.7;
+  }
+  .compare-table tr:nth-child(even) td {
+    background: var(--color-bg-section);
+  }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .spec-card {
+    padding: 18px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--color-border-light);
+    font-size: 13px;
+  }
+  .spec-card--entry { border-color: #B0D0FF; background: #F0F7FF; }
+  .spec-card--mid { border-color: var(--color-gold-light); background: var(--color-gold-pale); }
+  .spec-card--high { border-color: #D0A0C0; background: #FFF0F5; }
+  .spec-card__head {
+    margin-bottom: 10px;
+  }
+  .spec-card__tier {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: var(--color-navy);
+    color: #fff;
+    border-radius: var(--radius-xs);
+    margin-bottom: 4px;
+  }
+  .spec-card__head strong {
+    display: block;
+    font-size: 14.5px;
+    color: var(--color-navy);
+    margin-top: 2px;
+  }
+  .spec-card ul {
+    padding-left: 1.2em;
+    margin: 0 0 8px;
+    list-style: disc;
+  }
+  .spec-card li { margin-bottom: 4px; line-height: 1.7; }
+  .spec-card__note {
+    font-size: 12px;
+    color: var(--color-muted);
+    border-top: 1px solid var(--color-border-light);
+    padding-top: 8px;
+    margin: 8px 0 0;
+    font-style: italic;
+  }
+
+  .warning-box {
+    background: #FFF8E0;
+    border: 1px solid #F0C040;
+    border-left: 4px solid #E0A000;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+  }
+
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .step-list__item {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-subtle);
+  }
+  .step-list__num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-list__body { flex: 1; }
+  .step-list__body strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: var(--color-navy);
+  }
+  .step-list__body p {
+    font-size: 13.5px;
+    line-height: 1.85;
+    margin: 0 0 8px;
+  }
+  .step-list__body code {
+    display: block;
+    background: #1a1a2e;
+    color: #e0e0ff;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    margin: 8px 0;
+    overflow-x: auto;
+  }
+  .step-list__body ul {
+    padding-left: 1.3em;
+    margin: 6px 0;
+  }
+  .step-list__body li { font-size: 13.5px; margin-bottom: 4px; }
+
+  .source-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .cloud-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .cloud-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    font-size: 13.5px;
+  }
+  .cloud-card--featured {
+    border-color: var(--color-gold-light);
+    background: var(--color-gold-pale);
+  }
+  .cloud-card h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--color-navy);
+  }
+  .cloud-card ul {
+    padding-left: 1.2em;
+    margin: 0 0 8px;
+    list-style: disc;
+  }
+  .cloud-card li { margin-bottom: 4px; line-height: 1.7; }
+
+  .trouble-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .trouble-item {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .trouble-item__q {
+    background: var(--color-bg-section);
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+  .trouble-item__a {
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.85;
+  }
+  .trouble-item__a p { margin: 0 0 8px; }
+  .trouble-item__a ol { padding-left: 1.4em; margin: 0; }
+  .trouble-item__a li { margin-bottom: 4px; }
+
+  .affili-cta {
+    margin: 40px 0;
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  .affili-cta--mid {
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1a2a4a 100%);
+    color: #fff;
+  }
+  .affili-cta--bottom {
+    background: var(--color-gold-pale);
+    border: 2px solid var(--color-gold-light);
+  }
+  .affili-cta__label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+    opacity: 0.8;
+  }
+  .affili-cta--mid .affili-cta__label { color: var(--color-gold); }
+  .affili-cta--bottom .affili-cta__label { color: var(--color-navy); }
+  .affili-cta__title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .affili-cta--mid .affili-cta__title { color: #fff; }
+  .affili-cta--bottom .affili-cta__title { color: var(--color-navy); }
+  .affili-cta__desc {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 18px;
+    opacity: 0.9;
+  }
+  .affili-cta__btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+  .affili-cta__btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .affili-cta__btn--primary { background: var(--color-gold); color: var(--color-navy); }
+  .affili-cta__btn--secondary { background: var(--color-navy); color: #fff; }
+  .affili-cta__note {
+    font-size: 11px;
+    opacity: 0.6;
+    margin: 10px 0 0;
+  }
+
+  .related-links__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .related-links__list a {
+    color: var(--color-navy);
+    text-decoration: underline;
+    font-size: 14px;
+  }
+  .link-status { font-size: 11.5px; color: var(--color-muted); }
+
+  @media (max-width: 768px) {
+    .spec-grid { grid-template-columns: 1fr; }
+    .cloud-cards { grid-template-columns: 1fr; }
+    .article-header__title { font-size: 1.25rem; }
+    .affili-cta { padding: 20px 16px; }
+    .step-list__item { flex-direction: column; gap: 10px; }
+  }
+</style>

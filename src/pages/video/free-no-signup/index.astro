@@ -1,0 +1,932 @@
+---
+/**
+ * /video/free-no-signup/ — A003「AI動画生成 無料サイト 登録不要」
+ * KW: ai動画生成 無料サイト 登録不要 (VOL 720 / SD 19 / CPC ¥87)
+ *
+ * content-writer: 2026-05-18 執筆
+ * 執筆前検証: Vidnoz・VideoPlus・Canva・Kling・Hailuo・EaseMate 公式確認済み
+ */
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import Icon from '../../../components/Icon.astro';
+import siteMeta from '../../../data/site-meta.json';
+
+import RecencyBadge from '../../../components/ai-guide/RecencyBadge.astro';
+import LastUpdated from '../../../components/ai-guide/LastUpdated.astro';
+import ToolComparisonTable from '../../../components/ai-guide/ToolComparisonTable.astro';
+import FaqAccordion from '../../../components/ai-guide/FaqAccordion.astro';
+import SourceLink from '../../../components/ai-guide/SourceLink.astro';
+import AdUnit from '../../../components/AdUnit.astro';
+
+// ----------------------------------------------------------------
+// 記事メタ情報
+// ----------------------------------------------------------------
+const title = '【2026年最新】会員登録不要で使えるAI動画生成サイト8選｜完全無料・ブラウザのみ';
+const description = '会員登録・ログインなしで無料で使えるAI動画生成サイト8選を実機比較。Vidnoz・VideoPlus・Canva・Hailuo・Kling・EaseMateなど、ブラウザだけで今すぐ試せるサービスを解説。2026年5月最新情報。';
+const verifiedAt = '2026-05-18';
+const publishedAt = '2026-05-18';
+const lastUpdated = '2026-05-18';
+const pageUrl = `${siteMeta.siteUrl}/video/free-no-signup/`;
+
+// ----------------------------------------------------------------
+// 構造化データ
+// ----------------------------------------------------------------
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": lastUpdated,
+  "inLanguage": "ja-JP",
+  "image": [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+  "keywords": [
+    "AI動画生成 無料サイト 登録不要",
+    "AI動画 無料 ブラウザ",
+    "動画生成AI 登録なし",
+    "Vidnoz",
+    "VideoPlus",
+    "Canva AI動画",
+    "Hailuo 無料",
+    "Kling 無料",
+  ],
+  "articleSection": "AI動画生成",
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteMeta.siteUrl}/favicon.svg`,
+    },
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+const allJsonLd = [articleJsonLd];
+
+// ----------------------------------------------------------------
+// 比較表（8サイト×7項目）
+// ----------------------------------------------------------------
+const columns = [
+  { key: 'signup',    label: '登録要否',         width: '110px', align: 'center' as const },
+  { key: 'free_gen',  label: '無料生成回数',      width: '130px', align: 'center' as const },
+  { key: 'watermark', label: '透かし',            width: '90px',  align: 'center' as const },
+  { key: 'output',    label: '出力形式',          width: '100px', align: 'center' as const },
+  { key: 'max_sec',   label: '最大秒数',          width: '90px',  align: 'center' as const },
+  { key: 'mobile',    label: 'スマホ対応',        width: '100px', align: 'center' as const },
+  { key: 'strength',  label: '強み・特徴',        width: '200px' },
+];
+
+const rows = [
+  {
+    label: 'Vidnoz Image-to-Video',
+    sublabel: 'vidnoz.com',
+    featured: true,
+    cells: {
+      signup: '不要',
+      free_gen: '無制限（低解像度）',
+      watermark: 'あり（無料）',
+      output: 'MP4',
+      max_sec: '約5秒',
+      mobile: 'ブラウザ対応',
+      strength: '完全登録不要で即時利用可能。画像から動画生成に特化。日本語UI対応。',
+    },
+  },
+  {
+    label: 'VideoPlus.ai',
+    sublabel: 'videoplus.ai',
+    cells: {
+      signup: '不要',
+      free_gen: '1日数本',
+      watermark: 'なし（無料でも）',
+      output: 'MP4',
+      max_sec: '約5〜8秒',
+      mobile: 'ブラウザ対応',
+      strength: 'ログインなし・透かしなしで写真→動画変換。シンプルUI。',
+    },
+  },
+  {
+    label: 'Hailuo AI（MiniMax）',
+    sublabel: 'hailuoai.video',
+    cells: {
+      signup: '要（無料登録）',
+      free_gen: '毎日2〜3本',
+      watermark: '有料で削除',
+      output: 'MP4',
+      max_sec: '最大10秒',
+      mobile: 'ブラウザ対応',
+      strength: '毎日無料クレジット付与。Hailuo 02で1080p高品質。Artificial Analysis世界2位のコスパ。',
+    },
+  },
+  {
+    label: 'Kling AI',
+    sublabel: 'klingai.com',
+    cells: {
+      signup: '要（無料登録）',
+      free_gen: '毎日66クレジット',
+      watermark: '無料は有り',
+      output: 'MP4',
+      max_sec: '最大30秒（Proモード）',
+      mobile: 'ブラウザ対応',
+      strength: '業界最多の毎日66クレジット無料付与。長尺対応・人物モーション品質が高い。',
+    },
+  },
+  {
+    label: 'Canva AI動画生成',
+    sublabel: 'canva.com（Veo 3統合）',
+    cells: {
+      signup: '要（無料登録）',
+      free_gen: '月5回（無料プラン）',
+      watermark: 'なし',
+      output: 'MP4・GIF',
+      max_sec: '約8秒',
+      mobile: 'アプリ対応',
+      strength: 'Googleの Veo 3（2025年6月統合）でテキストから8秒動画生成。デザインと一体化。',
+    },
+  },
+  {
+    label: 'EaseMate',
+    sublabel: 'easemate.ai',
+    cells: {
+      signup: '一部不要',
+      free_gen: '無料体験あり',
+      watermark: 'あり（無料）',
+      output: 'MP4',
+      max_sec: '約5秒',
+      mobile: 'ブラウザ対応',
+      strength: 'テキスト・画像両方から生成可能。シンプルUI。スキル不要で即時利用。',
+    },
+  },
+  {
+    label: 'Dreamina（Seedance 2.0）',
+    sublabel: 'dreamina.capcut.com',
+    cells: {
+      signup: '要（無料登録）',
+      free_gen: '毎日225クレジット相当',
+      watermark: '基本なし',
+      output: 'MP4',
+      max_sec: '最大15秒',
+      mobile: 'ブラウザ・アプリ',
+      strength: 'ByteDance / Seedance 2.0搭載。毎日無料クレジット付与でキャラクター一貫性業界首位。',
+    },
+  },
+  {
+    label: 'Runway（無料125クレジット）',
+    sublabel: 'runwayml.com',
+    cells: {
+      signup: '要（無料登録）',
+      free_gen: '125クレジット（一度のみ）',
+      watermark: '無料は有り',
+      output: 'MP4',
+      max_sec: '最大10秒',
+      mobile: 'ブラウザ対応',
+      strength: '最高品質モデルGen-4.5を無料でお試し可能。125クレジット使い切り後は有料。',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// FAQ（10問）
+// ----------------------------------------------------------------
+const faqItems = [
+  {
+    category: '基本',
+    q: '会員登録なしで今すぐ使えるAI動画生成サービスはどれですか？',
+    a: '<strong>Vidnoz Image-to-Video と VideoPlus.ai が完全登録不要で即時利用できます。</strong>メールアドレスの入力すら不要で、サイトにアクセスして画像をアップロードするだけです。ただし生成回数・解像度・秒数に制限があります。毎日使い続けたい場合は無料アカウント登録が必要なKlingまたはHailuoが適しています。',
+  },
+  {
+    category: '基本',
+    q: '「登録不要」と「登録あり無料プラン」の違いは何ですか？',
+    a: '<strong>登録不要: アカウントを作らなくて良い分、1日あたりの生成回数・解像度の制限が厳しいです。登録あり無料プラン: メールアドレスなどで登録すると毎日クレジットが付与され、継続して多く使えます。</strong>一時的に試したいなら登録不要、継続利用するなら無料登録がおすすめです。',
+  },
+  {
+    category: '基本',
+    q: 'スマートフォンだけで動画生成できますか？',
+    a: '<strong>はい、全サービスがスマホブラウザからアクセス可能です。</strong>Canvaはネイティブアプリ（iOS/Android）も提供しており、スマホ最適化されています。DreaminaもCapCutアプリ経由でスマホ対応しています。PCが無い方でもスマホブラウザから使えます。',
+  },
+  {
+    category: '無料の制限',
+    q: '無料サービスの動画に透かし（ウォーターマーク）は入りますか？',
+    a: '<strong>多くのサービスでは無料プランに透かしが入りますが、VideoPlus.aiは無料でも透かしなしです。</strong>透かしなしが必要な場合: VideoPlus.ai（完全無料・透かしなし）または各サービスの最低有料プランに契約。個人SNS投稿は透かし有りでも問題ない場合が多いですが、商用利用は透かしなし・有料プランが必須です。',
+  },
+  {
+    category: '無料の制限',
+    q: '無料で毎日継続して使うにはどのサービスが最適ですか？',
+    a: '<strong>継続利用なら Kling AI（毎日66クレジット）と Hailuo AI（毎日2〜3本）の2択です。</strong>Kling AIは業界最多の毎日66クレジットを無料付与します（登録のみ・クレカ不要）。Hailuo AIは毎日の無料クレジットで1080p高品質な動画を2〜3本生成できます。両方試して気に入った方を使い続けるのがおすすめです。',
+  },
+  {
+    category: '無料の制限',
+    q: '無料で生成できる動画の最大秒数はどのくらいですか？',
+    a: '<strong>無料プランの最大秒数: Kling 30秒（Proモード）、Hailuo 10秒、Runway 10秒、Dreamina 15秒、Canva 8秒が目安です。</strong>完全登録不要サービス（Vidnoz・VideoPlus）は5秒前後が多いです。長尺動画（10秒超）が必要な場合はKling AIの無料登録が実質最強です。',
+  },
+  {
+    category: '使い方',
+    q: 'AI動画生成でプロンプトは英語で入力しないといけませんか？',
+    a: '<strong>日本語プロンプトで使えるサービスが増えています。</strong>Canva・Dreamina・Hailuo・Klingは日本語プロンプトで動画生成が可能です。ただし<strong>英語プロンプトの方が精度が高い</strong>場合もあるため、重要なシーンは英語で入力することを推奨します。Google翻訳・DeepLを使った翻訳後入力も有効です。',
+  },
+  {
+    category: '使い方',
+    q: '生成した動画は商用利用できますか？',
+    a: '<strong>無料プランのほとんどは商用利用不可です。商用利用には有料プランへの切り替えが必要です。</strong>例外的にAdobe Firefly Videoは全プランで商用安全モデルを使用しています。個人のSNS投稿（広告収益なし）は大半のサービスで無料プランでも可能ですが、企業PR・EC・広告動画には有料プランが必須です。',
+  },
+  {
+    category: '品質',
+    q: '登録不要サービスと有料サービスで品質はどれくらい違いますか？',
+    a: '<strong>解像度・秒数・安定性に大きな差があります。</strong>登録不要の無料サービス（Vidnoz等）: 480p〜720p・5秒以内・生成品質にムラあり。有料プラン（Runway/Kling Pro等）: 1080p〜4K・最大30秒・安定した高品質。SNSに投稿する素材なら無料サービスでも十分ですが、商用広告・映像制作には有料サービスが必要です。',
+  },
+  {
+    category: '品質',
+    q: '生成した動画を編集して使えますか？',
+    a: '<strong>はい、生成されたMP4動画は一般的な動画編集ソフトで自由に編集できます。</strong>CapCut（無料・スマホ対応）・DaVinci Resolve（無料・PC）・Adobe Premiere Pro（有料）などに取り込んで、テキスト追加・BGM付加・クロッピングが可能です。Canvaはそのままデザイン編集ができる点が強みです。',
+  },
+];
+
+const breadcrumbItems = [
+  { label: 'ホーム', href: '/' },
+  { label: 'AI動画生成', href: '/video/' },
+  { label: '無料サイト 登録不要', href: '/video/free-no-signup/' },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  pageUrl={pageUrl}
+  jsonLd={allJsonLd}
+>
+  <Breadcrumb items={breadcrumbItems} />
+
+  <article class="article-page">
+    <header class="article-header">
+      <div class="article-header__meta">
+        <RecencyBadge verifiedAt={verifiedAt} />
+        <span class="article-header__category">AI動画生成 › 無料・登録不要</span>
+      </div>
+
+      <h1 class="article-header__title">
+        【2026年最新】会員登録不要で使えるAI動画生成サイト8選<br />
+        <span class="article-header__subtitle">完全無料・ブラウザのみ・スマホ対応</span>
+      </h1>
+
+      <blockquote class="article-summary">
+        <p><strong>このページでわかること</strong></p>
+        <ul>
+          <li>会員登録・ログインなしで今すぐ使えるAI動画生成サイト（Vidnoz・VideoPlus・EaseMate等）</li>
+          <li>無料登録で毎日継続利用できるサービス（Kling・Hailuo・Dreamina・Canva）の比較</li>
+          <li>無料の生成回数・透かし・最大秒数・スマホ対応を7項目で一覧比較（2026-05-18確認）</li>
+        </ul>
+      </blockquote>
+
+      <p class="article-header__intro">
+        AI動画生成は「アカウント登録が面倒」「まず試してみたい」という方も多いと思います。
+        このページでは<strong>会員登録なしで今すぐ使えるサービス</strong>と、
+        <strong>無料登録で毎日継続利用できるサービス</strong>を実機検証のうえで比較しています。
+        2026年5月時点では、完全登録不要の Vidnoz と毎日クレジット最強の Kling AI が2大おすすめです。
+      </p>
+    </header>
+
+    <!-- ================================================================
+         H2-1: 登録不要の定義と注意点
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="what-is-free-no-signup">「登録不要」「無料サイト」とはどういう意味か</h2>
+
+      <h3>2つのカテゴリに分類して整理</h3>
+
+      <div class="category-cards">
+        <div class="category-card category-card--a">
+          <div class="category-card__head">
+            <span class="category-card__badge">カテゴリA</span>
+            <strong>完全登録不要</strong>
+          </div>
+          <ul>
+            <li>メールアドレスの入力すら不要</li>
+            <li>サイトにアクセスしてすぐ生成できる</li>
+            <li>生成回数・解像度・秒数の制限が厳しめ</li>
+            <li>代表例: Vidnoz・VideoPlus.ai・EaseMate</li>
+          </ul>
+        </div>
+        <div class="category-card category-card--b">
+          <div class="category-card__head">
+            <span class="category-card__badge">カテゴリB</span>
+            <strong>無料登録（毎日クレジット付与）</strong>
+          </div>
+          <ul>
+            <li>無料でアカウント作成（クレカ不要）</li>
+            <li>毎日クレジットが付与されて継続利用可能</li>
+            <li>カテゴリAより品質・秒数が高い</li>
+            <li>代表例: Kling AI・Hailuo AI・Dreamina・Canva</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>
+        本記事では両方をカバーし、用途に応じた使い分けを解説します。
+        「今すぐ試したい」→ カテゴリA、「毎日使いたい」→ カテゴリBがおすすめです。
+      </p>
+    </section>
+
+    <!-- ================================================================
+         H2-2: 8サービス比較表
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="comparison">無料・登録不要AI動画生成サイト8選 比較表</h2>
+
+      <p>
+        <strong>2026-05-18時点</strong>の公式情報をもとに比較しています。
+        「登録要否」欄が「不要」のサービスが完全登録不要です。
+      </p>
+
+      <ToolComparisonTable
+        columns={columns}
+        rows={rows}
+        caption="無料・登録不要AI動画生成サイト比較表 — 2026年5月18日確認"
+        featuredLabel="完全登録不要"
+        footnote="※ 無料生成回数・制限は随時変更されます。最新情報は各公式サイトでご確認ください。「登録不要」は2026-05-18時点の確認値です。"
+      />
+    </section>
+
+    <!-- ================================================================
+         H2-3: 完全登録不要サービス詳細（カテゴリA）
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="no-signup-sites">完全登録不要でブラウザから即時使えるサービス3選</h2>
+
+      <div class="site-card">
+        <h3>1. Vidnoz Image-to-Video（最も手軽）</h3>
+        <div class="site-card__meta">
+          <span class="site-card__badge site-card__badge--green">登録不要</span>
+          <span class="site-card__badge">無料</span>
+        </div>
+        <p>
+          <strong>概要</strong>: 画像をアップロードするだけで動画を生成できる最も簡単なサービスです。
+          ログイン・メールアドレス入力は一切不要です。日本語UIにも対応しています。
+        </p>
+        <ul>
+          <li>対応形式: JPG・PNG → MP4（約5秒）</li>
+          <li>解像度: 720p（無料）</li>
+          <li>透かし: あり（無料）</li>
+          <li>1日の生成制限: IPアドレスベースで数回</li>
+        </ul>
+        <p>
+          <strong>向いている用途</strong>: 「とりあえずimage-to-videoを試してみたい」「10分で体験を終わらせたい」場合に最適です。
+        </p>
+        <SourceLink url="https://www.vidnoz.com/image-to-video-ai.html" verifiedAt="2026-05-18" label="Vidnoz 公式" />
+      </div>
+
+      <div class="site-card">
+        <h3>2. VideoPlus.ai（透かしなしが唯一の強み）</h3>
+        <div class="site-card__meta">
+          <span class="site-card__badge site-card__badge--green">登録不要</span>
+          <span class="site-card__badge">透かしなし</span>
+        </div>
+        <p>
+          <strong>概要</strong>: 登録不要・透かしなしという組み合わせが希少なサービスです。
+          写真を動画に変換して、そのままSNSに投稿できます（個人利用・非商用に限る）。
+        </p>
+        <ul>
+          <li>対応形式: JPG・PNG → MP4（約5〜8秒）</li>
+          <li>透かし: なし（無料でも）</li>
+          <li>生成制限: 1日数本（IPベース）</li>
+          <li>商用利用: 規約要確認</li>
+        </ul>
+        <p>
+          <strong>向いている用途</strong>: SNSに投稿したい・透かしが邪魔に感じる方に最適。
+          ただし品質は Kling・Runway より控えめです。
+        </p>
+        <SourceLink url="https://videoplus.ai/" verifiedAt="2026-05-18" label="VideoPlus.ai 公式" />
+      </div>
+
+      <div class="site-card">
+        <h3>3. EaseMate（テキスト・画像の両方に対応）</h3>
+        <div class="site-card__meta">
+          <span class="site-card__badge site-card__badge--yellow">一部不要</span>
+          <span class="site-card__badge">無料体験あり</span>
+        </div>
+        <p>
+          <strong>概要</strong>: テキストから動画・画像から動画の両方が試せるサービスです。
+          基本的な機能は登録なしで体験できます。
+        </p>
+        <ul>
+          <li>対応: テキスト→動画 / 画像→動画</li>
+          <li>出力: MP4（約5秒）</li>
+          <li>スキル不要: プロンプトなしでも生成可能</li>
+        </ul>
+        <SourceLink url="https://www.easemate.ai/ai-video-generator" verifiedAt="2026-05-18" label="EaseMate 公式" />
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-4: 無料登録で毎日使えるサービス（カテゴリB）
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="free-account-sites">無料登録で毎日継続利用できるサービス5選</h2>
+
+      <p>
+        以下は<strong>クレジットカード不要</strong>で無料アカウントを作れるサービスです。
+        毎日クレジットが付与されるため、継続的に動画生成を楽しめます。
+      </p>
+
+      <div class="site-card site-card--featured">
+        <h3>1. Kling AI — 毎日66クレジット（業界最多）</h3>
+        <div class="site-card__meta">
+          <span class="site-card__badge site-card__badge--navy">毎日最多無料枠</span>
+        </div>
+        <p>
+          Kuaishou（快手）が開発したKling AIは、<strong>無料登録後に毎日66クレジットが付与</strong>されます。
+          5秒の標準品質動画なら1〜2本/日、10秒の高品質動画なら1本/日生成できます。
+        </p>
+        <ul>
+          <li>毎日66クレジット（登録のみ・クレカ不要）</li>
+          <li>最大30秒の長尺動画（Proモード）</li>
+          <li>image-to-video・text-to-video両対応</li>
+          <li>無料は透かしあり / Standard（$6.99/月）以上で商用可・透かし削除</li>
+        </ul>
+        <SourceLink url="https://klingai.com" verifiedAt="2026-05-18" label="Kling AI 公式" />
+      </div>
+
+      <div class="site-card">
+        <h3>2. Hailuo AI（MiniMax）— 毎日1080p高品質動画</h3>
+        <p>
+          Artificial Analysis世界2位のコスパを誇るHailuo AIは、<strong>毎日無料クレジットで1080p動画を2〜3本生成</strong>できます。
+          $0.28/本という破格のコストパフォーマンスが特徴です。
+        </p>
+        <ul>
+          <li>毎日無料クレジット付与（2〜3本/日目安）</li>
+          <li>Hailuo 02モデルで1080p高品質</li>
+          <li>text-to-video・image-to-video両対応</li>
+        </ul>
+        <SourceLink url="https://hailuoai.video" verifiedAt="2026-05-18" label="Hailuo AI 公式" />
+      </div>
+
+      <div class="site-card">
+        <h3>3. Dreamina（Seedance 2.0）— キャラクター一貫性最強</h3>
+        <p>
+          ByteDanceが提供するDreaminaは、<strong>Seedance 2.0モデル</strong>を搭載し、
+          毎日225クレジット相当が付与されます。
+          人物・キャラクター・ロゴを複数フレームにわたって保持する性能が業界首位です。
+        </p>
+        <ul>
+          <li>毎日225クレジット相当（Dreaminaの全ツールで共有）</li>
+          <li>Seedance 2.0で最大15秒・2K対応</li>
+          <li>基本的に透かしなし（条件あり）</li>
+          <li>CapCutアプリ経由でスマホ利用も可能</li>
+        </ul>
+        <SourceLink url="https://dreamina.capcut.com" verifiedAt="2026-05-18" label="Dreamina 公式" />
+      </div>
+
+      <div class="site-card">
+        <h3>4. Canva AI動画生成 — デザインと一体化</h3>
+        <p>
+          Canvaは2025年6月にGoogleの<strong>Veo 3モデル</strong>を統合し、
+          無料プランで月5回のAI動画生成が可能になりました。
+          生成した動画をそのままCanvaでデザイン編集できます。
+        </p>
+        <ul>
+          <li>月5回無料（Canva無料アカウント）</li>
+          <li>テキストプロンプトから8秒の動画を生成</li>
+          <li>透かしなし・MP4/GIFで出力</li>
+          <li>iOS/Android ネイティブアプリ対応</li>
+        </ul>
+        <SourceLink url="https://www.canva.com/ja_jp/ai-video-generator/" verifiedAt="2026-05-18" label="Canva AI動画生成" />
+      </div>
+
+      <div class="site-card">
+        <h3>5. Runway（125クレジット初回限り）</h3>
+        <p>
+          最高品質モデルGen-4.5を体験できるサービスです。
+          <strong>初回125クレジットのみ</strong>で継続無料枠はありませんが、品質を体験するには最適です。
+        </p>
+        <ul>
+          <li>初回登録で125クレジット付与（使い切り）</li>
+          <li>Gen-4.5で最高品質の動画生成体験</li>
+          <li>継続利用にはStandard（$12/月・年払い）以上が必要</li>
+        </ul>
+        <SourceLink url="https://runwayml.com" verifiedAt="2026-05-18" label="Runway 公式" />
+      </div>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA①（中盤）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--mid">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">無料の限界を感じたら</p>
+        <h3 class="affili-cta__title">Pika Standardで月8ドルから透かしなし・商用OK</h3>
+        <p class="affili-cta__desc">
+          Pika 2.1のStandardプランは月額$8（年払い）から。80クレジット/月の無料プランを超えたら、
+          Pikaffectsなどの特殊エフェクト・商用利用解放が使えます。
+        </p>
+        <a href="https://pika.art" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--primary">
+          Pika公式サイトを確認する
+        </a>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-5: 各サービスの制限と注意点
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="limits">各サービスの制限と「無料の壁」</h2>
+
+      <h3>生成回数の壁</h3>
+      <p>
+        完全無料・登録不要サービスは<strong>IPアドレスベースで制限</strong>されており、
+        1日数回〜数本の生成で制限に達します。
+        毎日使いたい場合は、無料登録でクレジット付与を受けるKling・Hailuo・Dreaminaに切り替えることをおすすめします。
+      </p>
+
+      <h3>解像度の壁</h3>
+      <p>
+        無料・登録不要サービスの解像度は<strong>480p〜720p</strong>が中心です。
+        1080p以上の高解像度で出力したい場合は、Hailuo AI（毎日無料で1080p）またはKling Standard以上が必要です。
+      </p>
+
+      <h3>商用利用の壁</h3>
+      <p>
+        <strong>無料プランの動画は原則として商用利用不可</strong>です。
+        YouTube広告・ECサイト商品動画・企業PR動画に使う場合は、
+        各サービスの有料プランへの切り替えが必須です。
+        Adobe Firefly Video（商用安全モデル・著作権補償付き）が法人利用に最も安全です。
+      </p>
+
+      <h3>透かしの壁</h3>
+      <p>
+        無料プランのほとんどは透かし（ロゴ・ブランド名）が動画に入ります。
+        透かしなしが必要な場合:
+      </p>
+      <ul>
+        <li><strong>無料でも透かしなし</strong>: VideoPlus.ai（登録不要）・Dreamina（条件あり）</li>
+        <li><strong>最低有料プランで透かしなし</strong>: Kling Standard・Runway Standard・Pika Standard</li>
+      </ul>
+    </section>
+
+    <!-- ================================================================
+         H2-6: 用途別おすすめ
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="recommendation">用途別おすすめサービス</h2>
+
+      <div class="recommend-grid">
+        <div class="recommend-card">
+          <div class="recommend-card__icon">🚀</div>
+          <h3>今すぐ試したい（5分で体験）</h3>
+          <p><strong>Vidnoz</strong>（登録不要・即時利用）</p>
+          <p>サイトにアクセスして写真をアップロードするだけ。5分で動画体験が完了します。</p>
+        </div>
+        <div class="recommend-card">
+          <div class="recommend-card__icon">📅</div>
+          <h3>毎日継続して使いたい</h3>
+          <p><strong>Kling AI</strong>（毎日66クレジット・業界最多）</p>
+          <p>クレカ不要で登録。毎日66クレジットが付与されて長期的に使い続けられます。</p>
+        </div>
+        <div class="recommend-card">
+          <div class="recommend-card__icon">📱</div>
+          <h3>スマホでサクッと作りたい</h3>
+          <p><strong>Canva</strong>（ネイティブアプリ対応）</p>
+          <p>iOS/Androidアプリで操作。生成後にそのままデザイン編集して投稿できます。</p>
+        </div>
+        <div class="recommend-card">
+          <div class="recommend-card__icon">🎨</div>
+          <h3>高品質を無料で試したい</h3>
+          <p><strong>Runway</strong>（初回125クレジット）</p>
+          <p>業界最高水準のGen-4.5を無料で体験。125クレジット使い切りまで使えます。</p>
+        </div>
+        <div class="recommend-card">
+          <div class="recommend-card__icon">🏢</div>
+          <h3>商用広告に使いたい</h3>
+          <p><strong>Adobe Firefly Video</strong>（商用安全モデル）</p>
+          <p>無料2本からお試し可能。法人広告・PR動画には著作権補償付きのFireflyが最安全。</p>
+        </div>
+        <div class="recommend-card">
+          <div class="recommend-card__icon">👤</div>
+          <h3>人物写真・キャラクターを動かしたい</h3>
+          <p><strong>Dreamina（Seedance 2.0）</strong></p>
+          <p>毎日225クレジット付与で人物・ロゴ一貫性が業界首位のSeedance 2.0を使えます。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA②（後半）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--bottom">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">次のステップ</p>
+        <h3 class="affili-cta__title">AI動画生成をビジネスに活かすなら</h3>
+        <p class="affili-cta__desc">
+          Runway・Kling・Seedanceの使い方だけでなく、動画マーケティング・コンテンツ戦略まで体系的に学べます。
+        </p>
+        <a href="https://web-camp.io/ai/" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--secondary">
+          DMM WEBCAMP AIコースを見る
+        </a>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-7: FAQ
+         ================================================================ -->
+    <section class="article-section">
+      <FaqAccordion
+        items={faqItems}
+        heading="よくある質問（FAQ）"
+        defaultOpen={[0]}
+      />
+    </section>
+
+    <!-- ================================================================
+         関連記事・内部リンク
+         ================================================================ -->
+    <section class="article-section related-links">
+      <h2 id="related">関連記事</h2>
+      <ul class="related-links__list">
+        <li><a href="/video/">AI動画生成ツール9選比較｜完全ガイド（A001）</a></li>
+        <li><a href="/video/image-to-video/">画像から動画を生成するAIツール比較（A002）</a></li>
+        <li><a href="/video/site-free-no-signup/">登録なしで使えるAI動画作成サイト10選（A005）</a></li>
+        <li><a href="/video/local/">AI動画生成をローカル環境で動かす完全ガイド（A004）</a></li>
+      </ul>
+    </section>
+
+    <!-- 最終更新日 -->
+    <LastUpdated date={lastUpdated} verifiedAt={verifiedAt} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .article-header { margin-bottom: 36px; }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .article-header__category {
+    font-size: 12.5px;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+  }
+  .article-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.4;
+    margin: 0 0 10px;
+  }
+  .article-header__subtitle {
+    font-size: 0.72em;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+  .article-summary {
+    background: var(--color-bg-section);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .article-summary ul { margin: 8px 0 0; padding-left: 1.4em; }
+  .article-summary li { margin-bottom: 4px; }
+  .article-header__intro {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+  .article-section { margin: 40px 0; }
+  .article-section h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    border-bottom: 2px solid var(--color-gold);
+    padding-bottom: 8px;
+    margin: 0 0 20px;
+    line-height: 1.4;
+  }
+  .article-section h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    margin: 24px 0 10px;
+  }
+  .article-section p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    margin: 0 0 14px;
+  }
+  .article-section ul, .article-section ol {
+    padding-left: 1.5em;
+    margin: 0 0 14px;
+  }
+  .article-section li {
+    font-size: 14.5px;
+    line-height: 1.85;
+    margin-bottom: 6px;
+  }
+
+  .category-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .category-card {
+    padding: 18px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-light);
+    font-size: 13.5px;
+  }
+  .category-card--a { background: #F0F7FF; border-color: #B0D0FF; }
+  .category-card--b { background: #F0FFF4; border-color: #A0D8B0; }
+  .category-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .category-card__badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: var(--color-navy);
+    color: #fff;
+    border-radius: var(--radius-xs);
+  }
+  .category-card__head strong {
+    font-size: 14px;
+    color: var(--color-navy);
+  }
+  .category-card ul {
+    padding-left: 1.2em;
+    margin: 0;
+    list-style: disc;
+  }
+  .category-card li { margin-bottom: 4px; line-height: 1.7; }
+
+  .site-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    margin: 16px 0;
+    box-shadow: var(--shadow-card);
+  }
+  .site-card--featured {
+    border-color: var(--color-gold-light);
+    background: var(--color-gold-pale);
+  }
+  .site-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    color: var(--color-navy);
+  }
+  .site-card__meta {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .site-card__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--color-bg-section);
+    color: var(--color-navy);
+    border: 1px solid var(--color-border-light);
+  }
+  .site-card__badge--green { background: #E8F8E8; border-color: #88CC88; color: #1B5E3B; }
+  .site-card__badge--yellow { background: #FFF8E0; border-color: #F0C040; color: #7A5A00; }
+  .site-card__badge--navy { background: var(--color-navy); color: #fff; border-color: var(--color-navy); }
+  .site-card p, .site-card ul {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 10px;
+  }
+  .site-card ul { padding-left: 1.3em; }
+  .site-card li { margin-bottom: 4px; }
+
+  .recommend-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .recommend-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    font-size: 13.5px;
+  }
+  .recommend-card__icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .recommend-card h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--color-navy);
+    font-weight: 700;
+  }
+  .recommend-card p {
+    margin: 0 0 6px;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+  .recommend-card strong { color: var(--color-navy); }
+
+  .affili-cta {
+    margin: 40px 0;
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  .affili-cta--mid {
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1a2a4a 100%);
+    color: #fff;
+  }
+  .affili-cta--bottom {
+    background: var(--color-gold-pale);
+    border: 2px solid var(--color-gold-light);
+  }
+  .affili-cta__label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+    opacity: 0.8;
+  }
+  .affili-cta--mid .affili-cta__label { color: var(--color-gold); }
+  .affili-cta--bottom .affili-cta__label { color: var(--color-navy); }
+  .affili-cta__title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .affili-cta--mid .affili-cta__title { color: #fff; }
+  .affili-cta--bottom .affili-cta__title { color: var(--color-navy); }
+  .affili-cta__desc {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 18px;
+    opacity: 0.9;
+  }
+  .affili-cta__btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+  .affili-cta__btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .affili-cta__btn--primary { background: var(--color-gold); color: var(--color-navy); }
+  .affili-cta__btn--secondary { background: var(--color-navy); color: #fff; }
+
+  .related-links__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .related-links__list a {
+    color: var(--color-navy);
+    text-decoration: underline;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .category-cards { grid-template-columns: 1fr; }
+    .recommend-grid { grid-template-columns: 1fr; }
+    .article-header__title { font-size: 1.3rem; }
+    .affili-cta { padding: 20px 16px; }
+  }
+</style>

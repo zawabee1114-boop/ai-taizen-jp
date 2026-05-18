@@ -1,0 +1,959 @@
+---
+/**
+ * /video/sora/howto/ — A009「Sora 使い方」
+ * KW: sora 使い方 (VOL推定800-1,200 / SD推定28-32 / CPC推定¥200-300)
+ *
+ * content-writer: 2026-05-18 執筆
+ * ⚠️ 重要: OpenAI Soraはウェブ版・アプリ版が2026年4月26日に提供終了。
+ * APIは2026年9月24日に終了予定（OpenAI Help Center 2026-05-18確認）。
+ * 記事は「Soraとは・使い方の振り返り・終了の経緯・代替ツール完全ガイド」として執筆。
+ *
+ * 執筆前検証済みソース:
+ * - OpenAI Help Center（Sora提供終了に関する情報）
+ * - Runway公式（runwayml.com/pricing 2026-05-18確認）
+ * - Kling公式（klingai.com 2026-05-18確認）
+ * - Veo（Google Gemini app 2026-05-18確認）
+ */
+
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../../../components/Breadcrumb.astro';
+import Icon from '../../../../components/Icon.astro';
+import siteMeta from '../../../../data/site-meta.json';
+
+import RecencyBadge from '../../../../components/ai-guide/RecencyBadge.astro';
+import LastUpdated from '../../../../components/ai-guide/LastUpdated.astro';
+import ToolComparisonTable from '../../../../components/ai-guide/ToolComparisonTable.astro';
+import PromptCard from '../../../../components/ai-guide/PromptCard.astro';
+import FaqAccordion from '../../../../components/ai-guide/FaqAccordion.astro';
+import SourceLink from '../../../../components/ai-guide/SourceLink.astro';
+import AdUnit from '../../../../components/AdUnit.astro';
+
+// ----------------------------------------------------------------
+// 記事メタ情報
+// ----------------------------------------------------------------
+const title = 'OpenAI Sora 使い方・終了の経緯・代替ツール完全ガイド【2026年最新】';
+const description = 'OpenAI Soraは2026年4月26日に提供終了（ウェブ版・アプリ版）。Soraの使い方・機能・終了の理由と、今すぐ使える代替動画生成AIツール（Runway Gen-4.5・Kling 3.0・Veo 3.1・Hailuo 02）を徹底比較。ChatGPT Plus連携動画生成の最新状況も解説。';
+const verifiedAt = '2026-05-18';
+const publishedAt = '2026-05-18';
+const lastUpdated = '2026-05-18';
+const pageUrl = `${siteMeta.siteUrl}/video/sora/howto/`;
+
+// ----------------------------------------------------------------
+// 構造化データ
+// ----------------------------------------------------------------
+const articleJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "datePublished": publishedAt,
+  "dateModified": lastUpdated,
+  "inLanguage": "ja-JP",
+  "image": [`${siteMeta.siteUrl}${siteMeta.ogImage}`],
+  "keywords": [
+    "Sora 使い方",
+    "Sora 終了",
+    "OpenAI Sora",
+    "Sora 代替",
+    "Sora ChatGPT",
+    "Runway Gen-4.5",
+    "Kling 3.0",
+    "Veo 3.1",
+    "動画生成AI 2026",
+  ],
+  "articleSection": "AI動画生成",
+  "author": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.operator.name,
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": `${siteMeta.siteUrl}/#organization`,
+    "name": siteMeta.siteName,
+    "url": siteMeta.siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteMeta.siteUrl}/favicon.svg`,
+    },
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": pageUrl,
+  },
+};
+
+const allJsonLd = [articleJsonLd];
+
+// ----------------------------------------------------------------
+// Sora代替ツール比較表（5ツール・7項目）
+// ----------------------------------------------------------------
+const columns = [
+  { key: 'model',      label: '最新モデル',     width: '130px' },
+  { key: 'free',       label: '無料枠',         width: '130px', align: 'center' as const },
+  { key: 'max_sec',    label: '最大秒数',        width: '90px',  align: 'center' as const },
+  { key: 'quality',    label: '品質',           width: '90px',  align: 'center' as const },
+  { key: 'commercial', label: '商用利用',        width: '110px', align: 'center' as const },
+  { key: 'price',      label: '最安有料プラン',  width: '140px', align: 'right' as const },
+  { key: 'sora_diff',  label: 'Soraとの違い',   width: '200px' },
+];
+
+const rows = [
+  {
+    label: 'Runway Gen-4.5',
+    sublabel: 'runwayml.com',
+    featured: true,
+    cells: {
+      model: 'Gen-4.5 / Act Two',
+      free: '125クレジット（初回）',
+      max_sec: '最大10秒',
+      quality: '最高クラス',
+      commercial: '有料プランで可',
+      price: '$12〜/月（年払い）',
+      sora_diff: 'Soraより映像編集統合・Act Twoカメラ制御が充実。人物の動きが最も自然。',
+    },
+  },
+  {
+    label: 'Kling AI 3.0',
+    sublabel: 'klingai.com',
+    cells: {
+      model: 'Kling 3.0 / 2.6',
+      free: '毎日66クレジット',
+      max_sec: '最大30秒',
+      quality: '高',
+      commercial: 'Standard以上で可',
+      price: '$6.99〜/月',
+      sora_diff: 'Soraより長尺対応・無料枠が圧倒的に充実。最大30秒動画がSoraより優位。',
+    },
+  },
+  {
+    label: 'Google Veo 3.1',
+    sublabel: 'Gemini app',
+    cells: {
+      model: 'Veo 3.1 / Fast',
+      free: '一部可（Gemini無料）',
+      max_sec: '最大8秒',
+      quality: '最高クラス',
+      commercial: '可（規約準拠）',
+      price: '¥1,200〜/月（AI Plus）',
+      sora_diff: '音声同時生成がSoraにはない最大の強み。Geminiと深く統合。',
+    },
+  },
+  {
+    label: 'Hailuo 02',
+    sublabel: 'hailuoai.video',
+    cells: {
+      model: 'Hailuo 02 / 2.3',
+      free: '毎日2〜3本',
+      max_sec: '最大10秒',
+      quality: '高（1080p）',
+      commercial: '有料プランで可',
+      price: '$9.99〜/月',
+      sora_diff: '$0.28/本のコスパ最強。Soraより量産向き。毎日の無料枠がある点が優位。',
+    },
+  },
+  {
+    label: 'Seedance 2.0',
+    sublabel: 'Dreamina（ByteDance）',
+    cells: {
+      model: 'Seedance 2.0 Pro',
+      free: '毎日225クレジット相当',
+      max_sec: '最大15秒',
+      quality: '最高（キャラ一貫性）',
+      commercial: '有料プランで可',
+      price: '$9.60〜/月',
+      sora_diff: 'キャラクター一貫性でSoraを超える。物理表現・布地ダイナミクスが最強。',
+    },
+  },
+];
+
+// ----------------------------------------------------------------
+// プロンプトサンプル（Sora系→代替ツール移行向け）
+// ----------------------------------------------------------------
+const promptSamples = [
+  {
+    title: 'Runway Gen-4.5 — Soraで試していた映像美系プロンプト',
+    badPrompt: 'A beautiful landscape with mountains',
+    explanation: 'Soraで使っていた短いプロンプトをRunwayに移行する際は、カメラワーク・光の描写・スタイル指定を追加すると品質が向上します。RunwayのGen-4.5はAct Twoカメラ制御との組み合わせが強力です。',
+    improvedPrompt: 'Epic mountain landscape at golden hour, snowy peaks reflecting warm orange light, a lone pine tree in the foreground, cinematic wide angle, slow dolly forward, atmospheric mist in the valleys, 4K, photorealistic, film grain',
+  },
+  {
+    title: 'Kling 3.0 — Soraで試せなかった長尺動画（30秒）',
+    badPrompt: '（Soraでは20秒が上限・Plusプランは5秒が基本）',
+    explanation: 'KlingはSoraより長尺（最大30秒）に対応しています。30秒動画を作る場合は、シーン分割の指示を入れることで中盤の崩壊を防げます。',
+    improvedPrompt: '（Kling 3.0 Professionalモード・30秒）。3シーン: 0-10秒: 朝の森の中、光が差し込む。10-20秒: 小鹿が現れて立ち止まる。20-30秒: 鹿が森の奥へ走り去る。全体トーン: 緑・暖色・静謐な雰囲気',
+  },
+  {
+    title: 'Google Veo 3.1 — 音声付き動画（Soraにはない機能）',
+    badPrompt: '（Soraには音声同時生成機能がなかった）',
+    explanation: 'Veo 3.1はSoraにはなかった「音声同時生成」機能を持ちます。環境音・BGM・セリフまでプロンプトで指定できます。GeminiアプリからVeo 3.1にアクセスして生成します。',
+    improvedPrompt: 'A cozy Japanese coffee shop on a rainy afternoon, rain sounds pattering on the window, soft jazz piano playing in the background, steam rising from a coffee cup, warm amber light, cinematic close-up shot, the barista grinding coffee beans can be heard softly',
+  },
+];
+
+// ----------------------------------------------------------------
+// FAQ（10問）
+// ----------------------------------------------------------------
+const faqItems = [
+  {
+    category: 'Soraの現状',
+    q: 'OpenAI Soraはまだ使えますか？',
+    a: '<strong>いいえ。OpenAI Soraのウェブ版・アプリ版は2026年4月26日に提供を終了しました。</strong>APIについては2026年9月24日に終了予定です（2026-05-18現在）。sora.com にアクセスしても動画生成はできません。<SourceLink url="https://help.openai.com/ja-jp/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-18" label="OpenAI Sora提供終了 公式情報" />',
+  },
+  {
+    category: 'Soraの現状',
+    q: 'ChatGPT Plus・Proで動画生成はできますか？',
+    a: '<strong>ChatGPT Plus/Pro での「Soraアプリ」を通じた動画生成は2026年4月26日に終了しました。</strong>OpenAIはSoraの技術を今後ChatGPTなど既存製品に統合する方針を発表していますが、2026年5月18日時点では利用可能な動画生成機能は提供されていません。Sora APIは2026年9月24日まで存続しています（開発者向け）。',
+  },
+  {
+    category: 'Soraの現状',
+    q: 'Soraで作った動画（過去の生成物）はどうなりましたか？',
+    a: '<strong>サービス終了時にデータのエクスポート期間が設けられました。</strong>終了前にダウンロードした動画ファイルは手元に保存されています。未ダウンロードの場合、データは削除されている可能性があります。OpenAI公式のヘルプセンターで最新のデータポリシーをご確認ください。',
+  },
+  {
+    category: 'Soraの現状',
+    q: 'Soraはなぜサービスを終了したのですか？',
+    a: '<strong>主に3つの要因が報告されています（OpenAI公式は詳細を非開示）。</strong><ol><li><strong>コスト問題</strong>: 動画生成は1リクエストあたりのGPU消費量がテキストの数十倍。収益がコストを大幅に下回った</li><li><strong>戦略転換</strong>: OpenAIがGPT・Operator・Agentなどコアビジネスへのリソース集中を決定</li><li><strong>提携破談</strong>: Disneyとの10億ドル規模の提携交渉が白紙に</li></ol>',
+  },
+  {
+    category: '代替ツール選び',
+    q: 'Soraの代わりに何を使えばよいですか？',
+    a: '<strong>用途によって最適な代替ツールが異なります。</strong><ul><li><strong>映像品質重視</strong>: Runway Gen-4.5（$12/月〜）</li><li><strong>無料継続利用</strong>: Kling AI（毎日66クレジット・登録無料）</li><li><strong>音声付き動画</strong>: Google Veo 3.1（Gemini app経由）</li><li><strong>キャラクター・人物の動き</strong>: Seedance 2.0（Dreamina）</li><li><strong>コスパ最強</strong>: Hailuo 02（$0.28/本）</li></ul>',
+  },
+  {
+    category: '代替ツール選び',
+    q: 'ChatGPT Plusユーザーが移行するなら、最もコスパが良い代替ツールはどれですか？',
+    a: '<strong>Kling AIの無料プランが最もコスパが良いです。</strong>ChatGPT Plus（$20/月）をやめてKling AI無料登録（$0）に切り替えると、動画生成については毎日66クレジット分が無料で使えます。品質が足りなければKling Standard（$6.99/月）がChatGPT Plus($20/月)より安く、月660クレジットで安定利用できます。',
+  },
+  {
+    category: '代替ツール選び',
+    q: 'Soraのように日本語プロンプトで動画生成できる代替ツールはありますか？',
+    a: '<strong>はい、以下のサービスが日本語プロンプトに対応しています。</strong><ul><li>Kling AI（日本語プロンプト可）</li><li>Hailuo AI（日本語プロンプト可）</li><li>Dreamina/Seedance（日本語可）</li><li>Google Veo（Geminiアプリ経由で日本語対応）</li></ul>ただし、英語プロンプトの方が品質が安定するため、重要な映像では英語プロンプトを推奨します。',
+  },
+  {
+    category: 'Soraの機能',
+    q: 'Soraにはどんな機能がありましたか（振り返り）？',
+    a: '<strong>Soraの主な機能は以下のとおりでした（2024年12月〜2026年4月26日のサービス期間）。</strong><ul><li>テキスト→動画（最大20秒・1080p）</li><li>画像→動画変換</li><li>Storyboard機能（シーン別動画コンポーズ）</li><li>9種のビデオスタイルプリセット</li><li>ChatGPT Plus（月1,000クレジット）/ Pro（月10,000クレジット）での提供</li></ul>提供期間は約1年4ヶ月でした。',
+  },
+  {
+    category: 'Soraの機能',
+    q: 'Soraで作った動画は著作権的に自分のものでしたか？',
+    a: '<strong>OpenAIの利用規約上、生成動画の権利はユーザーに帰属していました。</strong>ChatGPT Plus/Proの利用規約では、生成コンテンツに対してユーザーが権利を保持するとされていました。ただし商用利用にはChatGPT Proプランが必要でした。現在は終了しているため、過去に生成した動画の商用利用については各自で保存した利用規約を確認してください。',
+  },
+  {
+    category: '今後の展望',
+    q: 'OpenAIは今後また動画生成機能を提供する予定はありますか？',
+    a: '<strong>OpenAIはSoraの技術をChatGPTなどの既存製品に統合する方針を発表しています。</strong>スタンドアロンの「Soraアプリ」形式ではなく、ChatGPTの一機能として動画生成が提供される可能性があります。ただし具体的なリリース日・機能・料金は2026年5月18日時点では非公開です。公式発表はOpenAIブログ（openai.com/blog）で確認してください。<SourceLink url="https://openai.com/blog" verifiedAt="2026-05-18" label="OpenAI公式ブログ" />',
+  },
+];
+
+const breadcrumbItems = [
+  { label: 'ホーム', href: '/' },
+  { label: 'AI動画生成', href: '/video/' },
+  { label: 'Sora', href: '/video/sora/' },
+  { label: '使い方・終了・代替', href: '/video/sora/howto/' },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  pageUrl={pageUrl}
+  jsonLd={allJsonLd}
+>
+  <Breadcrumb items={breadcrumbItems} />
+
+  <article class="article-page">
+    <header class="article-header">
+      <div class="article-header__meta">
+        <RecencyBadge verifiedAt={verifiedAt} />
+        <span class="article-header__category">AI動画生成 › Sora</span>
+      </div>
+
+      <!-- 終了アラートバナー（最重要・最上部） -->
+      <div class="shutdown-alert" role="alert">
+        <div class="shutdown-alert__icon">⚠️</div>
+        <div class="shutdown-alert__body">
+          <strong>OpenAI Soraは提供終了しています</strong>
+          <p>
+            Soraのウェブ版・アプリ版は<strong>2026年4月26日</strong>に終了しました。
+            現在sora.comにアクセスしても動画生成はできません。
+            <SourceLink url="https://help.openai.com/ja-jp/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-18" label="OpenAI公式（提供終了情報）" />
+          </p>
+          <p>
+            このページでは、<strong>Soraとは何だったか・終了の経緯・今すぐ使える代替ツール</strong>を解説しています。
+          </p>
+        </div>
+      </div>
+
+      <h1 class="article-header__title">
+        OpenAI Sora 使い方・終了の経緯・代替ツール完全ガイド<br />
+        <span class="article-header__subtitle">2026年最新情報 | 2026-05-18確認</span>
+      </h1>
+
+      <blockquote class="article-summary">
+        <p><strong>このページでわかること</strong></p>
+        <ul>
+          <li>OpenAI Soraとは何だったか・使い方・機能の振り返り（2024-2026年）</li>
+          <li>Soraが2026年4月26日に終了した経緯と理由（3つの要因）</li>
+          <li>今すぐ使えるSora代替ツール5選（Runway・Kling・Veo・Hailuo・Seedance）比較</li>
+        </ul>
+      </blockquote>
+
+      <p class="article-header__intro">
+        「Soraの使い方」を検索してここにたどり着いた方に重要なお知らせがあります。
+        OpenAI Soraのウェブ版・アプリ版は<strong>2026年4月26日に提供終了</strong>しています。
+        このページではSoraが何だったかを振り返りつつ、
+        今すぐ使える<strong>Sora代替の動画生成AIツール</strong>を実機比較で紹介します。
+      </p>
+    </header>
+
+    <!-- ================================================================
+         H2-1: Soraとは（振り返り）
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="what-was-sora">OpenAI Soraとは（2024〜2026年 振り返り）</h2>
+
+      <p>
+        <strong>Sora（ソラ）</strong>はOpenAIが2024年2月に発表・同年12月に一般提供を開始した
+        AI動画生成サービスです。テキストプロンプトから高品質な動画を生成する能力で業界に衝撃を与えました。
+      </p>
+
+      <h3>主な機能と特徴</h3>
+      <ul>
+        <li><strong>テキスト→動画</strong>: プロンプト入力だけで最大20秒・1080pの動画を生成</li>
+        <li><strong>画像→動画</strong>: 静止画を起点に動画を生成（image-to-video）</li>
+        <li><strong>Storyboard機能</strong>: 複数シーンを組み合わせた動画コンポーズ</li>
+        <li><strong>9種のスタイルプリセット</strong>: アニメ・映画・ドキュメンタリー等</li>
+        <li><strong>物理シミュレーション精度</strong>: 流体・光・重力の表現が他ツールより優れていた</li>
+      </ul>
+
+      <h3>料金プランと生成上限（終了前最終版）</h3>
+      <div class="info-table">
+        <table>
+          <thead>
+            <tr><th>プラン</th><th>月額</th><th>クレジット/月</th><th>最大解像度</th><th>最大秒数</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ChatGPT Plus</td>
+              <td>$20/月</td>
+              <td>1,000クレジット</td>
+              <td>720p</td>
+              <td>約5秒</td>
+            </tr>
+            <tr>
+              <td>ChatGPT Pro</td>
+              <td>$200/月</td>
+              <td>10,000クレジット</td>
+              <td>1080p</td>
+              <td>最大20秒</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="timeline-end">
+        <h3>Sora 提供開始〜終了タイムライン</h3>
+        <div class="timeline">
+          <div class="timeline__item">
+            <div class="timeline__date">2024年2月</div>
+            <div class="timeline__event">Sora 発表（プレビュー版・招待制）</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__date">2024年12月</div>
+            <div class="timeline__event">ChatGPT Plus/Pro ユーザー向けに一般提供開始</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__date">2026年1月</div>
+            <div class="timeline__event">無料プランでの動画生成を廃止。有料プランのみに移行</div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__date">2026年3月24日</div>
+            <div class="timeline__event">OpenAIがSoraの提供終了を正式発表</div>
+          </div>
+          <div class="timeline__item timeline__item--end">
+            <div class="timeline__date">2026年4月26日</div>
+            <div class="timeline__event"><strong>ウェブ版・アプリ版 サービス終了</strong></div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__date">2026年9月24日</div>
+            <div class="timeline__event">Sora API 終了予定（開発者向け）</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-2: 終了の理由
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="why-ended">Soraが終了した3つの理由</h2>
+
+      <div class="reason-cards">
+        <div class="reason-card">
+          <div class="reason-card__num">1</div>
+          <h3>コスト問題：GPU消費量が莫大</h3>
+          <p>
+            動画生成はテキスト生成の<strong>数十倍のGPU時間</strong>を消費します。
+            報道によれば、Soraの運営コストは1日あたり約1,500万ドルに達していたとされています。
+            一方でChatGPT Plus/Proの加入者が支払うSora利用分の収益はこれを大幅に下回りました。
+          </p>
+        </div>
+        <div class="reason-card">
+          <div class="reason-card__num">2</div>
+          <h3>戦略転換：フィジカルAIへの集中</h3>
+          <p>
+            OpenAIは2026年にロボット・自動運転などの<strong>フィジカルAI分野</strong>への投資を加速。
+            動画生成で培った物理シミュレーション技術をロボット制御に転用する方針を選択しました。
+            GPT・Operator・AIエージェント等コアビジネスへのリソース集中という判断です。
+          </p>
+        </div>
+        <div class="reason-card">
+          <div class="reason-card__num">3</div>
+          <h3>提携破談：Disneyとの交渉が白紙に</h3>
+          <p>
+            報道によれば、OpenAIとDisneyの<strong>10億ドル規模の提携交渉</strong>が白紙になりました。
+            エンタメ・映像制作業界での大型収益化の道が閉ざされたことが、
+            Soraの事業継続判断に影響したとされています。
+          </p>
+        </div>
+      </div>
+
+      <p>
+        <strong>OpenAI公式は終了理由を詳しく公表していません。</strong>
+        上記は複数の報道・分析記事から得られた情報です。
+        OpenAI公式の見解は公式ブログ・ヘルプセンターをご確認ください。
+        <SourceLink url="https://help.openai.com/ja-jp/articles/20001152-what-to-know-about-the-sora-discontinuation" verifiedAt="2026-05-18" label="OpenAI Sora提供終了 公式情報" />
+      </p>
+    </section>
+
+    <!-- ================================================================
+         H2-3: 代替ツール比較表
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="alternatives">今すぐ使えるSora代替ツール5選 比較表</h2>
+
+      <p>
+        Soraが終了した今、高品質な動画生成AIはむしろ<strong>選択肢が豊富</strong>です。
+        以下の5ツールは2026年5月18日時点で稼働中です。
+      </p>
+
+      <ToolComparisonTable
+        columns={columns}
+        rows={rows}
+        caption="Sora代替 動画生成AIツール5選 比較表 — 2026年5月18日確認"
+        featuredLabel="編集部おすすめ"
+        footnote="※ 全ツールSoraと比較して同等以上の品質を提供しています。料金・無料枠は2026-05-18時点。各公式サイトで最新情報をご確認ください。"
+      />
+
+      <div class="source-note">
+        <SourceLink url="https://runwayml.com/pricing" verifiedAt="2026-05-18" label="Runway 公式料金" />
+        <SourceLink url="https://klingai.com" verifiedAt="2026-05-18" label="Kling AI 公式" />
+        <SourceLink url="https://hailuoai.video" verifiedAt="2026-05-18" label="Hailuo AI 公式" />
+        <SourceLink url="https://dreamina.capcut.com" verifiedAt="2026-05-18" label="Dreamina（Seedance）公式" />
+      </div>
+    </section>
+
+    <!-- ================================================================
+         H2-4: 用途別代替ツールおすすめ
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="recommendation">用途別 Sora代替ツールおすすめ</h2>
+
+      <div class="usecase-grid">
+        <div class="usecase-card">
+          <div class="usecase-card__icon">🎬</div>
+          <h3>映像品質・映画的な動画を作りたい</h3>
+          <p><strong>Runway Gen-4.5</strong></p>
+          <p>
+            商用映像・MV・ブランド動画に最適。
+            SoraのProプラン($200/月)からRunway Standard($12/月)に乗り換えれば、
+            <strong>コストを1/16以下</strong>に抑えられます。
+          </p>
+          <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer sponsored" class="usecase-card__link">Runway公式を確認</a>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-card__icon">💰</div>
+          <h3>できるだけ無料で継続利用したい</h3>
+          <p><strong>Kling AI（毎日66クレジット）</strong></p>
+          <p>
+            Soraのようにクレジット消費制ですが、
+            KlingはChatGPT Plusを解約しなくても<strong>無料登録だけ</strong>で毎日66クレジットが付与されます。
+            ChatGPT Plus($20/月)の動画生成分と比較してコスト削減可能。
+          </p>
+          <a href="https://klingai.com" target="_blank" rel="noopener noreferrer sponsored" class="usecase-card__link">Kling AI公式を確認</a>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-card__icon">🔊</div>
+          <h3>音声・BGM付きの動画を作りたい</h3>
+          <p><strong>Google Veo 3.1</strong></p>
+          <p>
+            SoraにはなかったネイティブBGM・環境音同時生成がVeo 3.1の最大の差別化点です。
+            GeminiアプリのAI Plus（¥1,200/月〜）から利用可能。
+          </p>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-card__icon">👤</div>
+          <h3>人物・キャラクターの一貫性が必要</h3>
+          <p><strong>Seedance 2.0（Dreamina）</strong></p>
+          <p>
+            Soraより人物の顔・服装の一貫性が高いとされるByteDance製モデル。
+            毎日225クレジット付与で継続利用しやすい。
+          </p>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-card__icon">⚡</div>
+          <h3>大量生成・コスパ最優先</h3>
+          <p><strong>Hailuo 02</strong></p>
+          <p>
+            $0.28/本という驚異のコストパフォーマンス。
+            SNS素材・サムネイル動画などを大量生成する場合はHailuo 02が最安です。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         アフィCTA①（中盤）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--mid">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">Soraからの乗り換え先No.1</p>
+        <h3 class="affili-cta__title">Runway Gen-4.5 — Soraより安く・高品質を実現</h3>
+        <p class="affili-cta__desc">
+          ChatGPT Proの$200/月と比べて、Runway Standard（$12/月・年払い）は
+          コストを大幅削減しながら映像品質・編集機能でSoraを上回ります。
+          125クレジット無料お試しから始められます。
+        </p>
+        <a href="https://runwayml.com" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--primary">
+          Runway公式サイトで無料体験
+        </a>
+        <p class="affili-cta__note">※ 2026-05-18確認。最新料金は公式サイトをご確認ください。</p>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-5: 代替ツールへの移行プロンプトガイド
+         ================================================================ -->
+    <section class="article-section">
+      <h2 id="migration-prompts">Sora → 代替ツール移行プロンプトガイド</h2>
+
+      <p>
+        Soraで使っていたプロンプトをそのまま他ツールで使う際の最適化サンプルです。
+        各ツールの特性に合わせたプロンプト調整を解説します。
+      </p>
+
+      {promptSamples.map((p, i) => (
+        <PromptCard
+          index={i + 1}
+          title={p.title}
+          badPrompt={p.badPrompt}
+          explanation={p.explanation}
+          improvedPrompt={p.improvedPrompt}
+        />
+      ))}
+    </section>
+
+    <!-- ================================================================
+         アフィCTA②（後半）
+         ================================================================ -->
+    <div class="affili-cta affili-cta--bottom">
+      <div class="affili-cta__inner">
+        <p class="affili-cta__label">AI動画を本格的に学ぶ</p>
+        <h3 class="affili-cta__title">AI動画生成ツール全般を体系的に習得するなら</h3>
+        <p class="affili-cta__desc">
+          RunwayやKlingの操作から、プロンプト設計・商用コンテンツ制作まで体系的に学べます。
+          DMM WEBCAMP AIコースではAI動画生成を仕事・副業に活かすカリキュラムを提供。
+        </p>
+        <a href="https://web-camp.io/ai/" target="_blank" rel="noopener noreferrer sponsored" class="affili-cta__btn affili-cta__btn--secondary">
+          DMM WEBCAMP AIコースを確認する
+        </a>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         H2-6: FAQ
+         ================================================================ -->
+    <section class="article-section">
+      <FaqAccordion
+        items={faqItems}
+        heading="よくある質問（FAQ）— Sora・代替ツール"
+        defaultOpen={[0]}
+      />
+    </section>
+
+    <!-- ================================================================
+         関連記事・内部リンク
+         ================================================================ -->
+    <section class="article-section related-links">
+      <h2 id="related">関連記事</h2>
+      <ul class="related-links__list">
+        <li><a href="/video/">AI動画生成ツール9選比較｜完全ガイド（A001）</a></li>
+        <li><a href="/video/image-to-video/">画像から動画を生成するAIツール比較（A002）</a></li>
+        <li><a href="/video/free-no-signup/">会員登録不要で使えるAI動画生成サイト8選（A003）</a></li>
+        <li><a href="/video/sora/price/">Sora料金プラン比較（A010）</a> <span class="link-status">（準備中）</span></li>
+        <li><a href="/video/sora/commercial/">Sora商用利用ガイド（A011）</a> <span class="link-status">（準備中）</span></li>
+        <li><a href="/video/runway/howto/">Runway Gen-4.5 完全ガイド（A012）</a> <span class="link-status">（準備中）</span></li>
+      </ul>
+    </section>
+
+    <!-- 最終更新日 -->
+    <LastUpdated date={lastUpdated} verifiedAt={verifiedAt} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* 終了アラートバナー */
+  .shutdown-alert {
+    display: flex;
+    gap: 14px;
+    background: #FBEFEF;
+    border: 2px solid #E53E3E;
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin: 16px 0;
+    align-items: flex-start;
+  }
+  .shutdown-alert__icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .shutdown-alert__body { flex: 1; }
+  .shutdown-alert__body strong {
+    display: block;
+    font-size: 15px;
+    color: #C53030;
+    margin-bottom: 6px;
+  }
+  .shutdown-alert__body p {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 6px;
+    color: #742A2A;
+  }
+
+  .article-header { margin-bottom: 36px; }
+  .article-header__meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .article-header__category {
+    font-size: 12.5px;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+  }
+  .article-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    line-height: 1.4;
+    margin: 0 0 10px;
+  }
+  .article-header__subtitle {
+    font-size: 0.68em;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+  .article-summary {
+    background: var(--color-bg-section);
+    border-left: 4px solid var(--color-gold);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .article-summary ul { margin: 8px 0 0; padding-left: 1.4em; }
+  .article-summary li { margin-bottom: 4px; }
+  .article-header__intro {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+  .article-section { margin: 40px 0; }
+  .article-section h2 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 700;
+    color: var(--color-heading);
+    border-bottom: 2px solid var(--color-gold);
+    padding-bottom: 8px;
+    margin: 0 0 20px;
+    line-height: 1.4;
+  }
+  .article-section h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    margin: 24px 0 10px;
+  }
+  .article-section p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    margin: 0 0 14px;
+  }
+  .article-section ul, .article-section ol {
+    padding-left: 1.5em;
+    margin: 0 0 14px;
+  }
+  .article-section li {
+    font-size: 14.5px;
+    line-height: 1.85;
+    margin-bottom: 6px;
+  }
+
+  .info-table {
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .info-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .info-table th {
+    background: var(--color-navy);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .info-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border-light);
+    line-height: 1.7;
+  }
+  .info-table tr:nth-child(even) td { background: var(--color-bg-section); }
+
+  /* タイムライン */
+  .timeline-end { margin-top: 24px; }
+  .timeline-end h3 { margin: 0 0 12px; }
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    border-left: 2px solid var(--color-border-light);
+  }
+  .timeline__item {
+    position: relative;
+    padding: 10px 0 10px 20px;
+    font-size: 14px;
+  }
+  .timeline__item::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    border: 2px solid var(--color-bg-white);
+  }
+  .timeline__item--end::before {
+    background: #C53030;
+    width: 16px;
+    height: 16px;
+    left: -9px;
+  }
+  .timeline__date {
+    font-size: 12px;
+    color: var(--color-muted);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .timeline__event {
+    font-size: 14px;
+    color: var(--color-text);
+    line-height: 1.6;
+  }
+  .timeline__item--end .timeline__event {
+    color: #C53030;
+    font-weight: 700;
+  }
+
+  /* 理由カード */
+  .reason-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .reason-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    font-size: 13.5px;
+    position: relative;
+  }
+  .reason-card__num {
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    width: 28px;
+    height: 28px;
+    background: var(--color-navy);
+    color: var(--color-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .reason-card h3 {
+    margin: 10px 0 8px;
+    font-size: 13.5px;
+    color: var(--color-navy);
+    font-weight: 700;
+  }
+  .reason-card p {
+    margin: 0;
+    line-height: 1.75;
+    color: var(--color-text);
+  }
+
+  .source-note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  /* ユースケースグリッド */
+  .usecase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .usecase-card {
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    font-size: 13.5px;
+  }
+  .usecase-card__icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  .usecase-card h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--color-navy);
+    font-weight: 700;
+  }
+  .usecase-card p {
+    margin: 0 0 6px;
+    line-height: 1.7;
+    color: var(--color-text);
+  }
+  .usecase-card__link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: var(--color-navy);
+    color: #fff;
+    border-radius: var(--radius-xs);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .affili-cta {
+    margin: 40px 0;
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  .affili-cta--mid {
+    background: linear-gradient(135deg, var(--color-navy) 0%, #1a2a4a 100%);
+    color: #fff;
+  }
+  .affili-cta--bottom {
+    background: var(--color-gold-pale);
+    border: 2px solid var(--color-gold-light);
+  }
+  .affili-cta__label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+    opacity: 0.8;
+  }
+  .affili-cta--mid .affili-cta__label { color: var(--color-gold); }
+  .affili-cta--bottom .affili-cta__label { color: var(--color-navy); }
+  .affili-cta__title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .affili-cta--mid .affili-cta__title { color: #fff; }
+  .affili-cta--bottom .affili-cta__title { color: var(--color-navy); }
+  .affili-cta__desc {
+    font-size: 13.5px;
+    line-height: 1.8;
+    margin: 0 0 18px;
+    opacity: 0.9;
+  }
+  .affili-cta__btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+  .affili-cta__btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .affili-cta__btn--primary { background: var(--color-gold); color: var(--color-navy); }
+  .affili-cta__btn--secondary { background: var(--color-navy); color: #fff; }
+  .affili-cta__note {
+    font-size: 11px;
+    opacity: 0.6;
+    margin: 10px 0 0;
+  }
+
+  .related-links__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .related-links__list a {
+    color: var(--color-navy);
+    text-decoration: underline;
+    font-size: 14px;
+  }
+  .link-status { font-size: 11.5px; color: var(--color-muted); }
+
+  @media (max-width: 768px) {
+    .reason-cards { grid-template-columns: 1fr; }
+    .usecase-grid { grid-template-columns: 1fr; }
+    .article-header__title { font-size: 1.2rem; }
+    .affili-cta { padding: 20px 16px; }
+    .shutdown-alert { flex-direction: column; gap: 8px; }
+  }
+</style>

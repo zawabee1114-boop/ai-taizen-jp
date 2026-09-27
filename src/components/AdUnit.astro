@@ -40,6 +40,9 @@ const adsenseClient =
 
 const isDev = import.meta.env.DEV;
 
+// 2026-09-28: 広告の掲載を停止した。部品は残し、何も出さない（本文の構成は変えない）
+const ENABLED = false;
+
 // rectangle 指定時は固定サイズ（336x280: 大型四角形・本文末尾向け）
 const inlineStyle =
   format === 'rectangle'
@@ -47,6 +50,7 @@ const inlineStyle =
     : 'display:block;';
 ---
 
+{ENABLED && (
 <aside
   class="ad-unit"
   role="complementary"
@@ -89,6 +93,7 @@ const inlineStyle =
     </>
   )}
 </aside>
+)}
 
 <style>
   .ad-unit {

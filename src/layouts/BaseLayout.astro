@@ -118,20 +118,14 @@ if (jsonLd) {
   <!-- Sitemap -->
   <link rel="sitemap" href="/sitemap-index.xml" />
 
-  <!-- Google tag (gtag.js) - GA4 -->
-  <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-E8E08VV148"></script>
-  <script is:inline>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-E8E08VV148');
-  </script>
-
-  <!-- Google AdSense -->
-  <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3827953973757487" crossorigin="anonymous"></script>
+  <!--
+    2026-09-28: 広告（AdSense）と GA4 を外した。更新を止めたサイトなので広告は出さない。
+    GA4 は template-free.jp と同じ測定IDで、テンプレの数字に混ざっていた（専用プロパティは作らない）。
+  -->
 </head>
 <body>
   <Header />
+  <p class="stale-notice" role="note" style="margin:0;padding:0.6rem 1rem;background:#fff8e1;border-bottom:1px solid #e6d9a8;font-size:0.9rem;text-align:center;">このサイトの情報は2026年5月時点のもので、更新を停止しています。AIサービスは内容や提供状況が変わりやすいため、最新の情報は各サービスの公式サイトでご確認ください。</p>
   <slot />
   {showEditorialMeta && <EditorialMeta />}
   <Footer />

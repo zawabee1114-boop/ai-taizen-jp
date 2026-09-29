@@ -12,8 +12,13 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertLocalTarget } from './lib/assert-local-target.mjs';
+import { blockAdRequests } from './lib/block-ad-requests.mjs';
 
 const BASE = process.env.BASE_URL || 'http://localhost:4323';
+// 本番・*.pages.dev を自動ブラウザで開かない門（AdSense 無効トラフィック対策・2026-09-29）。
+// ブラウザ起動より前に通す。
+assertLocalTarget(BASE);
 const OUT = path.resolve('./audit-screenshots');
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -94,6 +99,7 @@ const issues = [];
         ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
         : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
     });
+    const blocked = await blockAdRequests(ctx, { origin: new URL(BASE).origin });
     const page = await ctx.newPage();
 
     page.on('pageerror', (err) => {
@@ -177,6 +183,7 @@ const issues = [];
         issues.push({ vp: vp.name, page: p.name, type: 'navigation-error', msg: String(e.message || e) });
       }
     }
+    console.log(`  [${vp.name}] ${blocked.summary()}`);
     await ctx.close();
   }
   await browser.close();

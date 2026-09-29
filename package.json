@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "qa": "node scripts/qa-static.mjs"
+    "qa": "node scripts/qa-static.mjs && npm run check:browser-guard",
+    "check:browser-guard": "node scripts/check-browser-scripts-guarded.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
